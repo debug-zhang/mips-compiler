@@ -1,0 +1,81 @@
+const char a = 'a';
+const char bb = '+';
+const char C = 'C';
+const char eEe = '*';
+const char ff = '0';
+const char aA = 'a', aa1 = '-', _aaa = 'b';
+const char _aA = 'a', QAaa1 = '-', _aAaa = 'b';
+
+char o;
+char p, q;
+
+char _scanf_(char g)
+{
+	scanf(g);
+	return (g);
+}
+
+void _printf_1()
+{
+	const char m = 'a';
+	if (m != 'b') {
+		printf("Hello World\n");
+		printf(+1);
+		printf(-1);
+	}
+	else{
+		
+	}
+}
+
+void _printf_2(char p)
+{
+	printf(p);
+	printf("Hello World\n", p);
+}
+
+void _printf_3(int p)
+{
+	printf(p);
+}
+
+int one()
+{
+	return (1);
+}
+
+int _a_()
+{
+	return (2 - 3);
+}
+
+void main()
+{
+	char g;
+	char hh, j_, K;
+	char l[2];
+	char m[10], n[11];
+	
+	scanf(p,q);
+	
+	g = _scanf_(g);
+	_printf_1();
+	_printf_2(a);
+	_printf_2(_scanf_(g));
+	_printf_3(_a_());
+	
+	g = 'a';
+	hh = '+';
+	j_ = '_';
+	K = 'C';
+	l[one()-1] = '3';
+	l[one()] = '5';
+	m[0] = '*';
+	n[1] = 'b';
+	
+	while(one()) {
+		return;
+	}
+	
+    return;
+}

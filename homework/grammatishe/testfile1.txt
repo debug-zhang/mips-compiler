@@ -1,0 +1,76 @@
+const int a = 1;
+const int b_ = +1;
+const int C = -1;
+const int dd = 0;
+const int eEe = 10;
+const int f = -10;
+const int aA = 2, aa1 = -3, _aaa = +4;
+const int _aA = 2, Aaa1 = -3, _aAaAa = +4;
+
+int o;
+int p, q;
+
+void main()
+{
+	int g;
+	int hh, j_, K;
+	int l[2];
+	int m[10], n[11];
+	
+	g = 1;
+	hh = +10;
+	j_ = -11 + 10 - 2 + 3;
+	K = 0 - 5;
+	l[0] = 1;
+	l[g] = +10;
+	m[0] = -11 + 10 - 2 + 3;
+	m[0+g] = 10 * 5;
+	m[g+g] = g * hh;
+	m[3] = g / hh * 4 + 5;
+	m[4] = - g * 4 - 3 * 2;
+	
+	if ( g == 1)
+		g = 10;
+	if ( g < 1) {
+		g = 10;
+	} else if (g) {
+		g = 11;
+		printf("Hello");
+	}
+	if ( g == 1) {
+		g = 10;
+	} else if ( g == 10) {
+		g = 11;
+	} else {
+		g = 12;
+	}
+	
+	while ( g > 5 ) {
+		g = g - 1;
+	}
+	
+	for ( g = 1; g <= 5; g = g + 1) {
+		if ( g == 0)
+			g = 10;
+		else if ( g == 10)
+			g = 11;
+		else {
+			g = g + 1;
+		}
+		g = g + 1;
+	}
+	
+	do {
+		while ( g >= 3 ) {
+			g = g - 1;
+		}
+		g = g - 1;
+	} while ( g > 1);
+	
+	do {
+		printf("Hello");
+	} while ( g == 1);
+		
+	
+    return;
+}

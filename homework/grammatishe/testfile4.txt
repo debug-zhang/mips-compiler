@@ -1,0 +1,30 @@
+void move(int n,char from,char to)
+{
+    printf(to);
+}
+
+void hanoi(int n,char from,char via,char to)
+{
+    if(n==1)
+    {
+        move(n,from,to);
+        return;
+    }
+    hanoi(n-1,from,to,via);
+    move(n,from,to);
+    hanoi(n-1,via,from,to);
+}
+
+void main()
+{
+	const char a = 'A';
+	const char b = 'B', c = 'C';
+    int n;
+	scanf(n);
+    while(n==1)
+    {
+        hanoi(n,a,b,c);
+        printf("\n");
+    }
+    return;
+}
