@@ -1,4 +1,4 @@
-﻿#include "lexer_analyser.h"
+﻿#include "lexical_analyser.h"
 
 
 const string key[] = { "const", "int",   "char", "void",  "main",   "if",    "else",
@@ -23,11 +23,11 @@ const int keyLength = 13;
 const int symbolLength = 19;
 const int operaLength = 16;
 
-LexerAnalyserAnalyser::LexerAnalyser() {
+LexicalAnalyser::LexicalAnalyser() {
 	this->tempLexeme = new Lexeme();
 }
 
-bool LexerAnalyser::IsLetter(char c) {
+bool LexicalAnalyser::IsLetter(char c) {
 	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
 		return true;
 	} else {
@@ -35,7 +35,7 @@ bool LexerAnalyser::IsLetter(char c) {
 	}
 }
 
-bool LexerAnalyser::IsDigit(char c) {
+bool LexicalAnalyser::IsDigit(char c) {
 	if (c >= '0' && c <= '9') {
 		return true;
 	} else {
@@ -43,7 +43,7 @@ bool LexerAnalyser::IsDigit(char c) {
 	}
 }
 
-bool LexerAnalyser::IsUnder(char c) {
+bool LexicalAnalyser::IsUnder(char c) {
 	if (c == '_') {
 		return true;
 	} else {
@@ -51,7 +51,7 @@ bool LexerAnalyser::IsUnder(char c) {
 	}
 }
 
-bool LexerAnalyser::IsEqu(char c) {
+bool LexicalAnalyser::IsEqu(char c) {
 	if (c == '=') {
 		return true;
 	} else {
@@ -59,7 +59,7 @@ bool LexerAnalyser::IsEqu(char c) {
 	}
 }
 
-bool LexerAnalyser::IsSingleQuote(char c) {
+bool LexicalAnalyser::IsSingleQuote(char c) {
 	if (c == '\'') {
 		return true;
 	} else {
@@ -67,7 +67,7 @@ bool LexerAnalyser::IsSingleQuote(char c) {
 	}
 }
 
-bool LexerAnalyser::IsDoubleQuote(char c) {
+bool LexicalAnalyser::IsDoubleQuote(char c) {
 	if (c == '"') {
 		return true;
 	} else {
@@ -75,7 +75,7 @@ bool LexerAnalyser::IsDoubleQuote(char c) {
 	}
 }
 
-bool LexerAnalyser::IsOpera(char c) {
+bool LexicalAnalyser::IsOpera(char c) {
 	for (int i = 0; i < operaLength; i++) {
 		if (c == opera[i]) {
 			return true;
@@ -84,7 +84,7 @@ bool LexerAnalyser::IsOpera(char c) {
 	return false;
 }
 
-bool LexerAnalyser::IsOther(char c) {
+bool LexicalAnalyser::IsOther(char c) {
 	if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
 		return true;
 	} else {
@@ -92,7 +92,7 @@ bool LexerAnalyser::IsOther(char c) {
 	}
 }
 
-int LexerAnalyser::CheckKey(struct Lexeme temp) {
+int LexicalAnalyser::CheckKey(struct Lexeme temp) {
 	for (int i = 0; i < keyLength; i++) {
 		if (!temp.value.compare(key[i])) {
 			return i;
@@ -101,7 +101,7 @@ int LexerAnalyser::CheckKey(struct Lexeme temp) {
 	return -1;
 }
 
-int LexerAnalyser::CheckSymbol(struct Lexeme temp) {
+int LexicalAnalyser::CheckSymbol(struct Lexeme temp) {
 	for (int i = 0; i < symbolLength; i++) {
 		if (!temp.value.compare(symbol[i])) {
 			return i;
@@ -110,18 +110,18 @@ int LexerAnalyser::CheckSymbol(struct Lexeme temp) {
 	return -1;
 }
 
-void LexerAnalyser::DelOther(char& c, ifstream& testfile) {
+void LexicalAnalyser::DelOther(char& c, ifstream& testfile) {
 	while (IsOther(c)) {
 		c = testfile.get();
 	}
 }
 
-void LexerAnalyser::AddList(struct Lexeme temp, string identifier) {
+void LexicalAnalyser::AddList(struct Lexeme temp, string identifier) {
 	temp.identifier = identifier;
 	lexList.push_back(temp);
 }
 
-int LexerAnalyser::AnalyzeKey(char& c, ifstream& testfile) {
+int LexicalAnalyser::AnalyzeKey(char& c, ifstream& testfile) {
 	if (IsLetter(c) || IsUnder(c)) {
 		tempLexeme = new Lexeme;
 		do {
@@ -144,7 +144,7 @@ int LexerAnalyser::AnalyzeKey(char& c, ifstream& testfile) {
 	return 0;
 }
 
-int LexerAnalyser::AnalyzeQuote(char& c, ifstream& testfile) {
+int LexicalAnalyser::AnalyzeQuote(char& c, ifstream& testfile) {
 	if (IsSingleQuote(c)) {
 		tempLexeme = new Lexeme;
 		c = testfile.get();
@@ -164,7 +164,7 @@ int LexerAnalyser::AnalyzeQuote(char& c, ifstream& testfile) {
 	return 0;
 }
 
-int LexerAnalyser::AnalyzeOpera(char& c, ifstream& testfile) {
+int LexicalAnalyser::AnalyzeOpera(char& c, ifstream& testfile) {
 	if (IsOpera(c)) {
 		tempLexeme = new Lexeme;
 		tempLexeme->value.push_back(c);
@@ -191,7 +191,7 @@ int LexerAnalyser::AnalyzeOpera(char& c, ifstream& testfile) {
 	return 0;
 }
 
-int LexerAnalyser::AnalyzeDigit(char& c, ifstream& testfile) {
+int LexicalAnalyser::AnalyzeDigit(char& c, ifstream& testfile) {
 	if (IsDigit(c)) {
 		tempLexeme = new Lexeme;
 		do {
@@ -206,7 +206,7 @@ int LexerAnalyser::AnalyzeDigit(char& c, ifstream& testfile) {
 	return 0;
 }
 
-list<struct Lexeme> LexerAnalyser::Analyze(ifstream& testfile) {
+list<struct Lexeme> LexicalAnalyser::Analyze(ifstream& testfile) {
 	char c;
 
 	while ((c = testfile.get()) != -1) {

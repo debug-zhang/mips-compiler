@@ -4,7 +4,7 @@
 #include <list>
 #include <map>
 #include <string>
-#include "lexer.h"
+#include "lexer_analyser.h"
 #include "syntax_node.h"
 
 using namespace std;

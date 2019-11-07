@@ -4,7 +4,7 @@
 #include <list>
 #include <map>
 #include <string>
-#include "lexer.h"
+#include "lexer_analyser.h"
 #include "syntax_node.h"
 
 using namespace std;
@@ -40,7 +40,7 @@ const string SCANF_SENTENCE = "<读语句>";
 const string PRINTF_SENTENCE = "<写语句>";
 const string RETURN_SENTENCE = "<返回语句>";
 
-class ParserAnalyser {
+class ParseAnalyser {
 private:
 	map<string, string> symbolMap;
 	list<struct Lexeme>::iterator iter;
@@ -90,7 +90,7 @@ private:
 	void BuildSyntaxTree(SyntaxNode* root);
 
 public:
-	ParserAnalyser(list<struct Lexeme>::iterator& iter, list<struct Lexeme>::iterator& iterEnd);
+	ParseAnalyser(list<struct Lexeme>::iterator& iter, list<struct Lexeme>::iterator& iterEnd);
 	void AnalyzeParse(ofstream& output);
 };
 

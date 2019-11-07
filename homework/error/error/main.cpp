@@ -1,19 +1,19 @@
-﻿#include "lexer.h"
-#include "parser.h"
+﻿#include "lexical_analyser.h"
+#include "parse_analyser.h"
 using namespace std;
 
 int main() {
 	ifstream testfile("testfile.txt");
 	ofstream output("output.txt");
 
-	Lexer* lexer = new Lexer();
-	list<struct Lexeme> lexList = lexer->Analyze(testfile);
+	LexicalAnalyser* lexicalAnalyser = new LexicalAnalyser();
+	list<struct Lexeme> lexList = lexicalAnalyser->Analyze(testfile);
 
 	list<struct Lexeme>::iterator iter = lexList.begin();
 	list<struct Lexeme>::iterator iterEnd = lexList.end();
 
-	Parser* parser = new Parser(iter, iterEnd);
-	parser->AnalyzeParse(output);
+	ParseAnalyser* parseAnalyser = new ParseAnalyser(iter, iterEnd);
+	parseAnalyser->AnalyzeParse(output);
 
 	testfile.close();
 	output.close();

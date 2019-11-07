@@ -1,11 +1,11 @@
-﻿#include "parser.h"
+﻿#include "parse_analyser.h"
 
-ParserAnalyser::ParserAnalyser(list<struct Lexeme>::iterator& iter, list<struct Lexeme>::iterator& iterEnd) {
+ParseAnalyser::ParseAnalyser(list<struct Lexeme>::iterator& iter, list<struct Lexeme>::iterator& iterEnd) {
 	this->iter = iter;
 	this->iterEnd = iterEnd;
 }
 
-void ParserAnalyser::CountIterator(int step) {
+void ParseAnalyser::CountIterator(int step) {
 	if (step > 0) {
 		while (step--) {
 			iter++;
@@ -17,44 +17,44 @@ void ParserAnalyser::CountIterator(int step) {
 	}
 }
 
-void ParserAnalyser::AddSymbol(string define) {
+void ParseAnalyser::AddSymbol(string define) {
 	symbolMap.insert({ iter->value, define });
 }
 
-string ParserAnalyser::FindSymbol() {
+string ParseAnalyser::FindSymbol() {
 	return symbolMap.find(iter->value)->second;
 }
 
-bool ParserAnalyser::IsThisIdentifier(string identifier) {
+bool ParseAnalyser::IsThisIdentifier(string identifier) {
 	return iter->identifier == identifier;
 }
 
-bool ParserAnalyser::IsPlusOrMinu() {
+bool ParseAnalyser::IsPlusOrMinu() {
 	return IsThisIdentifier(PLUS) || IsThisIdentifier(MINU);
 }
 
-bool ParserAnalyser::IsMultOrDiv() {
+bool ParseAnalyser::IsMultOrDiv() {
 	return IsThisIdentifier(MULT) || IsThisIdentifier(DIV);
 }
 
-void ParserAnalyser::AddChild(SyntaxNode* node) {
+void ParseAnalyser::AddChild(SyntaxNode* node) {
 	node->addChild(new SyntaxNode(iter->identifier, iter->value));
 	CountIterator(+1);
 }
 
-void ParserAnalyser::AddCommaChild(SyntaxNode* node) {
+void ParseAnalyser::AddCommaChild(SyntaxNode* node) {
 	if (IsThisIdentifier(COMMA)) {
 		AddChild(node);
 	}
 }
 
-SyntaxNode* ParserAnalyser::AddSyntaxChild(string syntaxName, SyntaxNode* node) {
+SyntaxNode* ParseAnalyser::AddSyntaxChild(string syntaxName, SyntaxNode* node) {
 	SyntaxNode* subRoot = new SyntaxNode(syntaxName);
 	node->addChild(subRoot);
 	return subRoot;
 }
 
-void ParserAnalyser::AnalyzeInteger(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeInteger(SyntaxNode* node) {
 	if (IsPlusOrMinu()) {
 		AddChild(node);
 	}
@@ -62,7 +62,7 @@ void ParserAnalyser::AnalyzeInteger(SyntaxNode* node) {
 	AddChild(AddSyntaxChild(UNSIGNINT, node));		// INTCON
 }
 
-void ParserAnalyser::AnalyzeConstDefine(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeConstDefine(SyntaxNode* node) {
 	AddChild(node);	// INTTK or CHARTK
 	while (IsThisIdentifier(IDENFR)) {
 		AddSymbol(CONST_DEFINE);
@@ -77,7 +77,7 @@ void ParserAnalyser::AnalyzeConstDefine(SyntaxNode* node) {
 	}
 }
 
-void ParserAnalyser::AnalyzeConstDeclare(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeConstDeclare(SyntaxNode* node) {
 	while (IsThisIdentifier(CONSTTK)) {
 		AddChild(node);	// CONSTTK
 		AnalyzeConstDefine(AddSyntaxChild(CONST_DEFINE, node));
@@ -85,7 +85,7 @@ void ParserAnalyser::AnalyzeConstDeclare(SyntaxNode* node) {
 	}
 }
 
-void ParserAnalyser::AnalyzeVariableDefine(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeVariableDefine(SyntaxNode* node) {
 	AddChild(node);	// INTTK or CHARTK
 	while (IsThisIdentifier(IDENFR)) {
 		AddSymbol(VARIABLE_DEFINE);
@@ -99,7 +99,7 @@ void ParserAnalyser::AnalyzeVariableDefine(SyntaxNode* node) {
 	}
 }
 
-bool ParserAnalyser::isVariableDefine() {
+bool ParseAnalyser::isVariableDefine() {
 	if (IsThisIdentifier(INTTK) || IsThisIdentifier(CHARTK)) {
 		CountIterator(+2);
 		if (IsThisIdentifier(LPARENT)) {
@@ -114,14 +114,14 @@ bool ParserAnalyser::isVariableDefine() {
 	}
 }
 
-void ParserAnalyser::AnalyzeVariableDeclare(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeVariableDeclare(SyntaxNode* node) {
 	while (isVariableDefine()) {
 		AnalyzeVariableDefine(AddSyntaxChild(VARIABLE_DEFINE, node));
 		AddChild(node);	// SEMICN
 	}
 }
 
-void ParserAnalyser::AnalyzeValuePrameterTable(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeValuePrameterTable(SyntaxNode* node) {
 	while (!IsThisIdentifier(RPARENT)) {
 		AnalyzeExpression(AddSyntaxChild(EXPRESSION, node));
 		while (IsThisIdentifier(COMMA)) {
@@ -131,18 +131,18 @@ void ParserAnalyser::AnalyzeValuePrameterTable(SyntaxNode* node) {
 	}
 }
 
-void ParserAnalyser::AnalyzeReturnCallSentence(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeReturnCallSentence(SyntaxNode* node) {
 	AddChild(node);	// IDENFR
 	AddChild(node);	// LPARENT
 	AnalyzeValuePrameterTable(AddSyntaxChild(VALUE_PARAMETER_TABLE, node));
 	AddChild(node);	// RPARENT
 }
 
-void ParserAnalyser::AnalyzeNoReturnCallSentence(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeNoReturnCallSentence(SyntaxNode* node) {
 	AnalyzeReturnCallSentence(node);
 }
 
-void ParserAnalyser::AnalyzeFactor(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeFactor(SyntaxNode* node) {
 	if (IsThisIdentifier(IDENFR)) {
 		if (FindSymbol() == RETURN_FUNCTION) {
 			AnalyzeReturnCallSentence(AddSyntaxChild(RETURN_CALL_SENTENCE, node));
@@ -165,7 +165,7 @@ void ParserAnalyser::AnalyzeFactor(SyntaxNode* node) {
 	}
 }
 
-void ParserAnalyser::AnalyzeItem(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeItem(SyntaxNode* node) {
 	AnalyzeFactor(AddSyntaxChild(FACTOR, node));
 	while (IsMultOrDiv()) {
 		AddChild(node);
@@ -173,7 +173,7 @@ void ParserAnalyser::AnalyzeItem(SyntaxNode* node) {
 	}
 }
 
-void ParserAnalyser::AnalyzeExpression(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeExpression(SyntaxNode* node) {
 	if (IsPlusOrMinu()) {
 		AddChild(node);	// PLUS or MINU
 	}
@@ -184,7 +184,7 @@ void ParserAnalyser::AnalyzeExpression(SyntaxNode* node) {
 	}
 }
 
-void ParserAnalyser::AnalyzeCondition(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeCondition(SyntaxNode* node) {
 	AnalyzeExpression(AddSyntaxChild(EXPRESSION, node));
 	if (IsThisIdentifier(LSS)
 		|| IsThisIdentifier(LEQ)
@@ -197,7 +197,7 @@ void ParserAnalyser::AnalyzeCondition(SyntaxNode* node) {
 	}
 }
 
-void ParserAnalyser::AnalyzeIfSentence(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeIfSentence(SyntaxNode* node) {
 	AddChild(node);	// IFTK
 	AddChild(node);	// LPARENT
 	AnalyzeCondition(AddSyntaxChild(CONDITION, node));
@@ -209,11 +209,11 @@ void ParserAnalyser::AnalyzeIfSentence(SyntaxNode* node) {
 	}
 }
 
-void ParserAnalyser::AnalyzeStep(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeStep(SyntaxNode* node) {
 	AddChild(AddSyntaxChild(UNSIGNINT, node));	// INTCON
 }
 
-void ParserAnalyser::AnalyzeLoopSentence(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeLoopSentence(SyntaxNode* node) {
 	if (IsThisIdentifier(WHILETK)) {
 		AddChild(node);	// WHILETK
 		AddChild(node);	// LPARENT
@@ -246,7 +246,7 @@ void ParserAnalyser::AnalyzeLoopSentence(SyntaxNode* node) {
 	}
 }
 
-void ParserAnalyser::AnalyzeAssignSentence(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeAssignSentence(SyntaxNode* node) {
 	AddChild(node);	// IDENFR
 	if (IsThisIdentifier(LBRACK)) {
 		AddChild(node);	// LBRACK
@@ -257,7 +257,7 @@ void ParserAnalyser::AnalyzeAssignSentence(SyntaxNode* node) {
 	AnalyzeExpression(AddSyntaxChild(EXPRESSION, node));
 }
 
-void ParserAnalyser::AnalyzeScanfSentence(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeScanfSentence(SyntaxNode* node) {
 	AddChild(node);	// SCANFTK
 	AddChild(node);	// LPARENT
 
@@ -270,7 +270,7 @@ void ParserAnalyser::AnalyzeScanfSentence(SyntaxNode* node) {
 	AddChild(node);	// RPARENT
 }
 
-void ParserAnalyser::AnalyzePrintfSentence(SyntaxNode* node) {
+void ParseAnalyser::AnalyzePrintfSentence(SyntaxNode* node) {
 	AddChild(node);	// PRINTFTK
 	AddChild(node);	// LPARENT
 
@@ -287,7 +287,7 @@ void ParserAnalyser::AnalyzePrintfSentence(SyntaxNode* node) {
 	AddChild(node);	// RPARENT
 }
 
-void ParserAnalyser::AnalyzeReturnSentence(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeReturnSentence(SyntaxNode* node) {
 	AddChild(node);	// RETURNTK
 	if (IsThisIdentifier(LPARENT)) {
 		AddChild(node);	// LPARENT
@@ -296,7 +296,7 @@ void ParserAnalyser::AnalyzeReturnSentence(SyntaxNode* node) {
 	}
 }
 
-void ParserAnalyser::AnalyzeSentence(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeSentence(SyntaxNode* node) {
 	if (IsThisIdentifier(IFTK)) {
 		AnalyzeIfSentence(AddSyntaxChild(IF_SENTENCE, node));
 	} else if (IsThisIdentifier(WHILETK)
@@ -332,13 +332,13 @@ void ParserAnalyser::AnalyzeSentence(SyntaxNode* node) {
 	}
 }
 
-void ParserAnalyser::AnalyzeSentenceCollection(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeSentenceCollection(SyntaxNode* node) {
 	while (!IsThisIdentifier(RBRACE)) {
 		AnalyzeSentence(AddSyntaxChild(SENTENCE, node));
 	}
 }
 
-void ParserAnalyser::AnalyzeCompositeSentence(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeCompositeSentence(SyntaxNode* node) {
 	if (IsThisIdentifier(CONSTTK)) {
 		AnalyzeConstDeclare(AddSyntaxChild(CONST_DECLARE, node));
 	}
@@ -348,7 +348,7 @@ void ParserAnalyser::AnalyzeCompositeSentence(SyntaxNode* node) {
 	AnalyzeSentenceCollection(AddSyntaxChild(SENTENCE_COLLECTION, node));
 }
 
-void ParserAnalyser::AnalyzeMain(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeMain(SyntaxNode* node) {
 	AddChild(node);	// VOIDTK
 	AddChild(node);	// MAINTK
 	AddChild(node);	// LPARENT
@@ -360,7 +360,7 @@ void ParserAnalyser::AnalyzeMain(SyntaxNode* node) {
 	AddChild(node);	// RBRACE
 }
 
-void ParserAnalyser::AnalyzeParameterTable(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeParameterTable(SyntaxNode* node) {
 	while (IsThisIdentifier(INTTK) || IsThisIdentifier(CHARTK)) {
 		AddChild(node);	// INTTK or CHARTK
 		AddSymbol(VARIABLE_DEFINE);
@@ -369,7 +369,7 @@ void ParserAnalyser::AnalyzeParameterTable(SyntaxNode* node) {
 	}
 }
 
-void ParserAnalyser::AnalyzeVoidFunc(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeVoidFunc(SyntaxNode* node) {
 	AddChild(node);	// VOIDTK
 	AddSymbol(NO_RETURN_FUNCTION);
 	AddChild(node);	// IDENFR
@@ -381,13 +381,13 @@ void ParserAnalyser::AnalyzeVoidFunc(SyntaxNode* node) {
 	AddChild(node);	// RBRACE
 }
 
-void ParserAnalyser::AnalyzeHeadState(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeHeadState(SyntaxNode* node) {
 	AddChild(node);	// INTTK or CHARTK
 	AddSymbol(RETURN_FUNCTION);
 	AddChild(node);	// IDENFR
 }
 
-void ParserAnalyser::AnalyzeFunc(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeFunc(SyntaxNode* node) {
 	AnalyzeHeadState(AddSyntaxChild(HEAD_STATE, node));
 	AddChild(node);	// LPARENT
 	AnalyzeParameterTable(AddSyntaxChild(PARAMETER_TABLE, node));
@@ -397,7 +397,7 @@ void ParserAnalyser::AnalyzeFunc(SyntaxNode* node) {
 	AddChild(node);	// RBRACE
 }
 
-void ParserAnalyser::BuildSyntaxTree(SyntaxNode* root) {
+void ParseAnalyser::BuildSyntaxTree(SyntaxNode* root) {
 	string flag = CONST_DECLARE;
 
 	while (iter != iterEnd) {
@@ -435,7 +435,7 @@ void ParserAnalyser::BuildSyntaxTree(SyntaxNode* root) {
 
 }
 
-void ParserAnalyser::AnalyzeParse(ofstream& output) {
+void ParseAnalyser::AnalyzeParse(ofstream& output) {
 	SyntaxNode* root = new SyntaxNode(PROGRAM);
 	BuildSyntaxTree(root);
 	root->print(output);

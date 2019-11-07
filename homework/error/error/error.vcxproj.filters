@@ -15,27 +15,39 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="lexer.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="parser.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="syntax_node.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="symbol_table.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="error_handing.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="lexical_analyser.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="parse_analyser.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="lexer.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="parser.cpp">
+    <ClCompile Include="syntax_node.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="syntax_node.cpp">
+    <ClCompile Include="symbol_table.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="lexer_analyser.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="error_handing.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="parse_analyser.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

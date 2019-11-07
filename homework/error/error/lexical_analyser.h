@@ -3,6 +3,7 @@
 #include <fstream>
 #include <list>
 #include <string>
+#include "error_handing.h"
 
 using namespace std;
 
@@ -54,7 +55,7 @@ struct Lexeme {
 	}
 };
 
-class Lexer {
+class LexicalAnalyser {
 private:
 	struct Lexeme* tempLexeme;
 	list<struct Lexeme> lexList;
@@ -80,7 +81,7 @@ private:
 	int AnalyzeDigit(char& c, ifstream& testfile);
 
 public:
-	Lexer();
+	LexicalAnalyser();
 	list<struct Lexeme> Analyze(ifstream& testfile);
 };
 
