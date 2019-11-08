@@ -125,6 +125,8 @@
   <ItemGroup>
     <ClInclude Include="error.h" />
     <ClInclude Include="error_handing.h" />
+    <ClInclude Include="function.h" />
+    <ClInclude Include="identifier.h" />
     <ClInclude Include="lexical_analyser.h" />
     <ClInclude Include="parse_analyser.h" />
     <ClInclude Include="symbol_table.h" />
@@ -133,6 +135,8 @@
   <ItemGroup>
     <ClCompile Include="error.cpp" />
     <ClCompile Include="error_handing.cpp" />
+    <ClCompile Include="function.cpp" />
+    <ClCompile Include="identifier.cpp" />
     <ClCompile Include="lexical_analyser.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="parse_analyser.cpp" />

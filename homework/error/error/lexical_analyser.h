@@ -47,10 +47,8 @@ const string RBRACE		= "RBRACE";
 struct Lexeme {
 	string identifier;
 	string value;
-	int lineNumber;
 	bool isError;
 	Lexeme() {
-		lineNumber = 0;
 		isError = false;
 	}
 };

@@ -19,7 +19,7 @@ void ParseAnalyser::CountIterator(int step) {
 }
 
 void ParseAnalyser::AddSymbol(string define) {
-	symbolMap.insert({ iter->value, define });
+	symbolMap.insert(pair<string,string>(iter->value, define));
 }
 
 string ParseAnalyser::FindSymbol() {
