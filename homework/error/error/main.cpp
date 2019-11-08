@@ -1,30 +1,25 @@
 ﻿#include "lexical_analyser.h"
 #include "parse_analyser.h"
 #include "error_handing.h"
+#include <iostream>
 
 using namespace std;
 
 int main() {
-	ifstream testfile("testfile.txt");
-	ofstream output("output.txt");
-	ofstream errorfile("error.txt");
 
-	ErrorHanding* errorHanding = new ErrorHanding();
+	ErrorHanding* errorHanding = new ErrorHanding("error.txt");
 
-	LexicalAnalyser* lexicalAnalyser = new LexicalAnalyser(errorHanding);
-	list<struct Lexeme> lexList = lexicalAnalyser->Analyze(testfile);
+	LexicalAnalyser* lexicalAnalyser = new LexicalAnalyser("testfile.txt", errorHanding);
+	list<struct Lexeme>* lexList = lexicalAnalyser->Analyze();
 
-	list<struct Lexeme>::iterator iter = lexList.begin();
-	list<struct Lexeme>::iterator iterEnd = lexList.end();
+	ParseAnalyser* parseAnalyser = new ParseAnalyser("output.txt", lexicalAnalyser->Analyze(), errorHanding);
+	parseAnalyser->AnalyzeParse();
 
-	ParseAnalyser* parseAnalyser = new ParseAnalyser(iter, iterEnd, errorHanding);
-	//parseAnalyser->AnalyzeParse(output);
-
-	errorHanding->PrintError(errorfile);
-
-	testfile.close();
-	output.close();
-	errorfile.close();
+	errorHanding->PrintError();
+	
+	lexicalAnalyser->FileClose();
+	parseAnalyser->FileClose();
+	errorHanding->FileClose();
 
 	return 0;
 }

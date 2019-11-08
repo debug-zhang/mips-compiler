@@ -1,8 +1,9 @@
 ﻿#include "parse_analyser.h"
 
-ParseAnalyser::ParseAnalyser(list<struct Lexeme>::iterator& iter, list<struct Lexeme>::iterator& iterEnd, ErrorHanding* errorHanding) {
-	this->iter = iter;
-	this->iterEnd = iterEnd;
+ParseAnalyser::ParseAnalyser(string fileName, list<struct Lexeme>* lexList, ErrorHanding* errorHanding) {
+	this->output.open(fileName);
+	this->iter = lexList->begin();
+	this->iterEnd = lexList->end();
 	this->errorHanding = errorHanding;
 }
 
@@ -436,8 +437,12 @@ void ParseAnalyser::BuildSyntaxTree(SyntaxNode* root) {
 
 }
 
-void ParseAnalyser::AnalyzeParse(ofstream& output) {
+void ParseAnalyser::AnalyzeParse() {
 	SyntaxNode* root = new SyntaxNode(PROGRAM);
 	BuildSyntaxTree(root);
 	root->print(output);
+}
+
+void ParseAnalyser::FileClose() {
+	output.close();
 }

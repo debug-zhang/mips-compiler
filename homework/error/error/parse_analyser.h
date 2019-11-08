@@ -43,6 +43,7 @@ const string RETURN_SENTENCE = "<返回语句>";
 
 class ParseAnalyser {
 private:
+	ofstream output;
 	map<string, string> symbolMap;
 	list<struct Lexeme>::iterator iter;
 	list<struct Lexeme>::iterator iterEnd;
@@ -92,7 +93,8 @@ private:
 	void BuildSyntaxTree(SyntaxNode* root);
 
 public:
-	ParseAnalyser(list<struct Lexeme>::iterator& iter, list<struct Lexeme>::iterator& iterEnd, ErrorHanding* errorHanding);
-	void AnalyzeParse(ofstream& output);
+	ParseAnalyser(string fileName, list<struct Lexeme>* lexList, ErrorHanding* errorHanding);
+	void AnalyzeParse();
+	void FileClose();
 };
 

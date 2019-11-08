@@ -2,11 +2,13 @@
 
 #include <fstream>
 #include <list>
+#include <map>
 #include <string>
 #include "error_handing.h"
 
 using namespace std;
 
+const string ILLEGAL	= "ILLEGAL";
 const string IDENFR		= "IDENFR";
 const string INTCON		= "INTCON";
 const string CHARCON	= "CHARCON";
@@ -48,39 +50,49 @@ struct Lexeme {
 	string identifier;
 	string value;
 	bool isError;
+	int lineNumber;
 	Lexeme() {
-		isError = false;
+		identifier = ILLEGAL;
+		isError = true;
+		lineNumber = 0;
 	}
 };
 
 class LexicalAnalyser {
 private:
+	ifstream testfile;
 	struct Lexeme* tempLexeme;
 	list<struct Lexeme> lexList;
 	ErrorHanding* errorHanding;
+	int lineNumber;
+	map<string, string> keyMap;
+	map<string, string> operaMap;
 
-	bool IsLetter(char c);
-	bool IsDigit(char c);
 	bool IsUnder(char c);
 	bool IsEqu(char c);
 	bool IsSingleQuote(char c);
 	bool IsDoubleQuote(char c);
 	bool IsOpera(char c);
-	bool IsOther(char c);
+	bool isStringLetter(char c);
 
-	int CheckKey(struct Lexeme temp);
-	int CheckSymbol(struct Lexeme temp);
+	bool CheckKey(struct Lexeme* temp);
+	bool CheckSymbol(struct Lexeme* temp);
 
-	void DelOther(char& c, ifstream& testfile);
+	void MapInitial();
+	void GetChar(char& c);
+	void UngetChar();
+	void GoForward(char& c);
+	void AddList(struct Lexeme temp);
 	void AddList(struct Lexeme temp, string identifier);
 
-	int AnalyzeKey(char& c, ifstream& testfile);
-	int AnalyzeQuote(char& c, ifstream& testfile);
-	int AnalyzeOpera(char& c, ifstream& testfile);
-	int AnalyzeDigit(char& c, ifstream& testfile);
+	bool AnalyzeKey(char& c);
+	bool AnalyzeQuote(char& c);
+	bool AnalyzeOpera(char& c);
+	bool AnalyzeDigit(char& c);
 
 public:
-	LexicalAnalyser(ErrorHanding* errorHanding);
-	list<struct Lexeme> Analyze(ifstream& testfile);
+	LexicalAnalyser(string fileName, ErrorHanding* errorHanding);
+	list<struct Lexeme>* Analyze();
+	void FileClose();
 };
 

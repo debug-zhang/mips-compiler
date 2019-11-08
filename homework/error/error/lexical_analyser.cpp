@@ -1,47 +1,11 @@
 ﻿#include "lexical_analyser.h"
 
-
-const string key[] = { "const", "int",   "char", "void",  "main",   "if",    "else",
-				"do",    "while", "for",  "scanf", "printf", "return" };
-
-const string keyCode[] = { CONSTTK, INTTK, CHARTK, VOIDTK, MAINTK,
-					IFTK,    ELSETK,   DOTK,    WHILETK,FORTK,
-					SCANFTK, PRINTFTK, RETURNTK };
-
-const string symbol[] = { "+", "-", "*", "/", "<", "<=", ">", ">=", "==", "!=",
-				   "=", ";", ",", "(", ")", "[",  "]", "{",  "}" };
-
-const string symbolCode[] = { PLUS,   MINU,   MULT,   DIV,     LSS,
-					   LEQ,    GRE,    GEQ,    EQL,     NEQ,
-					   ASSIGN, SEMICN, COMMA,  LPARENT, RPARENT,
-					   LBRACK, RBRACK, LBRACE, RBRACE };
-
-const char opera[] = { '+', '-', '*', '/', '<', '>', '=', ';', '!',
-				',', '(', ')', '[', ']', '{', '}' };
-
-const int keyLength = 13;
-const int symbolLength = 19;
-const int operaLength = 16;
-
-LexicalAnalyser::LexicalAnalyser(ErrorHanding* errorHanding) {
+LexicalAnalyser::LexicalAnalyser(string fileName, ErrorHanding* errorHanding) {
+	this->testfile.open(fileName);
 	this->tempLexeme = new Lexeme();
 	this->errorHanding = errorHanding;
-}
-
-bool LexicalAnalyser::IsLetter(char c) {
-	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-bool LexicalAnalyser::IsDigit(char c) {
-	if (c >= '0' && c <= '9') {
-		return true;
-	} else {
-		return false;
-	}
+	this->lineNumber = 1;
+	MapInitial();
 }
 
 bool LexicalAnalyser::IsUnder(char c) {
@@ -77,149 +41,223 @@ bool LexicalAnalyser::IsDoubleQuote(char c) {
 }
 
 bool LexicalAnalyser::IsOpera(char c) {
-	for (int i = 0; i < operaLength; i++) {
-		if (c == opera[i]) {
-			return true;
-		}
+	string str;
+	str.clear();
+	str.append(1, c);
+
+	map<string, string>::iterator iter = operaMap.find(str);
+
+	if (iter == operaMap.end()) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+bool LexicalAnalyser::isStringLetter(char c) {
+	if (c >= 32 && c <= 126 && c != 34) {
+		return true;
 	}
 	return false;
 }
 
-bool LexicalAnalyser::IsOther(char c) {
-	if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
-		return true;
-	} else {
+bool LexicalAnalyser::CheckKey(struct Lexeme* temp) {
+
+	map<string, string>::iterator iter = keyMap.find(temp->value);
+
+	if (iter == keyMap.end()) {
 		return false;
+	} else {
+		temp->identifier = iter->second;
+		return true;
 	}
 }
 
-int LexicalAnalyser::CheckKey(struct Lexeme temp) {
-	for (int i = 0; i < keyLength; i++) {
-		if (!temp.value.compare(key[i])) {
-			return i;
+bool LexicalAnalyser::CheckSymbol(struct Lexeme* temp) {
+	map<string, string>::iterator iter = operaMap.find(temp->value);
+
+	if (iter == operaMap.end()) {
+		return false;
+	} else {
+		temp->identifier = iter->second;
+		return true;
+	}
+}
+
+void LexicalAnalyser::MapInitial() {
+	keyMap.insert(pair<string, string>("const", CONSTTK));
+	keyMap.insert(pair<string, string>("int", INTTK));
+	keyMap.insert(pair<string, string>("char", CHARTK));
+	keyMap.insert(pair<string, string>("void", VOIDTK));
+	keyMap.insert(pair<string, string>("main", MAINTK));
+	keyMap.insert(pair<string, string>("if", IFTK));
+	keyMap.insert(pair<string, string>("else", ELSETK));
+	keyMap.insert(pair<string, string>("do", DOTK));
+	keyMap.insert(pair<string, string>("while", WHILETK));
+	keyMap.insert(pair<string, string>("for", FORTK));
+	keyMap.insert(pair<string, string>("scanf", SCANFTK));
+	keyMap.insert(pair<string, string>("printf", PRINTFTK));
+	keyMap.insert(pair<string, string>("return", RETURNTK));
+
+	operaMap.insert(pair<string, string>("+", PLUS));
+	operaMap.insert(pair<string, string>("-", MINU));
+	operaMap.insert(pair<string, string>("*", MULT));
+	operaMap.insert(pair<string, string>("/", DIV));
+	operaMap.insert(pair<string, string>("<", LSS));
+	operaMap.insert(pair<string, string>("<=", LEQ));
+	operaMap.insert(pair<string, string>(">", GRE));
+	operaMap.insert(pair<string, string>(">=", GEQ));
+	operaMap.insert(pair<string, string>("=", ASSIGN));
+	operaMap.insert(pair<string, string>("==", EQL));
+	operaMap.insert(pair<string, string>("!=", NEQ));
+	operaMap.insert(pair<string, string>(";", SEMICN));
+	operaMap.insert(pair<string, string>(",", COMMA));
+	operaMap.insert(pair<string, string>("(", LPARENT));
+	operaMap.insert(pair<string, string>(")", RPARENT));
+	operaMap.insert(pair<string, string>("[", LBRACK));
+	operaMap.insert(pair<string, string>("]", RBRACK));
+	operaMap.insert(pair<string, string>("{", LBRACE));
+	operaMap.insert(pair<string, string>("}", RBRACE));
+}
+
+void LexicalAnalyser::GetChar(char& c) {
+	c = testfile.get();
+}
+
+void LexicalAnalyser::UngetChar() {
+	testfile.unget();
+}
+
+void LexicalAnalyser::GoForward(char& c) {
+	while (isspace(c)) {
+		if (c == '\n') {
+			this->lineNumber++;
 		}
-	}
-	return -1;
-}
-
-int LexicalAnalyser::CheckSymbol(struct Lexeme temp) {
-	for (int i = 0; i < symbolLength; i++) {
-		if (!temp.value.compare(symbol[i])) {
-			return i;
-		}
-	}
-	return -1;
-}
-
-void LexicalAnalyser::DelOther(char& c, ifstream& testfile) {
-	while (IsOther(c)) {
-		c = testfile.get();
+		GetChar(c);
 	}
 }
 
-void LexicalAnalyser::AddList(struct Lexeme temp, string identifier) {
-	temp.identifier = identifier;
+void LexicalAnalyser::AddList(struct Lexeme temp) {
+	temp.lineNumber = this->lineNumber;
+	if (temp.identifier != ILLEGAL) {
+		temp.isError = false;
+	}
 	lexList.push_back(temp);
 }
 
-int LexicalAnalyser::AnalyzeKey(char& c, ifstream& testfile) {
-	if (IsLetter(c) || IsUnder(c)) {
-		tempLexeme = new Lexeme;
-		do {
-			tempLexeme->value.push_back(c);
-			c = testfile.get();
-		} while (IsLetter(c) || IsUnder(c) || IsDigit(c));
-		testfile.unget();
-
-		int value = CheckKey(*tempLexeme);
-		if (value != -1) {
-			AddList(*tempLexeme, keyCode[value]);
-			return 1;
-		} else {
-			AddList(*tempLexeme, IDENFR);
-			return 1;
-		}
-
+void LexicalAnalyser::AddList(struct Lexeme temp, string identifier) {
+	temp.lineNumber = this->lineNumber;
+	temp.identifier = identifier;
+	if (temp.identifier != ILLEGAL) {
+		temp.isError = false;
 	}
-
-	return 0;
+	lexList.push_back(temp);
 }
 
-int LexicalAnalyser::AnalyzeQuote(char& c, ifstream& testfile) {
+bool LexicalAnalyser::AnalyzeKey(char& c) {
+	if (isalpha(c) || IsUnder(c)) {
+		tempLexeme = new Lexeme();
+		do {
+			tempLexeme->value.push_back(c);
+			GetChar(c);
+		} while (isalpha(c) || IsUnder(c) || isdigit(c));
+		UngetChar();
+
+		if (CheckKey(tempLexeme)) {
+			AddList(*tempLexeme);
+			return true;
+		} else {
+			AddList(*tempLexeme, IDENFR);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool LexicalAnalyser::AnalyzeQuote(char& c) {
 	if (IsSingleQuote(c)) {
-		tempLexeme = new Lexeme;
-		c = testfile.get();
+		tempLexeme = new Lexeme();
+		GetChar(c);
 		tempLexeme->value.push_back(c);
+		GetChar(c);
+
 		AddList(*tempLexeme, CHARCON);
-		c = testfile.get();
-		return 1;
+		return true;
 	} else if (IsDoubleQuote(c)) {
-		tempLexeme = new Lexeme;
-		while (!IsDoubleQuote((c = testfile.get()))) {
+		tempLexeme = new Lexeme();
+		while (true) {
+			GetChar(c);
+			if (IsDoubleQuote(c)) {
+				break;
+			}
+			if (!isStringLetter(c)) {
+
+			}
 			tempLexeme->value.push_back(c);
 		}
 		AddList(*tempLexeme, STRCON);
-		return 1;
+		return true;
 	}
 
-	return 0;
+	return false;
 }
 
-int LexicalAnalyser::AnalyzeOpera(char& c, ifstream& testfile) {
+bool LexicalAnalyser::AnalyzeOpera(char& c) {
 	if (IsOpera(c)) {
-		tempLexeme = new Lexeme;
+		tempLexeme = new Lexeme();
 		tempLexeme->value.push_back(c);
 
 		if (c == '>' || c == '<' || c == '=' || c == '!') {
-			c = testfile.get();
+			GetChar(c);
 			if (IsEqu(c)) {
 				tempLexeme->value.push_back(c);
 			} else {
-				testfile.unget();
+				UngetChar();
 			}
 		}
 
-		int value = CheckSymbol(*tempLexeme);
-		if (value != -1) {
-			AddList(*tempLexeme, symbolCode[value]);
-			return 1;
-		} else {
-			AddList(*tempLexeme, INTCON);
-			return 1;
+		if (CheckSymbol(tempLexeme)) {
+			AddList(*tempLexeme);
+			return true;
 		}
 	}
 
-	return 0;
+	return false;
 }
 
-int LexicalAnalyser::AnalyzeDigit(char& c, ifstream& testfile) {
-	if (IsDigit(c)) {
-		tempLexeme = new Lexeme;
+bool LexicalAnalyser::AnalyzeDigit(char& c) {
+	if (isdigit(c)) {
+		tempLexeme = new Lexeme();
 		do {
 			tempLexeme->value.push_back(c);
-			c = testfile.get();
-		} while (IsDigit(c));
-		testfile.unget();
+			GetChar(c);
+		} while (isdigit(c));
+		UngetChar();
 		AddList(*tempLexeme, INTCON);
-		return 1;
+		return true;
 	}
 
-	return 0;
+	return false;
 }
 
-list<struct Lexeme> LexicalAnalyser::Analyze(ifstream& testfile) {
+list<struct Lexeme>* LexicalAnalyser::Analyze() {
 	char c;
 
 	while ((c = testfile.get()) != -1) {
-		DelOther(c, testfile);
+		GoForward(c);
 
-		if (AnalyzeKey(c, testfile)
-			|| AnalyzeQuote(c, testfile)
-			|| AnalyzeOpera(c, testfile)
-			|| AnalyzeDigit(c, testfile)) {
+		if (AnalyzeKey(c)
+			|| AnalyzeQuote(c)
+			|| AnalyzeOpera(c)
+			|| AnalyzeDigit(c)) {
 			continue;
 		}
 	}
 
-	return lexList;
+	return &lexList;
+}
+
+void LexicalAnalyser::FileClose() {
+	testfile.close();
 }
