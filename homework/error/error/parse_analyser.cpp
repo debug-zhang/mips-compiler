@@ -1,8 +1,9 @@
 ﻿#include "parse_analyser.h"
 
-ParseAnalyser::ParseAnalyser(list<struct Lexeme>::iterator& iter, list<struct Lexeme>::iterator& iterEnd) {
+ParseAnalyser::ParseAnalyser(list<struct Lexeme>::iterator& iter, list<struct Lexeme>::iterator& iterEnd, ErrorHanding* errorHanding) {
 	this->iter = iter;
 	this->iterEnd = iterEnd;
+	this->errorHanding = errorHanding;
 }
 
 void ParseAnalyser::CountIterator(int step) {
@@ -99,7 +100,7 @@ void ParseAnalyser::AnalyzeVariableDefine(SyntaxNode* node) {
 	}
 }
 
-bool ParseAnalyser::isVariableDefine() {
+bool ParseAnalyser::IsVariableDefine() {
 	if (IsThisIdentifier(INTTK) || IsThisIdentifier(CHARTK)) {
 		CountIterator(+2);
 		if (IsThisIdentifier(LPARENT)) {
@@ -115,7 +116,7 @@ bool ParseAnalyser::isVariableDefine() {
 }
 
 void ParseAnalyser::AnalyzeVariableDeclare(SyntaxNode* node) {
-	while (isVariableDefine()) {
+	while (IsVariableDefine()) {
 		AnalyzeVariableDefine(AddSyntaxChild(VARIABLE_DEFINE, node));
 		AddChild(node);	// SEMICN
 	}

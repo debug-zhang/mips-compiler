@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{B8F6E838-A304-43F7-BBF6-96831517B0FA}</ProjectGuid>
+    <ProjectGuid>{25D3F4D3-8A9D-402E-B990-FDE66BE6C2BE}</ProjectGuid>
     <RootNamespace>error</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -123,6 +123,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="error.h" />
     <ClInclude Include="error_handing.h" />
     <ClInclude Include="lexical_analyser.h" />
     <ClInclude Include="parse_analyser.h" />
@@ -130,8 +131,9 @@
     <ClInclude Include="syntax_node.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="error.cpp" />
     <ClCompile Include="error_handing.cpp" />
-    <ClCompile Include="lexer_analyser.cpp" />
+    <ClCompile Include="lexical_analyser.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="parse_analyser.cpp" />
     <ClCompile Include="symbol_table.cpp" />

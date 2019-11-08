@@ -4,8 +4,9 @@
 #include <list>
 #include <map>
 #include <string>
-#include "lexer_analyser.h"
+#include "lexical_analyser.h"
 #include "syntax_node.h"
+#include "error_handing.h"
 
 using namespace std;
 
@@ -45,6 +46,7 @@ private:
 	map<string, string> symbolMap;
 	list<struct Lexeme>::iterator iter;
 	list<struct Lexeme>::iterator iterEnd;
+	ErrorHanding* errorHanding;
 
 	void CountIterator(int step);
 
@@ -58,7 +60,7 @@ private:
 	bool IsThisIdentifier(string identifier);
 	bool IsPlusOrMinu();
 	bool IsMultOrDiv();
-	bool isVariableDefine();
+	bool IsVariableDefine();
 
 	void AnalyzeInteger(SyntaxNode* node);
 	void AnalyzeConstDefine(SyntaxNode* node);
@@ -90,7 +92,7 @@ private:
 	void BuildSyntaxTree(SyntaxNode* root);
 
 public:
-	ParseAnalyser(list<struct Lexeme>::iterator& iter, list<struct Lexeme>::iterator& iterEnd);
+	ParseAnalyser(list<struct Lexeme>::iterator& iter, list<struct Lexeme>::iterator& iterEnd, ErrorHanding* errorHanding);
 	void AnalyzeParse(ofstream& output);
 };
 

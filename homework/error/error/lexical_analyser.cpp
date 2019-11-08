@@ -23,8 +23,9 @@ const int keyLength = 13;
 const int symbolLength = 19;
 const int operaLength = 16;
 
-LexicalAnalyser::LexicalAnalyser() {
+LexicalAnalyser::LexicalAnalyser(ErrorHanding* errorHanding) {
 	this->tempLexeme = new Lexeme();
+	this->errorHanding = errorHanding;
 }
 
 bool LexicalAnalyser::IsLetter(char c) {

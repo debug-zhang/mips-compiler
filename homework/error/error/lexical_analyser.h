@@ -59,6 +59,7 @@ class LexicalAnalyser {
 private:
 	struct Lexeme* tempLexeme;
 	list<struct Lexeme> lexList;
+	ErrorHanding* errorHanding;
 
 	bool IsLetter(char c);
 	bool IsDigit(char c);
@@ -81,7 +82,7 @@ private:
 	int AnalyzeDigit(char& c, ifstream& testfile);
 
 public:
-	LexicalAnalyser();
+	LexicalAnalyser(ErrorHanding* errorHanding);
 	list<struct Lexeme> Analyze(ifstream& testfile);
 };
 
