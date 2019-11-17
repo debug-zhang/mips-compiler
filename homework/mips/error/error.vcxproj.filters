@@ -33,12 +33,6 @@
     <ClInclude Include="syntax_node.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="identifier.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="function.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="error.cpp">
@@ -60,12 +54,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="syntax_node.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="function.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="identifier.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
