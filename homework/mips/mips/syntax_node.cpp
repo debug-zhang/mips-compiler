@@ -16,6 +16,10 @@ void SyntaxNode::setSynIdentifier(string synIdentifier) {
 	this->synIdentifier = synIdentifier;
 }
 
+void SyntaxNode::setNumericalValue(string numericalValue) {
+	this->numericalValue = numericalValue;
+}
+
 bool SyntaxNode::isLeaf() {
 	return childList.empty();
 }
@@ -38,6 +42,10 @@ string SyntaxNode::getLexIdentifier() {
 
 string SyntaxNode::getLexValue() {
 	return lexValue;
+}
+
+string SyntaxNode::getNumericalValue() {
+	return numericalValue;
 }
 
 list<SyntaxNode*> SyntaxNode::getChildList() {
