@@ -2,7 +2,7 @@
 
 
 const string key[] = { "const", "int",   "char", "void",  "main",   "if",    "else",
-				"do",    "while", "for",  "scanf", "printf", "return" };
+				"do", "while", "for",  "scanf", "printf", "return" };
 
 const string keyCode[] = { CONSTTK, INTTK, CHARTK, VOIDTK, MAINTK,
 					IFTK,    ELSETK,   DOTK,    WHILETK,FORTK,
