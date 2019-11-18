@@ -19,16 +19,16 @@ void ParseAnalyser::CountIterator(int step) {
 	}
 }
 
-void ParseAnalyser::InsertIdentifier(IDENTIFIER_KIND kind, IDENTIFIER_TYPE type, int level) {
-	symbolTable.AddIdentifier(iter->value, kind, type, level);
+void ParseAnalyser::InsertIdentifier(KIND_SYMBOL kind, TYPE_SYMBOL type, int level) {
+	checkTable.AddSymbol(iter->value, kind, type, level);
 }
 
 void ParseAnalyser::CleanLevel(int level) {
-	symbolTable.CleanLevel(level);
+	checkTable.CleanLevel(level);
 }
 
-struct Identifier* ParseAnalyser::FindSymbol(int level) {
-	return symbolTable.findIdentifier(iter->value, level);
+struct Symbol* ParseAnalyser::FindSymbol(int level) {
+	return checkTable.FindSymbol(iter->value, level);
 }
 
 bool ParseAnalyser::IsThisIdentifier(string identifier) {
@@ -124,7 +124,7 @@ void ParseAnalyser::AnalyzeInteger(SyntaxNode* node) {
 }
 
 void ParseAnalyser::AnalyzeConstDefine(SyntaxNode* node, int level) {
-	IDENTIFIER_TYPE type = iter->identifier == INTTK ? INT : CHAR;
+	TYPE_SYMBOL type = iter->identifier == INTTK ? INT : CHAR;
 	AddChild(node);	// INTTK or CHARTK
 	while (IsThisIdentifier(IDENFR)) {
 		if (FindSymbol(level)) {
@@ -155,7 +155,7 @@ void ParseAnalyser::AnalyzeConstDeclare(SyntaxNode* node, int level) {
 }
 
 void ParseAnalyser::AnalyzeVariableDefine(SyntaxNode* node, int level) {
-	IDENTIFIER_TYPE type = iter->identifier == INTTK ? INT : CHAR;
+	TYPE_SYMBOL type = iter->identifier == INTTK ? INT : CHAR;
 	AddChild(node);	// INTTK or CHARTK
 	while (IsThisIdentifier(IDENFR)) {
 		if (FindSymbol(level)) {
@@ -189,7 +189,7 @@ void ParseAnalyser::AnalyzeValuePrameterTable(SyntaxNode* node) {
 		return;
 	}
 	string str;
-	IDENTIFIER_TYPE type;
+	TYPE_SYMBOL type;
 	while (!IsThisIdentifier(RPARENT)) {
 		type = AnalyzeExpression(AddSyntaxChild(EXPRESSION, node));
 		str.push_back(type == INT ? '0' : '1');
@@ -222,8 +222,8 @@ void ParseAnalyser::AnalyzeNoReturnCallSentence(SyntaxNode* node) {
 	AnalyzeReturnCallSentence(node);
 }
 
-IDENTIFIER_TYPE ParseAnalyser::AnalyzeFactor(SyntaxNode* node) {
-	IDENTIFIER_TYPE type;
+TYPE_SYMBOL ParseAnalyser::AnalyzeFactor(SyntaxNode* node) {
+	TYPE_SYMBOL type;
 	if (IsThisIdentifier(IDENFR)) {
 		if (FindSymbol(0) != NULL && FindSymbol(0)->kind == FUNCTION && FindSymbol(0)->type != VOID) {
 			type = FindSymbol(0)->type;
@@ -242,7 +242,7 @@ IDENTIFIER_TYPE ParseAnalyser::AnalyzeFactor(SyntaxNode* node) {
 			AddChild(node);	// IDENFR
 			if (IsThisIdentifier(LBRACK)) {
 				AddChild(node);	// LBRACK
-				IDENTIFIER_TYPE expressType = AnalyzeExpression(AddSyntaxChild(EXPRESSION, node));
+				TYPE_SYMBOL expressType = AnalyzeExpression(AddSyntaxChild(EXPRESSION, node));
 				if (expressType != INT) {
 					errorHanding->AddError(iter->lineNumber, ILLEGAL_ARRAY_INDEX);
 				}
@@ -263,8 +263,8 @@ IDENTIFIER_TYPE ParseAnalyser::AnalyzeFactor(SyntaxNode* node) {
 	return type;
 }
 
-IDENTIFIER_TYPE ParseAnalyser::AnalyzeItem(SyntaxNode* node) {
-	IDENTIFIER_TYPE type;
+TYPE_SYMBOL ParseAnalyser::AnalyzeItem(SyntaxNode* node) {
+	TYPE_SYMBOL type;
 	type = AnalyzeFactor(AddSyntaxChild(FACTOR, node));
 	while (IsMultOrDiv()) {
 		AddChild(node);
@@ -274,8 +274,8 @@ IDENTIFIER_TYPE ParseAnalyser::AnalyzeItem(SyntaxNode* node) {
 	return type;
 }
 
-IDENTIFIER_TYPE ParseAnalyser::AnalyzeExpression(SyntaxNode* node) {
-	IDENTIFIER_TYPE type;
+TYPE_SYMBOL ParseAnalyser::AnalyzeExpression(SyntaxNode* node) {
+	TYPE_SYMBOL type;
 	if (IsPlusOrMinu()) {
 		AddChild(node);	// PLUS or MINU
 	}
@@ -309,7 +309,7 @@ void ParseAnalyser::AnalyzeCondition(SyntaxNode* node) {
 	}
 }
 
-bool ParseAnalyser::AnalyzeIfSentence(SyntaxNode* node, IDENTIFIER_TYPE returnType) {
+bool ParseAnalyser::AnalyzeIfSentence(SyntaxNode* node, TYPE_SYMBOL returnType) {
 	bool noReturn = true;
 	AddChild(node);	// IFTK
 	AddChild(node);	// LPARENT
@@ -327,7 +327,7 @@ void ParseAnalyser::AnalyzeStep(SyntaxNode* node) {
 	AddChild(AddSyntaxChild(UNSIGNINT, node));	// INTCON
 }
 
-bool ParseAnalyser::AnalyzeLoopSentence(SyntaxNode* node, IDENTIFIER_TYPE returnType) {
+bool ParseAnalyser::AnalyzeLoopSentence(SyntaxNode* node, TYPE_SYMBOL returnType) {
 	bool noReturn = true;
 	if (IsThisIdentifier(WHILETK)) {
 		AddChild(node);	// WHILETK
@@ -372,7 +372,7 @@ bool ParseAnalyser::AnalyzeLoopSentence(SyntaxNode* node, IDENTIFIER_TYPE return
 }
 
 void ParseAnalyser::AnalyzeAssignSentence(SyntaxNode* node) {
-	IDENTIFIER_KIND kind;
+	KIND_SYMBOL kind;
 	if (FindSymbol(0) == NULL) {
 		if (FindSymbol(1) == NULL) {
 			errorHanding->AddError(iter->lineNumber, UNDEFINED);
@@ -436,8 +436,8 @@ void ParseAnalyser::AnalyzePrintfSentence(SyntaxNode* node) {
 	AddRparentChild(node);	// RPARENT
 }
 
-IDENTIFIER_TYPE ParseAnalyser::AnalyzeReturnSentence(SyntaxNode* node) {
-	IDENTIFIER_TYPE type = VOID;
+TYPE_SYMBOL ParseAnalyser::AnalyzeReturnSentence(SyntaxNode* node) {
+	TYPE_SYMBOL type = VOID;
 	AddChild(node);	// RETURNTK
 	if (IsThisIdentifier(LPARENT)) {
 		AddChild(node);	// LPARENT
@@ -447,7 +447,7 @@ IDENTIFIER_TYPE ParseAnalyser::AnalyzeReturnSentence(SyntaxNode* node) {
 	return type;
 }
 
-bool ParseAnalyser::AnalyzeSentence(SyntaxNode* node, IDENTIFIER_TYPE returnType) {
+bool ParseAnalyser::AnalyzeSentence(SyntaxNode* node, TYPE_SYMBOL returnType) {
 	bool noReturn = true;
 	if (IsThisIdentifier(IFTK)) {
 		noReturn = AnalyzeIfSentence(AddSyntaxChild(IF_SENTENCE, node), returnType);
@@ -501,7 +501,7 @@ bool ParseAnalyser::AnalyzeSentence(SyntaxNode* node, IDENTIFIER_TYPE returnType
 		noReturn = true;
 		AddSemicnChild(node);	// SEMICN
 	} else if (IsThisIdentifier(RETURNTK)) {
-		IDENTIFIER_TYPE type = AnalyzeReturnSentence(AddSyntaxChild(RETURN_SENTENCE, node));
+		TYPE_SYMBOL type = AnalyzeReturnSentence(AddSyntaxChild(RETURN_SENTENCE, node));
 		noReturn = type == VOID;
 		CountIterator(-1);
 		if (returnType == VOID && type != VOID) {
@@ -515,7 +515,7 @@ bool ParseAnalyser::AnalyzeSentence(SyntaxNode* node, IDENTIFIER_TYPE returnType
 	return noReturn;
 }
 
-bool ParseAnalyser::AnalyzeSentenceCollection(SyntaxNode* node, IDENTIFIER_TYPE returnType) {
+bool ParseAnalyser::AnalyzeSentenceCollection(SyntaxNode* node, TYPE_SYMBOL returnType) {
 	bool noReturn = true;
 	while (!IsThisIdentifier(RBRACE)) {
 		if (!AnalyzeSentence(AddSyntaxChild(SENTENCE, node), returnType)) {
@@ -526,7 +526,7 @@ bool ParseAnalyser::AnalyzeSentenceCollection(SyntaxNode* node, IDENTIFIER_TYPE 
 	return noReturn;
 }
 
-void ParseAnalyser::AnalyzeCompositeSentence(SyntaxNode* node, IDENTIFIER_TYPE returnType) {
+void ParseAnalyser::AnalyzeCompositeSentence(SyntaxNode* node, TYPE_SYMBOL returnType) {
 	if (IsThisIdentifier(CONSTTK)) {
 		AnalyzeConstDeclare(AddSyntaxChild(CONST_DECLARE, node), 1);
 	}
@@ -559,7 +559,7 @@ void ParseAnalyser::AnalyzeMain(SyntaxNode* node) {
 void ParseAnalyser::AnalyzeParameterTable(SyntaxNode* node) {
 	while (IsThisIdentifier(INTTK) || IsThisIdentifier(CHARTK)) {
 
-		IDENTIFIER_TYPE type = iter->identifier == INTTK ? INT : CHAR;
+		TYPE_SYMBOL type = iter->identifier == INTTK ? INT : CHAR;
 		AddChild(node);	// INTTK or CHARTK
 
 		if (FindSymbol(1) != NULL) {
@@ -590,7 +590,7 @@ void ParseAnalyser::AnalyzeVoidFunc(SyntaxNode* node) {
 }
 
 void ParseAnalyser::AnalyzeHeadState(SyntaxNode* node) {
-	IDENTIFIER_TYPE type = iter->identifier == INTTK ? INT : CHAR;
+	TYPE_SYMBOL type = iter->identifier == INTTK ? INT : CHAR;
 	AddChild(node);	// INTTK or CHARTK
 	if (FindSymbol(0) != NULL) {
 		errorHanding->AddError(iter->lineNumber, REDEFINITION);

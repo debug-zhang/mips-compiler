@@ -127,7 +127,7 @@
     <ClInclude Include="error_handing.h" />
     <ClInclude Include="lexical_analyser.h" />
     <ClInclude Include="parse_analyser.h" />
-    <ClInclude Include="symbol_table.h" />
+    <ClInclude Include="table.h" />
     <ClInclude Include="syntax_node.h" />
   </ItemGroup>
   <ItemGroup>
@@ -136,7 +136,7 @@
     <ClCompile Include="lexical_analyser.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="parse_analyser.cpp" />
-    <ClCompile Include="symbol_table.cpp" />
+    <ClCompile Include="table.cpp" />
     <ClCompile Include="syntax_node.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

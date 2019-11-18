@@ -6,7 +6,7 @@
 #include <string>
 #include "lexical_analyser.h"
 #include "syntax_node.h"
-#include "symbol_table.h"
+#include "table.h"
 #include "error_handing.h"
 
 using namespace std;
@@ -47,14 +47,14 @@ private:
 	ofstream output;
 	list<struct Lexeme>::iterator iter;
 	list<struct Lexeme>::iterator iterEnd;
-	SymbolTable symbolTable;
+	CheckTable checkTable;
 	ErrorHanding* errorHanding;
-	struct Identifier* tempFunction;
+	struct Symbol* tempFunction;
 
 	void CountIterator(int step);
 
-	struct Identifier* FindSymbol(int level);
-	void InsertIdentifier(IDENTIFIER_KIND kind, IDENTIFIER_TYPE type, int level);
+	struct Symbol* FindSymbol(int level);
+	void InsertIdentifier(KIND_SYMBOL kind, TYPE_SYMBOL type, int level);
 	void CleanLevel(int level);
 	void AddChild(SyntaxNode* node);
 	void AddCommaChild(SyntaxNode* node);
@@ -77,20 +77,20 @@ private:
 	void AnalyzeValuePrameterTable(SyntaxNode* node);
 	void AnalyzeReturnCallSentence(SyntaxNode* node);
 	void AnalyzeNoReturnCallSentence(SyntaxNode* node);
-	IDENTIFIER_TYPE AnalyzeFactor(SyntaxNode* node);
-	IDENTIFIER_TYPE AnalyzeItem(SyntaxNode* node);
-	IDENTIFIER_TYPE AnalyzeExpression(SyntaxNode* node);
+	TYPE_SYMBOL AnalyzeFactor(SyntaxNode* node);
+	TYPE_SYMBOL AnalyzeItem(SyntaxNode* node);
+	TYPE_SYMBOL AnalyzeExpression(SyntaxNode* node);
 	void AnalyzeCondition(SyntaxNode* node);
-	bool AnalyzeIfSentence(SyntaxNode* node, IDENTIFIER_TYPE returnType);
+	bool AnalyzeIfSentence(SyntaxNode* node, TYPE_SYMBOL returnType);
 	void AnalyzeStep(SyntaxNode* node);
-	bool AnalyzeLoopSentence(SyntaxNode* node, IDENTIFIER_TYPE returnType);
+	bool AnalyzeLoopSentence(SyntaxNode* node, TYPE_SYMBOL returnType);
 	void AnalyzeAssignSentence(SyntaxNode* node);
 	void AnalyzeScanfSentence(SyntaxNode* node);
 	void AnalyzePrintfSentence(SyntaxNode* node);
-	IDENTIFIER_TYPE AnalyzeReturnSentence(SyntaxNode* node);
-	bool AnalyzeSentence(SyntaxNode* node, IDENTIFIER_TYPE returnType);
-	bool AnalyzeSentenceCollection(SyntaxNode* node, IDENTIFIER_TYPE returnType);
-	void AnalyzeCompositeSentence(SyntaxNode* node, IDENTIFIER_TYPE returnType);
+	TYPE_SYMBOL AnalyzeReturnSentence(SyntaxNode* node);
+	bool AnalyzeSentence(SyntaxNode* node, TYPE_SYMBOL returnType);
+	bool AnalyzeSentenceCollection(SyntaxNode* node, TYPE_SYMBOL returnType);
+	void AnalyzeCompositeSentence(SyntaxNode* node, TYPE_SYMBOL returnType);
 	void AnalyzeMain(SyntaxNode* node);
 	void AnalyzeParameterTable(SyntaxNode* node);
 	void AnalyzeVoidFunc(SyntaxNode* node);

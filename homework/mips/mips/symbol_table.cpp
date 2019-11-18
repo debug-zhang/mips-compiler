@@ -1,4 +1,4 @@
-﻿#include "symbol_table.h"
+﻿#include "table.h"
 
 SymbolTable::SymbolTable() {
 	map<string, struct Identifier> map0;

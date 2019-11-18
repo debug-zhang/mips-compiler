@@ -27,10 +27,10 @@
     <ClInclude Include="parse_analyser.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="symbol_table.h">
+    <ClInclude Include="syntax_node.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="syntax_node.h">
+    <ClInclude Include="table.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -50,10 +50,10 @@
     <ClCompile Include="parse_analyser.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="symbol_table.cpp">
+    <ClCompile Include="syntax_node.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="syntax_node.cpp">
+    <ClCompile Include="table.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

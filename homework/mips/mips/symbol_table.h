@@ -43,3 +43,15 @@ public:
 	void CleanLevel(int level);
 };
 
+class StringTable {
+private:
+	vector<map<string, string>> identifierMap;
+public:
+	SymbolTable();
+
+	void AddIdentifier(string name, IDENTIFIER_KIND kind, IDENTIFIER_TYPE type, int level);
+
+	struct Identifier* findIdentifier(string name, int level);
+
+	void CleanLevel(int level);
+};
