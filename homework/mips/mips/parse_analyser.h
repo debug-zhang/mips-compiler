@@ -44,10 +44,12 @@ const string RETURN_SENTENCE = "<返回语句>";
 
 class ParseAnalyser {
 private:
-	ofstream output;
+	ofstream midcode;
 	list<struct Lexeme>::iterator iter;
 	list<struct Lexeme>::iterator iterEnd;
 	CheckTable checkTable;
+	StringTable stringTable;
+	map<string, SymbolTable> symbolTableMap;
 	ErrorHanding* errorHanding;
 	struct Symbol* tempFunction;
 

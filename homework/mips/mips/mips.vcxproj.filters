@@ -33,6 +33,9 @@
     <ClInclude Include="table.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="mips_generator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="error.cpp">
@@ -54,6 +57,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="table.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mips_generator.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
