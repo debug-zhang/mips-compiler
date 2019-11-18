@@ -47,17 +47,6 @@ struct Symbol {
 	}
 };
 
-class CheckTable {
-private:
-	vector<map<string, struct Symbol>> symbolMap;
-public:
-	CheckTable();
-	void AddSymbol(string name, KIND_SYMBOL kind, TYPE_SYMBOL type, int level);
-	struct Symbol* FindSymbol(string name, int level);
-	string GetString(int stringNumber);
-	void CleanLevel(int level);
-};
-
 class StringTable {
 private:
 	map<int, string> stringMap;
@@ -76,4 +65,16 @@ public:
 	SymbolTable();
 	void AddSymbol(string name, KIND_SYMBOL kind, TYPE_SYMBOL type);
 	struct Symbol* FindSymbol(string name);
+};
+
+class CheckTable {
+private:
+	vector<SymbolTable*> symbolMapVector;
+public:
+	CheckTable();
+	void AddSymbol(string name, KIND_SYMBOL kind, TYPE_SYMBOL type, int level);
+	struct Symbol* FindSymbol(string name, int level);
+	string GetString(int stringNumber);
+	void ClearLevel(int level);
+	SymbolTable* GetSymbolMap(int level);
 };

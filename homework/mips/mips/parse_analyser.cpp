@@ -24,7 +24,7 @@ void ParseAnalyser::InsertIdentifier(KIND_SYMBOL kind, TYPE_SYMBOL type, int lev
 }
 
 void ParseAnalyser::CleanLevel(int level) {
-	checkTable.CleanLevel(level);
+	checkTable.ClearLevel(level);
 }
 
 struct Symbol* ParseAnalyser::FindSymbol(int level) {

@@ -1,39 +1,5 @@
 ﻿#include "table.h"
 
-// CheckTable
-CheckTable::CheckTable() {
-	map<string, struct Symbol> map0;
-	map<string, struct Symbol> map1;
-	this->symbolMap.push_back(map0);
-	this->symbolMap.push_back(map1);
-}
-
-void CheckTable::AddSymbol(string name, KIND_SYMBOL kind, TYPE_SYMBOL type, int level) {
-	struct Symbol* symbol = FindSymbol(name, level);
-	if (symbol != NULL) {
-		symbol->setProperty(name, kind, type);
-	} else {
-		struct Symbol symbol;
-		symbol.setProperty(name, kind, type);
-		symbolMap[level].insert(pair<string, struct Symbol>(name, symbol));
-	}
-}
-
-struct Symbol* CheckTable::FindSymbol(string name, int level) {
-	map<string, struct Symbol>::iterator iter = symbolMap[level].find(name);
-
-	if (iter == symbolMap[level].end()) {
-		return NULL;
-	} else {
-		return &(iter->second);
-	}
-}
-
-void CheckTable::CleanLevel(int level) {
-	symbolMap[level].clear();
-}
-
-
 // StringTable
 StringTable::StringTable() {
 	this->stringNumber = 0;
@@ -81,4 +47,29 @@ struct Symbol* SymbolTable::FindSymbol(string name) {
 	} else {
 		return &(iter->second);
 	}
+}
+
+
+// CheckTable
+CheckTable::CheckTable() {
+	SymbolTable* map0 = new SymbolTable();
+	SymbolTable* map1 = new SymbolTable();
+	this->symbolMapVector.push_back(map0);
+	this->symbolMapVector.push_back(map1);
+}
+
+void CheckTable::AddSymbol(string name, KIND_SYMBOL kind, TYPE_SYMBOL type, int level) {
+	symbolMapVector[level]->AddSymbol(name, kind, type);
+}
+
+struct Symbol* CheckTable::FindSymbol(string name, int level) {
+	return symbolMapVector[level]->FindSymbol(name);
+}
+
+void CheckTable::ClearLevel(int level) {
+	symbolMapVector[level] = new SymbolTable();
+}
+
+SymbolTable* CheckTable::GetSymbolMap(int level) {
+	return symbolMapVector[level];
 }
