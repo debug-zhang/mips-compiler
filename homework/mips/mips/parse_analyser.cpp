@@ -115,12 +115,19 @@ SyntaxNode* ParseAnalyser::AddSyntaxChild(string syntaxName, SyntaxNode* node) {
 	return subRoot;
 }
 
-void ParseAnalyser::AnalyzeInteger(SyntaxNode* node) {
+int ParseAnalyser::AnalyzeInteger(SyntaxNode* node) {
+	int op = 1;
 	if (IsPlusOrMinu()) {
+		if (IsThisIdentifier(MINU)) {
+			op = -1;
+		}
 		AddChild(node);
 	}
 
+	int integer = op * stoi(iter->value);
 	AddChild(AddSyntaxChild(UNSIGNINT, node));		// INTCON
+	
+	return integer;
 }
 
 void ParseAnalyser::AnalyzeConstDefine(SyntaxNode* node, int level) {
@@ -183,7 +190,7 @@ void ParseAnalyser::AnalyzeVariableDeclare(SyntaxNode* node, int level) {
 
 void ParseAnalyser::AnalyzeValuePrameterTable(SyntaxNode* node) {
 	if (IsThisIdentifier(RPARENT)) {
-		if (tempFunction != NULL && tempFunction->parameter.length() != 0) {
+		if (tempFunction != NULL && tempFunction->GetParameterCount() != 0) {
 			errorHanding->AddError(iter->lineNumber, FUNCTION_PARAMETER_NUMBER_DONT_MATCH);
 		}
 		return;
@@ -200,9 +207,9 @@ void ParseAnalyser::AnalyzeValuePrameterTable(SyntaxNode* node) {
 		}
 	}
 
-	if (tempFunction != NULL && tempFunction->parameter.length() != str.length()) {
+	if (tempFunction != NULL && tempFunction->GetParameterCount() != str.length()) {
 		errorHanding->AddError(iter->lineNumber, FUNCTION_PARAMETER_NUMBER_DONT_MATCH);
-	} else if (tempFunction != NULL && tempFunction->parameter != str) {
+	} else if (tempFunction != NULL && tempFunction->GetParameter() != str) {
 		errorHanding->AddError(iter->lineNumber, FUNCTION_PARAMETER_TYPE_DONT_MATCH);
 	}
 }
@@ -225,8 +232,10 @@ void ParseAnalyser::AnalyzeNoReturnCallSentence(SyntaxNode* node) {
 TYPE_SYMBOL ParseAnalyser::AnalyzeFactor(SyntaxNode* node) {
 	TYPE_SYMBOL type;
 	if (IsThisIdentifier(IDENFR)) {
-		if (FindSymbol(0) != NULL && FindSymbol(0)->kind == FUNCTION && FindSymbol(0)->type != VOID) {
-			type = FindSymbol(0)->type;
+		if (FindSymbol(0) != NULL 
+			&& FindSymbol(0)->GetKind() == FUNCTION 
+			&& FindSymbol(0)->GetType() != VOID) {
+			type = FindSymbol(0)->GetType();
 			AnalyzeReturnCallSentence(AddSyntaxChild(RETURN_CALL_SENTENCE, node));
 		} else {
 			if (FindSymbol(0) == NULL) {
@@ -234,10 +243,10 @@ TYPE_SYMBOL ParseAnalyser::AnalyzeFactor(SyntaxNode* node) {
 					errorHanding->AddError(iter->lineNumber, UNDEFINED);
 					type = INT;
 				} else {
-					type = FindSymbol(1)->type;
+					type = FindSymbol(1)->GetType();
 				}
 			} else {
-				type = FindSymbol(0)->type;
+				type = FindSymbol(0)->GetType();
 			}
 			AddChild(node);	// IDENFR
 			if (IsThisIdentifier(LBRACK)) {
@@ -323,8 +332,10 @@ bool ParseAnalyser::AnalyzeIfSentence(SyntaxNode* node, TYPE_SYMBOL returnType) 
 	return noReturn;
 }
 
-void ParseAnalyser::AnalyzeStep(SyntaxNode* node) {
+int ParseAnalyser::AnalyzeStep(SyntaxNode* node) {
+	int step = stoi(iter->value);
 	AddChild(AddSyntaxChild(UNSIGNINT, node));	// INTCON
+	return step;
 }
 
 bool ParseAnalyser::AnalyzeLoopSentence(SyntaxNode* node, TYPE_SYMBOL returnType) {
@@ -377,13 +388,13 @@ void ParseAnalyser::AnalyzeAssignSentence(SyntaxNode* node) {
 		if (FindSymbol(1) == NULL) {
 			errorHanding->AddError(iter->lineNumber, UNDEFINED);
 		} else {
-			kind = FindSymbol(1)->kind;
+			kind = FindSymbol(1)->GetKind();
 			if (kind == CONST) {
 				errorHanding->AddError(iter->lineNumber, ASSIGN_TO_CONST);
 			}
 		}
 	} else {
-		kind = FindSymbol(0)->kind;
+		kind = FindSymbol(0)->GetKind();
 		if (kind == CONST) {
 			errorHanding->AddError(iter->lineNumber, ASSIGN_TO_CONST);
 		}
@@ -461,10 +472,14 @@ bool ParseAnalyser::AnalyzeSentence(SyntaxNode* node, TYPE_SYMBOL returnType) {
 		AddChild(node);	// RBRACE
 	} else if (IsThisIdentifier(IDENFR)) {
 		noReturn = true;
-		if (FindSymbol(0) != NULL && FindSymbol(0)->kind == FUNCTION && FindSymbol(0)->type != VOID) {
+		if (FindSymbol(0) != NULL 
+			&& FindSymbol(0)->GetKind() == FUNCTION 
+			&& FindSymbol(0)->GetType() != VOID) {
 			AnalyzeReturnCallSentence(AddSyntaxChild(RETURN_CALL_SENTENCE, node));
 			AddSemicnChild(node);	// SEMICN
-		} else if (FindSymbol(0) != NULL && FindSymbol(0)->kind == FUNCTION && FindSymbol(0)->type == VOID) {
+		} else if (FindSymbol(0) != NULL 
+			&& FindSymbol(0)->GetKind() == FUNCTION 
+			&& FindSymbol(0)->GetType() == VOID) {
 			AnalyzeReturnCallSentence(AddSyntaxChild(NO_RETURN_CALL_SENTENCE, node));
 			AddSemicnChild(node);	// SEMICN
 		} else {
@@ -565,7 +580,7 @@ void ParseAnalyser::AnalyzeParameterTable(SyntaxNode* node) {
 		if (FindSymbol(1) != NULL) {
 			errorHanding->AddError(iter->lineNumber, REDEFINITION);
 		}
-		tempFunction->parameter.push_back(type == INT ? '0' : '1');
+		tempFunction->AddParameter(type == INT ? '0' : '1');
 		InsertIdentifier(VARIABLE, type, 1);
 		AddChild(node);	// IDENTFR
 		AddCommaChild(node);
@@ -607,7 +622,8 @@ void ParseAnalyser::AnalyzeFunc(SyntaxNode* node) {
 	AnalyzeParameterTable(AddSyntaxChild(PARAMETER_TABLE, node));
 	AddRparentChild(node);	// RPARENT
 	AddChild(node);	// LBRACE
-	AnalyzeCompositeSentence(AddSyntaxChild(COMPOSITE_SENTENCE, node), tempFunction->type);
+	AnalyzeCompositeSentence(AddSyntaxChild(COMPOSITE_SENTENCE, node), 
+		tempFunction->GetType());
 	AddChild(node);	// RBRACE
 }
 

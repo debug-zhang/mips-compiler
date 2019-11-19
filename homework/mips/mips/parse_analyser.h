@@ -51,7 +51,7 @@ private:
 	StringTable stringTable;
 	map<string, SymbolTable> symbolTableMap;
 	ErrorHanding* errorHanding;
-	struct Symbol* tempFunction;
+	Symbol* tempFunction;
 
 	void CountIterator(int step);
 
@@ -71,7 +71,7 @@ private:
 	bool IsMultOrDiv();
 	bool IsVariableDefine();
 
-	void AnalyzeInteger(SyntaxNode* node);
+	int AnalyzeInteger(SyntaxNode* node);
 	void AnalyzeConstDefine(SyntaxNode* node, int level);
 	void AnalyzeConstDeclare(SyntaxNode* node, int level);
 	void AnalyzeVariableDefine(SyntaxNode* node, int level);
@@ -84,7 +84,7 @@ private:
 	TYPE_SYMBOL AnalyzeExpression(SyntaxNode* node);
 	void AnalyzeCondition(SyntaxNode* node);
 	bool AnalyzeIfSentence(SyntaxNode* node, TYPE_SYMBOL returnType);
-	void AnalyzeStep(SyntaxNode* node);
+	int AnalyzeStep(SyntaxNode* node);
 	bool AnalyzeLoopSentence(SyntaxNode* node, TYPE_SYMBOL returnType);
 	void AnalyzeAssignSentence(SyntaxNode* node);
 	void AnalyzeScanfSentence(SyntaxNode* node);

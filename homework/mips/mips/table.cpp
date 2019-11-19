@@ -6,17 +6,17 @@ StringTable::StringTable() {
 }
 
 void StringTable::AddString(string str) {
-	stringMap.insert(pair<int, string>(stringNumber++, str));
+	this->stringMap.insert(pair<int, string>(this->stringNumber++, str));
 }
 
 int StringTable::GetStringNumber() {
-	return stringNumber;
+	return this->stringNumber;
 }
 
 string StringTable::GetString(int stringNumber) {
-	map<int, string>::iterator iter = stringMap.find(stringNumber);
+	map<int, string>::iterator iter = this->stringMap.find(stringNumber);
 
-	if (iter == stringMap.end()) {
+	if (iter == this->stringMap.end()) {
 		return "";
 	} else {
 		return iter->second;
@@ -29,23 +29,23 @@ SymbolTable::SymbolTable() {
 }
 
 void SymbolTable::AddSymbol(string name, KIND_SYMBOL kind, TYPE_SYMBOL type) {
-	struct Symbol* symbol = FindSymbol(name);
+	Symbol* symbol = this->FindSymbol(name);
 	if (symbol != NULL) {
-		symbol->setProperty(name, kind, type);
+		symbol->SetProperty(name, kind, type);
 	} else {
-		struct Symbol symbol;
-		symbol.setProperty(name, kind, type);
-		symbolMap.insert(pair<string, struct Symbol>(name, symbol));
+		Symbol* symbol = new Symbol();
+		symbol->SetProperty(name, kind, type);
+		this->symbolMap.insert(pair<string, Symbol*>(name, symbol));
 	}
 }
 
-struct Symbol* SymbolTable::FindSymbol(string name) {
-	map<string, struct Symbol>::iterator iter = symbolMap.find(name);
+Symbol* SymbolTable::FindSymbol(string name) {
+	map<string, Symbol*>::iterator iter = this->symbolMap.find(name);
 
-	if (iter == symbolMap.end()) {
+	if (iter == this->symbolMap.end()) {
 		return NULL;
 	} else {
-		return &(iter->second);
+		return iter->second;
 	}
 }
 
@@ -62,14 +62,14 @@ void CheckTable::AddSymbol(string name, KIND_SYMBOL kind, TYPE_SYMBOL type, int 
 	symbolMapVector[level]->AddSymbol(name, kind, type);
 }
 
-struct Symbol* CheckTable::FindSymbol(string name, int level) {
-	return symbolMapVector[level]->FindSymbol(name);
+Symbol* CheckTable::FindSymbol(string name, int level) {
+	return this->symbolMapVector[level]->FindSymbol(name);
 }
 
 void CheckTable::ClearLevel(int level) {
-	symbolMapVector[level] = new SymbolTable();
+	this->symbolMapVector[level] = new SymbolTable();
 }
 
 SymbolTable* CheckTable::GetSymbolMap(int level) {
-	return symbolMapVector[level];
+	return this->symbolMapVector[level];
 }
