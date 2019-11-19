@@ -14,23 +14,23 @@ private:
 	string lexValue;
 	string numericalValue;
 	list<SyntaxNode*> childList;
-	void writeLexical(ofstream& output);
-	void writeSyntax(ofstream& output);
+	void WriteLexical(ofstream& output);
+	void WriteSyntax(ofstream& output);
 
 public:
 	SyntaxNode();
 	SyntaxNode(string synIdentifier);
 	SyntaxNode(string lexIdentifier, string lexValue);
-	void setSynIdentifier(string synIdentifier);
-	void setNumericalValue(string numericalValue);
-	bool isLeaf();
-	bool isLexEmpty();
-	void addChild(SyntaxNode* child);
-	string getSynIdentifier();
-	string getLexIdentifier();
-	string getLexValue();
-	string getNumericalValue();
-	list<SyntaxNode*> getChildList();
-	void print(ofstream& output);
+	void SetSynIdentifier(string synIdentifier);
+	void SetNumericalValue(string numericalValue);
+	bool IsLeaf();
+	bool IsLexEmpty();
+	void AddChild(SyntaxNode* child);
+	string GetSynIdentifier();
+	string GetLexIdentifier();
+	string GetLexValue();
+	string GetNumericalValue();
+	list<SyntaxNode*> GetChildList();
+	void Print(ofstream& output);
 };
 

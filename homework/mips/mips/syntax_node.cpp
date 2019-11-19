@@ -12,74 +12,74 @@ SyntaxNode::SyntaxNode(string lexIdentifier, string lexValue) {
 	this->lexValue = lexValue;
 }
 
-void SyntaxNode::setSynIdentifier(string synIdentifier) {
+void SyntaxNode::SetSynIdentifier(string synIdentifier) {
 	this->synIdentifier = synIdentifier;
 }
 
-void SyntaxNode::setNumericalValue(string numericalValue) {
+void SyntaxNode::SetNumericalValue(string numericalValue) {
 	this->numericalValue = numericalValue;
 }
 
-bool SyntaxNode::isLeaf() {
+bool SyntaxNode::IsLeaf() {
 	return childList.empty();
 }
 
-bool SyntaxNode::isLexEmpty() {
+bool SyntaxNode::IsLexEmpty() {
 	return this->lexIdentifier.empty();
 }
 
-void SyntaxNode::addChild(SyntaxNode* child) {
+void SyntaxNode::AddChild(SyntaxNode* child) {
 	childList.push_back(child);
 }
 
-string SyntaxNode::getSynIdentifier() {
+string SyntaxNode::GetSynIdentifier() {
 	return synIdentifier;
 }
 
-string SyntaxNode::getLexIdentifier() {
+string SyntaxNode::GetLexIdentifier() {
 	return lexIdentifier;
 }
 
-string SyntaxNode::getLexValue() {
+string SyntaxNode::GetLexValue() {
 	return lexValue;
 }
 
-string SyntaxNode::getNumericalValue() {
+string SyntaxNode::GetNumericalValue() {
 	return numericalValue;
 }
 
-list<SyntaxNode*> SyntaxNode::getChildList() {
+list<SyntaxNode*> SyntaxNode::GetChildList() {
 	return childList;
 }
 
-void SyntaxNode::writeLexical(ofstream& output) {
-	output << getLexIdentifier() << " " << getLexValue() << endl;
+void SyntaxNode::WriteLexical(ofstream& output) {
+	output << GetLexIdentifier() << " " << GetLexValue() << endl;
 }
 
-void SyntaxNode::writeSyntax(ofstream& output) {
-	output << getSynIdentifier() << endl;
+void SyntaxNode::WriteSyntax(ofstream& output) {
+	output << GetSynIdentifier() << endl;
 }
 
-void SyntaxNode::print(ofstream& output) {
-	if (isLeaf()) {
-		if (isLexEmpty()) {
-			writeSyntax(output);
+void SyntaxNode::Print(ofstream& output) {
+	if (IsLeaf()) {
+		if (IsLexEmpty()) {
+			WriteSyntax(output);
 		} else {
-			writeLexical(output);
+			WriteLexical(output);
 		}
 	} else {
-		list<SyntaxNode*> childList = getChildList();
+		list<SyntaxNode*> childList = GetChildList();
 		list<SyntaxNode*>::iterator iter = childList.begin();
 
 		while (iter != childList.end()) {
-			(*iter)->print(output);
+			(*iter)->Print(output);
 			iter++;
 		}
 
-		if (isLexEmpty()) {
-			writeSyntax(output);
+		if (IsLexEmpty()) {
+			WriteSyntax(output);
 		} else {
-			writeLexical(output);
+			WriteLexical(output);
 		}
 	}
 }

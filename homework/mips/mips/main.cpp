@@ -15,14 +15,13 @@ int main() {
 	ErrorHanding* errorHanding = new ErrorHanding(error);
 
 	LexicalAnalyser* lexicalAnalyser = new LexicalAnalyser(testfile, errorHanding);
-	list<struct Lexeme>* lexList = lexicalAnalyser->Analyze();
 	lexicalAnalyser->FileClose();
 
 	ParseAnalyser* parseAnalyser = new ParseAnalyser(midcode, lexicalAnalyser->Analyze(), errorHanding);
 	parseAnalyser->AnalyzeParse();
 	parseAnalyser->FileClose();
 
-	MipsGenerator* mipsGenerator = new MipsGenerator(midcode, mips);
+	MipsGenerator* mipsGenerator = new MipsGenerator(midcode, mips, parseAnalyser->GetSymbolTableMap());
 	mipsGenerator->FileClose();
 
 	errorHanding->PrintError();

@@ -126,6 +126,7 @@
     <ClInclude Include="error.h" />
     <ClInclude Include="error_handing.h" />
     <ClInclude Include="lexical_analyser.h" />
+    <ClInclude Include="midcode_generator.h" />
     <ClInclude Include="mips_generator.h" />
     <ClInclude Include="parse_analyser.h" />
     <ClInclude Include="symbol.h" />
@@ -137,6 +138,7 @@
     <ClCompile Include="error_handing.cpp" />
     <ClCompile Include="lexical_analyser.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="midcode_generator.cpp" />
     <ClCompile Include="mips_generator.cpp" />
     <ClCompile Include="parse_analyser.cpp" />
     <ClCompile Include="symbol.cpp" />

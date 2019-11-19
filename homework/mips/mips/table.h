@@ -13,7 +13,7 @@ private:
 	int stringNumber;
 public:
 	StringTable();
-	void AddString(string str);
+	int AddString(string str);
 	int GetStringNumber();
 	string GetString(int stringNumber);
 };
@@ -23,7 +23,7 @@ private:
 	map<string, Symbol*> symbolMap;
 public:
 	SymbolTable();
-	void AddSymbol(string name, KIND_SYMBOL kind, TYPE_SYMBOL type);
+	Symbol* AddSymbol(string name, KIND_SYMBOL kind, TYPE_SYMBOL type);
 	Symbol* FindSymbol(string name);
 };
 
@@ -32,7 +32,7 @@ private:
 	vector<SymbolTable*> symbolMapVector;
 public:
 	CheckTable();
-	void AddSymbol(string name, KIND_SYMBOL kind, TYPE_SYMBOL type, int level);
+	Symbol* AddSymbol(string name, KIND_SYMBOL kind, TYPE_SYMBOL type, int level);
 	Symbol* FindSymbol(string name, int level);
 	void ClearLevel(int level);
 	SymbolTable* GetSymbolMap(int level);

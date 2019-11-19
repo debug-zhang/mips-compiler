@@ -1,6 +1,7 @@
-#include "symbol.h"
+﻿#include "symbol.h"
 
 Symbol::Symbol() {
+	this->arrayLength = 0;
 	this->regNumber = 0;
 	this->spOffer = 0;
 	this->kind = CONST;
@@ -29,12 +30,29 @@ TYPE_SYMBOL Symbol::GetType() {
 void Symbol::AddParameter(char c) {
 	this->parameter.push_back(c);
 }
+
 string Symbol::GetParameter() {
 	return this->parameter;
 }
 
 int Symbol::GetParameterCount() {
 	return this->parameter.length();
+}
+
+void Symbol::SetConstValue(string constValue) {
+	this->constValue = constValue;
+}
+
+string Symbol::GetConstValue() {
+	return this->constValue;
+}
+
+void Symbol::SetArrayLength(int arrayLength) {
+	this->arrayLength = arrayLength;
+}
+
+int Symbol::GetArrayLength() {
+	return this->arrayLength;
 }
 
 void Symbol::SetRegNumber(int regNumber) {

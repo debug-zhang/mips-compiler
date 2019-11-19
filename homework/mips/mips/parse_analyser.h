@@ -7,6 +7,7 @@
 #include "lexical_analyser.h"
 #include "syntax_node.h"
 #include "table.h"
+#include "midcode_generator.h"
 #include "error_handing.h"
 
 using namespace std;
@@ -44,19 +45,22 @@ const string RETURN_SENTENCE = "<返回语句>";
 
 class ParseAnalyser {
 private:
-	ofstream midcode;
+	int labelCount;
+	int tempRegCount;
 	list<struct Lexeme>::iterator iter;
 	list<struct Lexeme>::iterator iterEnd;
-	CheckTable checkTable;
-	StringTable stringTable;
-	map<string, SymbolTable> symbolTableMap;
+	CheckTable* checkTable;
+	StringTable* stringTable;
+	map<string, SymbolTable*> symbolTableMap;
+	MidcodeGenerator* midecodeGenerator;
 	ErrorHanding* errorHanding;
 	Symbol* tempFunction;
 
 	void CountIterator(int step);
 
-	struct Symbol* FindSymbol(int level);
-	void InsertIdentifier(KIND_SYMBOL kind, TYPE_SYMBOL type, int level);
+	Symbol* FindSymbol(int level);
+	Symbol* InsertIdentifier(KIND_SYMBOL kind, TYPE_SYMBOL type, int level);
+	void InsertSymbolTable(string name, int level);
 	void CleanLevel(int level);
 	void AddChild(SyntaxNode* node);
 	void AddCommaChild(SyntaxNode* node);
@@ -82,11 +86,12 @@ private:
 	TYPE_SYMBOL AnalyzeFactor(SyntaxNode* node);
 	TYPE_SYMBOL AnalyzeItem(SyntaxNode* node);
 	TYPE_SYMBOL AnalyzeExpression(SyntaxNode* node);
-	void AnalyzeCondition(SyntaxNode* node);
+	void AnalyzeCondition(SyntaxNode* node, bool isFalseBranch);
 	bool AnalyzeIfSentence(SyntaxNode* node, TYPE_SYMBOL returnType);
 	int AnalyzeStep(SyntaxNode* node);
 	bool AnalyzeLoopSentence(SyntaxNode* node, TYPE_SYMBOL returnType);
 	void AnalyzeAssignSentence(SyntaxNode* node);
+	void AnalyseScanfIdentifier(SyntaxNode* node);
 	void AnalyzeScanfSentence(SyntaxNode* node);
 	void AnalyzePrintfSentence(SyntaxNode* node);
 	TYPE_SYMBOL AnalyzeReturnSentence(SyntaxNode* node);
@@ -103,6 +108,7 @@ private:
 public:
 	ParseAnalyser(string fileName, list<struct Lexeme>* lexList, ErrorHanding* errorHanding);
 	void AnalyzeParse();
+	map<string, SymbolTable*> GetSymbolTableMap();
 	void FileClose();
 };
 

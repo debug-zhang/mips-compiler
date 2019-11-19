@@ -5,8 +5,9 @@ StringTable::StringTable() {
 	this->stringNumber = 0;
 }
 
-void StringTable::AddString(string str) {
-	this->stringMap.insert(pair<int, string>(this->stringNumber++, str));
+int StringTable::AddString(string str) {
+	this->stringMap.insert(pair<int, string>(this->stringNumber, str));
+	return stringNumber++;
 }
 
 int StringTable::GetStringNumber() {
@@ -28,15 +29,16 @@ string StringTable::GetString(int stringNumber) {
 SymbolTable::SymbolTable() {
 }
 
-void SymbolTable::AddSymbol(string name, KIND_SYMBOL kind, TYPE_SYMBOL type) {
+Symbol* SymbolTable::AddSymbol(string name, KIND_SYMBOL kind, TYPE_SYMBOL type) {
 	Symbol* symbol = this->FindSymbol(name);
 	if (symbol != NULL) {
 		symbol->SetProperty(name, kind, type);
 	} else {
-		Symbol* symbol = new Symbol();
+		symbol = new Symbol();
 		symbol->SetProperty(name, kind, type);
 		this->symbolMap.insert(pair<string, Symbol*>(name, symbol));
 	}
+	return symbol;
 }
 
 Symbol* SymbolTable::FindSymbol(string name) {
@@ -58,8 +60,8 @@ CheckTable::CheckTable() {
 	this->symbolMapVector.push_back(map1);
 }
 
-void CheckTable::AddSymbol(string name, KIND_SYMBOL kind, TYPE_SYMBOL type, int level) {
-	symbolMapVector[level]->AddSymbol(name, kind, type);
+Symbol* CheckTable::AddSymbol(string name, KIND_SYMBOL kind, TYPE_SYMBOL type, int level) {
+	return this->symbolMapVector[level]->AddSymbol(name, kind, type);
 }
 
 Symbol* CheckTable::FindSymbol(string name, int level) {
