@@ -15,9 +15,9 @@ int main() {
 	ErrorHanding* errorHanding = new ErrorHanding(error);
 
 	LexicalAnalyser* lexicalAnalyser = new LexicalAnalyser(testfile, errorHanding);
-	lexicalAnalyser->FileClose();
 
 	ParseAnalyser* parseAnalyser = new ParseAnalyser(midcode, lexicalAnalyser->Analyze(), errorHanding);
+	lexicalAnalyser->FileClose();
 	parseAnalyser->AnalyzeParse();
 	parseAnalyser->FileClose();
 

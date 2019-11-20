@@ -15,35 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="error.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="error_handing.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="lexical_analyser.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="parse_analyser.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="syntax_node.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="table.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="mips_generator.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="symbol.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="midcode_generator.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="error.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -56,23 +27,52 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="parse_analyser.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="syntax_node.cpp">
+    <ClCompile Include="midcode_generator.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="mips_generator.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="parse_analyser.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="symbol.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="syntax_node.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="table.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="midcode_generator.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="error.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="error_handing.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="lexical_analyser.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="midcode_generator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="mips_generator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="parse_analyser.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="symbol.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="syntax_node.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="table.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

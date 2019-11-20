@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{34362D3E-B770-477A-B0ED-5944BC329195}</ProjectGuid>
+    <ProjectGuid>{0BE8DFD6-38BC-4F6A-B0F7-46263423132C}</ProjectGuid>
     <RootNamespace>mips</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -28,7 +28,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>ClangCL</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -123,17 +123,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="error.h" />
-    <ClInclude Include="error_handing.h" />
-    <ClInclude Include="lexical_analyser.h" />
-    <ClInclude Include="midcode_generator.h" />
-    <ClInclude Include="mips_generator.h" />
-    <ClInclude Include="parse_analyser.h" />
-    <ClInclude Include="symbol.h" />
-    <ClInclude Include="table.h" />
-    <ClInclude Include="syntax_node.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="error.cpp" />
     <ClCompile Include="error_handing.cpp" />
     <ClCompile Include="lexical_analyser.cpp" />
@@ -142,8 +131,19 @@
     <ClCompile Include="mips_generator.cpp" />
     <ClCompile Include="parse_analyser.cpp" />
     <ClCompile Include="symbol.cpp" />
-    <ClCompile Include="table.cpp" />
     <ClCompile Include="syntax_node.cpp" />
+    <ClCompile Include="table.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="error.h" />
+    <ClInclude Include="error_handing.h" />
+    <ClInclude Include="lexical_analyser.h" />
+    <ClInclude Include="midcode_generator.h" />
+    <ClInclude Include="mips_generator.h" />
+    <ClInclude Include="parse_analyser.h" />
+    <ClInclude Include="symbol.h" />
+    <ClInclude Include="syntax_node.h" />
+    <ClInclude Include="table.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

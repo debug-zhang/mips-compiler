@@ -29,11 +29,11 @@ void MidcodeGenerator::PrintReturn(bool isVoid, string value) {
 }
 
 void MidcodeGenerator::PrintLabel(int label) {
-	this->midcode << "Label_" << label << endl;
+	this->midcode << "Label_" << label << ":" << endl;
 }
 
 void MidcodeGenerator::PrintGotoLabel(int label) {
-	this->midcode << "goto Label_" << label << endl;
+	this->midcode << "goto Label_" << label << ":" << endl;
 }
 
 void MidcodeGenerator::PrintStep(string name1, string name2, string op, int step) {
@@ -41,11 +41,11 @@ void MidcodeGenerator::PrintStep(string name1, string name2, string op, int step
 }
 
 void MidcodeGenerator::PrintBez(int label, string expression) {
-	this->midcode << "bez " << expression << " Label_" << label << endl;
+	this->midcode << "bez " << expression << " Label_" << ":" << label << endl;
 }
 
 void MidcodeGenerator::PrintBnz(int label, string expression) {
-	this->midcode << "bnz " << expression << " Label_" << label << endl;
+	this->midcode << "bnz " << expression << " Label_" << ":" << label << endl;
 }
 
 void MidcodeGenerator::PrintBezOrBnz(int label, string expression, bool isFalseBranch) {
@@ -146,10 +146,6 @@ void MidcodeGenerator::PrintChar(string c) {
 	midcode << "printf char " + c << endl;
 }
 
-void MidcodeGenerator::PrintNewline() {
-	midcode << "printf \\n " << endl;
-}
-
 void MidcodeGenerator::PrintScanf(string type, string identifier) {
 	midcode << "scanf " + type << " " + identifier << endl;
 }
@@ -197,3 +193,4 @@ void MidcodeGenerator::PrintNumberOpReg(int resultReg, string number, int opReg,
 void MidcodeGenerator::PrintNumberOpNumber(int resultReg, string number1, string number2, string op) {
 	midcode << "t" << resultReg << " = " + number1 + " " + op + " " + number2 << endl;
 }
+

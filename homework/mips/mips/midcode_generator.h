@@ -52,7 +52,6 @@ public:
 	void PrintString(int stringNumber);
 	void PrintInteger(string number);
 	void PrintChar(string c);
-	void PrintNewline();
 
 	void PrintScanf(string type, string identifier);
 

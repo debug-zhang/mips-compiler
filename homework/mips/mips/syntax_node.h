@@ -30,6 +30,7 @@ public:
 	string GetLexIdentifier();
 	string GetLexValue();
 	string GetNumericalValue();
+	string GetFirstChildNumericalValue();
 	list<SyntaxNode*> GetChildList();
 	void Print(ofstream& output);
 };

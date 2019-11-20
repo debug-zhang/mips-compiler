@@ -48,6 +48,10 @@ string SyntaxNode::GetNumericalValue() {
 	return numericalValue;
 }
 
+string SyntaxNode::GetFirstChildNumericalValue() {
+	return childList.front()->GetNumericalValue();
+}
+
 list<SyntaxNode*> SyntaxNode::GetChildList() {
 	return childList;
 }

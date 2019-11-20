@@ -92,9 +92,9 @@ private:
 	bool AnalyzeIfSentence(SyntaxNode* node, TYPE_SYMBOL returnType);
 
 	int AnalyzeStep(SyntaxNode* node);
-	void AnalyseWhile(SyntaxNode* node, TYPE_SYMBOL returnType);
-	void AnalyseDoWhile(SyntaxNode* node, bool& noReturn, TYPE_SYMBOL returnType);
-	void AnalyseFor(SyntaxNode* node, TYPE_SYMBOL returnType);
+	void AnalyzeWhile(SyntaxNode* node, TYPE_SYMBOL returnType);
+	void AnalyzeDoWhile(SyntaxNode* node, bool& noReturn, TYPE_SYMBOL returnType);
+	void AnalyzeFor(SyntaxNode* node, TYPE_SYMBOL returnType);
 	bool AnalyzeLoopSentence(SyntaxNode* node, TYPE_SYMBOL returnType);
 
 	void AnalyzeAssignSentence(SyntaxNode* node);
