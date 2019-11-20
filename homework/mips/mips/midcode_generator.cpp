@@ -33,7 +33,7 @@ void MidcodeGenerator::PrintLabel(int label) {
 }
 
 void MidcodeGenerator::PrintGotoLabel(int label) {
-	this->midcode << "j Label_" << label << endl;
+	this->midcode << "goto Label_" << label << endl;
 }
 
 void MidcodeGenerator::PrintStep(string name1, string name2, string op, int step) {
@@ -180,4 +180,20 @@ void MidcodeGenerator::PrintCallFunction(string name) {
 
 void MidcodeGenerator::PrintAssignReturn(int tempRegCount) {
 	midcode << "t" << tempRegCount << " = RET" << endl;
+}
+
+void MidcodeGenerator::PrintRegOpReg(int resultReg, int opReg1, int opReg2, string op) {
+	midcode << "t" << resultReg << " = t" << opReg1 << " " + op + " t" << opReg2 << endl;
+}
+
+void MidcodeGenerator::PrintRegOpNumber(int resultReg, int opReg, string number, string op) {
+	midcode << "t" << resultReg << " = t" << opReg << " " + op + " " + number << endl;
+}
+
+void MidcodeGenerator::PrintNumberOpReg(int resultReg, string number, int opReg, string op) {
+	midcode << "t" << resultReg << " = " + number + " " + op + " t" << opReg << endl;
+}
+
+void MidcodeGenerator::PrintNumberOpNumber(int resultReg, string number1, string number2, string op) {
+	midcode << "t" << resultReg << " = " + number1 + " " + op + " " + number2 << endl;
 }

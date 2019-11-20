@@ -46,7 +46,7 @@ const string RETURN_SENTENCE = "<返回语句>";
 class ParseAnalyser {
 private:
 	int labelCount;
-	int tempRegCount;
+	int regCount;
 	list<struct Lexeme>::iterator iter;
 	list<struct Lexeme>::iterator iterEnd;
 	CheckTable* checkTable;

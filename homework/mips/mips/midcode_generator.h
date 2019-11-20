@@ -62,5 +62,10 @@ public:
 	void PrintPushParameter(string value);
 	void PrintCallFunction(string name);
 	void PrintAssignReturn(int tempRegCount);
+
+	void PrintRegOpReg(int resultReg, int opReg1, int opReg2, string op);
+	void PrintRegOpNumber(int resultReg, int opReg, string number, string op);
+	void PrintNumberOpReg(int resultReg, string number, int opReg, string op);
+	void PrintNumberOpNumber(int resultReg, string number1, string number2, string op);
 };
 

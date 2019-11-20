@@ -2,7 +2,7 @@
 
 ParseAnalyser::ParseAnalyser(string fileName, list<struct Lexeme>* lexList, ErrorHanding* errorHanding) {
 	this->labelCount = 0;
-	this->tempRegCount = 0;
+	this->regCount = 0;
 	this->midcodeGenerator->OpenMidcodeFile(fileName);
 	this->iter = lexList->begin();
 	this->iterEnd = lexList->end();
@@ -247,7 +247,7 @@ TYPE_SYMBOL ParseAnalyser::AnalyzeFactor(SyntaxNode* node) {
 			&& FindSymbol(0)->GetType() != VOID) {
 			type = FindSymbol(0)->GetType();
 			AnalyzeReturnCallSentence(AddSyntaxChild(RETURN_CALL_SENTENCE, node));
-			midcodeGenerator->PrintAssignReturn(tempRegCount++);
+			midcodeGenerator->PrintAssignReturn(regCount++);
 		} else {
 			if (FindSymbol(0) == NULL) {
 				if (FindSymbol(1) == NULL) {
@@ -269,7 +269,7 @@ TYPE_SYMBOL ParseAnalyser::AnalyzeFactor(SyntaxNode* node) {
 					errorHanding->AddError(iter->lineNumber, ILLEGAL_ARRAY_INDEX);
 				}
 				midcodeGenerator->PrintLoadToTempReg(name,
-					expression->GetNumericalValue(), tempRegCount++);
+					expression->GetNumericalValue(), regCount++);
 				AddRbrackChild(node);	// RBRACK
 			} else {
 				node->SetNumericalValue(name);
@@ -296,13 +296,61 @@ TYPE_SYMBOL ParseAnalyser::AnalyzeFactor(SyntaxNode* node) {
 
 TYPE_SYMBOL ParseAnalyser::AnalyzeItem(SyntaxNode* node) {
 	TYPE_SYMBOL type;
-	type = AnalyzeFactor(AddSyntaxChild(FACTOR, node));
-	while (IsMultOrDiv()) {
-		AddChild(node);
-		AnalyzeFactor(AddSyntaxChild(FACTOR, node));
-		type = INT;
+	string op;
+	int factorCount = 1;
+	SyntaxNode* factorRoot = NULL;
+
+	while (true) {
+		SyntaxNode* anotherFactorRoot = AddSyntaxChild(FACTOR, node);
+		int regNumber = regCount;
+		type = AnalyzeFactor(anotherFactorRoot);
+		if (regNumber == regCount) {
+			if (factorCount == 1) {
+				factorRoot = anotherFactorRoot;
+			} else if (factorCount == 2) {
+				if (factorRoot == NULL) {
+					midcodeGenerator->PrintRegOpNumber(regCount++, regNumber,
+						anotherFactorRoot->GetNumericalValue(), op);
+				} else {
+					midcodeGenerator->PrintNumberOpNumber(regCount++,
+						factorRoot->GetNumericalValue(),
+						anotherFactorRoot->GetNumericalValue(), op);
+				}
+			} else {
+				midcodeGenerator->PrintRegOpNumber(regCount++, regNumber,
+					anotherFactorRoot->GetNumericalValue(), op);
+			}
+		} else {
+			if (factorCount == 2) {
+				if (factorRoot == NULL) {
+					midcodeGenerator->PrintNumberOpReg(regCount,
+						factorRoot->GetNumericalValue(), regCount - 1, op);
+					regCount++;
+				} else {
+					midcodeGenerator->PrintRegOpReg(regCount, regNumber, regCount - 1, op);
+					regCount++;
+				}
+			} else if (factorCount != 1) {
+				midcodeGenerator->PrintRegOpReg(regCount, regNumber, regCount - 1, op);
+				regCount++;
+			}
+
+		}
+
+		if (IsMultOrDiv()) {
+			op = iter->value;
+			factorCount++;
+			AddChild(node);
+		} else {
+			break;
+		}
 	}
-	return type;
+
+	if (factorCount == 1) {
+		return type;
+	} else {
+		return INT;
+	}
 }
 
 TYPE_SYMBOL ParseAnalyser::AnalyzeExpression(SyntaxNode* node) {
