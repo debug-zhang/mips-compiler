@@ -154,11 +154,19 @@ void MidcodeGenerator::PrintScanf(string type, string identifier) {
 	midcode << "scanf " + type << " " + identifier << endl;
 }
 
-void MidcodeGenerator::PrintAssign(string name, string arrayIndex, string value) {
+void MidcodeGenerator::PrintAssignValue(string name, string arrayIndex, string value) {
 	if (arrayIndex == "") {
 		midcode << name + " = " + value << endl;
 	} else {
 		midcode << name + "[" + arrayIndex + "] = " + value << endl;
+	}
+}
+
+void MidcodeGenerator::PrintLoadToTempReg(string name, string arrayIndex, int tempRegNumber) {
+	if (arrayIndex == "") {
+		midcode << "t" << tempRegNumber << " = " << name << endl;
+	} else {
+		midcode << "t" << tempRegNumber << " = " << name + "[" + arrayIndex + "]" << endl;
 	}
 }
 
@@ -168,4 +176,8 @@ void MidcodeGenerator::PrintPushParameter(string value) {
 
 void MidcodeGenerator::PrintCallFunction(string name) {
 	midcode << "call " + name << endl;
+}
+
+void MidcodeGenerator::PrintAssignReturn(int tempRegCount) {
+	midcode << "t" << tempRegCount << " = RET" << endl;
 }

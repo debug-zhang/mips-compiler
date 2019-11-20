@@ -52,7 +52,7 @@ private:
 	CheckTable* checkTable;
 	StringTable* stringTable;
 	map<string, SymbolTable*> symbolTableMap;
-	MidcodeGenerator* midecodeGenerator;
+	MidcodeGenerator* midcodeGenerator;
 	ErrorHanding* errorHanding;
 	Symbol* tempFunction;
 

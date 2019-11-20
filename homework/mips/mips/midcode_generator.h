@@ -56,9 +56,11 @@ public:
 
 	void PrintScanf(string type, string identifier);
 
-	void PrintAssign(string name, string arrayIndex, string value);
+	void PrintAssignValue(string name, string arrayIndex, string value);
+	void PrintLoadToTempReg(string name, string arrayIndex, int tempRegNumber);
 
 	void PrintPushParameter(string value);
 	void PrintCallFunction(string name);
+	void PrintAssignReturn(int tempRegCount);
 };
 

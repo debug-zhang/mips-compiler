@@ -3,7 +3,7 @@
 ParseAnalyser::ParseAnalyser(string fileName, list<struct Lexeme>* lexList, ErrorHanding* errorHanding) {
 	this->labelCount = 0;
 	this->tempRegCount = 0;
-	this->midecodeGenerator->OpenMidcodeFile(fileName);
+	this->midcodeGenerator->OpenMidcodeFile(fileName);
 	this->iter = lexList->begin();
 	this->iterEnd = lexList->end();
 	this->errorHanding = errorHanding;
@@ -212,7 +212,7 @@ void ParseAnalyser::AnalyzeValuePrameterTable(SyntaxNode* node) {
 		SyntaxNode* expressionNode = AddSyntaxChild(EXPRESSION, node);
 		type = AnalyzeExpression(expressionNode);
 		str.push_back(type == INT ? '0' : '1');
-		midecodeGenerator->PrintPushParameter(expressionNode->GetNumericalValue());
+		midcodeGenerator->PrintPushParameter(expressionNode->GetNumericalValue());
 		while (IsThisIdentifier(COMMA)) {
 			AddChild(node);	// COMMA
 			type = AnalyzeExpression(AddSyntaxChild(EXPRESSION, node));
@@ -236,7 +236,7 @@ void ParseAnalyser::AnalyzeReturnCallSentence(SyntaxNode* node) {
 	AddChild(node);	// LPARENT
 	AnalyzeValuePrameterTable(AddSyntaxChild(VALUE_PARAMETER_TABLE, node));
 	AddRparentChild(node);	// RPARENT
-	midecodeGenerator->PrintCallFunction(tempFunction->GetName());
+	midcodeGenerator->PrintCallFunction(tempFunction->GetName());
 }
 
 TYPE_SYMBOL ParseAnalyser::AnalyzeFactor(SyntaxNode* node) {
@@ -247,6 +247,7 @@ TYPE_SYMBOL ParseAnalyser::AnalyzeFactor(SyntaxNode* node) {
 			&& FindSymbol(0)->GetType() != VOID) {
 			type = FindSymbol(0)->GetType();
 			AnalyzeReturnCallSentence(AddSyntaxChild(RETURN_CALL_SENTENCE, node));
+			midcodeGenerator->PrintAssignReturn(tempRegCount++);
 		} else {
 			if (FindSymbol(0) == NULL) {
 				if (FindSymbol(1) == NULL) {
@@ -258,26 +259,37 @@ TYPE_SYMBOL ParseAnalyser::AnalyzeFactor(SyntaxNode* node) {
 			} else {
 				type = FindSymbol(0)->GetType();
 			}
+			string name = iter->value;
 			AddChild(node);	// IDENFR
 			if (IsThisIdentifier(LBRACK)) {
 				AddChild(node);	// LBRACK
-				TYPE_SYMBOL expressType = AnalyzeExpression(AddSyntaxChild(EXPRESSION, node));
+				SyntaxNode* expression = AddSyntaxChild(EXPRESSION, node);
+				TYPE_SYMBOL expressType = AnalyzeExpression(expression);
 				if (expressType != INT) {
 					errorHanding->AddError(iter->lineNumber, ILLEGAL_ARRAY_INDEX);
 				}
+				midcodeGenerator->PrintLoadToTempReg(name,
+					expression->GetNumericalValue(), tempRegCount++);
 				AddRbrackChild(node);	// RBRACK
+			} else {
+				node->SetNumericalValue(name);
 			}
 		}
 	} else if (IsThisIdentifier(LPARENT)) {
 		AddChild(node);	// LPARENT
-		type = AnalyzeExpression(AddSyntaxChild(EXPRESSION, node));
+		SyntaxNode* expression = AddSyntaxChild(EXPRESSION, node);
+		type = AnalyzeExpression(expression);
+		type = INT;
+		node->SetNumericalValue(expression->GetNumericalValue());
 		AddRparentChild(node);	// RPARENT
 	} else if (IsThisIdentifier(CHARCON)) {
 		type = CHAR;
+		midcodeGenerator->PrintChar(iter->value);
 		AddChild(node);
 	} else {
 		type = INT;
-		AnalyzeInteger(AddSyntaxChild(INTEGER, node));
+		int integer = AnalyzeInteger(AddSyntaxChild(INTEGER, node));
+		node->SetNumericalValue(to_string(integer));
 	}
 	return type;
 }
@@ -329,26 +341,26 @@ void ParseAnalyser::AnalyzeCondition(SyntaxNode* node, bool isFalseBranch) {
 			CountIterator(+1);
 		}
 		if (op == "==") {
-			midecodeGenerator->PrintBeqOrBne(labelCount, expression1->GetNumericalValue(),
+			midcodeGenerator->PrintBeqOrBne(labelCount, expression1->GetNumericalValue(),
 				expression2->GetNumericalValue(), BEQ, isFalseBranch);
 		} else if (op == "!=") {
-			midecodeGenerator->PrintBeqOrBne(labelCount, expression1->GetNumericalValue(),
+			midcodeGenerator->PrintBeqOrBne(labelCount, expression1->GetNumericalValue(),
 				expression2->GetNumericalValue(), BNE, isFalseBranch);
 		} else if (op == "<") {
-			midecodeGenerator->PrintBgeOrBlt(labelCount, expression1->GetNumericalValue(),
+			midcodeGenerator->PrintBgeOrBlt(labelCount, expression1->GetNumericalValue(),
 				expression2->GetNumericalValue(), BLT, isFalseBranch);
 		} else if (op == ">=") {
-			midecodeGenerator->PrintBgeOrBlt(labelCount, expression1->GetNumericalValue(),
+			midcodeGenerator->PrintBgeOrBlt(labelCount, expression1->GetNumericalValue(),
 				expression2->GetNumericalValue(), BGE, isFalseBranch);
 		} else if (op == "<=") {
-			midecodeGenerator->PrintBgtOrBle(labelCount, expression1->GetNumericalValue(),
+			midcodeGenerator->PrintBgtOrBle(labelCount, expression1->GetNumericalValue(),
 				expression2->GetNumericalValue(), BLE, isFalseBranch);
 		} else if (op == ">") {
-			midecodeGenerator->PrintBgtOrBle(labelCount, expression1->GetNumericalValue(),
+			midcodeGenerator->PrintBgtOrBle(labelCount, expression1->GetNumericalValue(),
 				expression2->GetNumericalValue(), BGT, isFalseBranch);
 		}
 	} else {
-		midecodeGenerator->PrintBezOrBnz(labelCount,
+		midcodeGenerator->PrintBezOrBnz(labelCount,
 			expression1->GetNumericalValue(), isFalseBranch);
 	}
 }
@@ -365,14 +377,14 @@ bool ParseAnalyser::AnalyzeIfSentence(SyntaxNode* node, TYPE_SYMBOL returnType) 
 	noReturn = AnalyzeSentence(AddSyntaxChild(SENTENCE, node), returnType);
 
 	int endifLabel = labelCount++;
-	midecodeGenerator->PrintGotoLabel(endifLabel);
-	midecodeGenerator->PrintLabel(elseLabel);
+	midcodeGenerator->PrintGotoLabel(endifLabel);
+	midcodeGenerator->PrintLabel(elseLabel);
 
 	if (IsThisIdentifier(ELSETK)) {
 		AddChild(node);	// ELSETK
 		noReturn = AnalyzeSentence(AddSyntaxChild(SENTENCE, node), returnType) && noReturn;
 	}
-	midecodeGenerator->PrintLabel(endifLabel);
+	midcodeGenerator->PrintLabel(endifLabel);
 
 	return noReturn;
 }
@@ -386,7 +398,7 @@ int ParseAnalyser::AnalyzeStep(SyntaxNode* node) {
 void ParseAnalyser::AnalyseWhile(SyntaxNode* node, TYPE_SYMBOL returnType) {
 	AddChild(node);	// WHILETK
 	int whileLabel = labelCount++;
-	midecodeGenerator->PrintLabel(whileLabel);
+	midcodeGenerator->PrintLabel(whileLabel);
 
 	AddChild(node);	// LPARENT
 	int endWhileLabel = labelCount++;
@@ -395,15 +407,15 @@ void ParseAnalyser::AnalyseWhile(SyntaxNode* node, TYPE_SYMBOL returnType) {
 
 	AnalyzeSentence(AddSyntaxChild(SENTENCE, node), returnType);
 
-	midecodeGenerator->PrintGotoLabel(whileLabel);
-	midecodeGenerator->PrintLabel(endWhileLabel);
+	midcodeGenerator->PrintGotoLabel(whileLabel);
+	midcodeGenerator->PrintLabel(endWhileLabel);
 }
 
 void ParseAnalyser::AnalyseDoWhile(SyntaxNode* node, bool& noReturn, TYPE_SYMBOL returnType) {
 	AddChild(node);	// DOTK
 
 	int doLabel = labelCount++;
-	midecodeGenerator->PrintLabel(doLabel);
+	midcodeGenerator->PrintLabel(doLabel);
 
 	noReturn = AnalyzeSentence(AddSyntaxChild(SENTENCE, node), returnType);
 
@@ -425,10 +437,10 @@ void ParseAnalyser::AnalyseFor(SyntaxNode* node, TYPE_SYMBOL returnType) {
 	AddChild(node);	// ASSIGN
 	SyntaxNode* expressionNode = AddSyntaxChild(EXPRESSION, node);
 	AnalyzeExpression(expressionNode);
-	midecodeGenerator->PrintAssign(name, "", expressionNode->GetNumericalValue());
+	midcodeGenerator->PrintAssignValue(name, "", expressionNode->GetNumericalValue());
 
 	int forLabel = labelCount++;
-	midecodeGenerator->PrintLabel(forLabel);
+	midcodeGenerator->PrintLabel(forLabel);
 
 	AddSemicnChild(node);	// SEMICN
 
@@ -453,10 +465,10 @@ void ParseAnalyser::AnalyseFor(SyntaxNode* node, TYPE_SYMBOL returnType) {
 	int step = AnalyzeStep(AddSyntaxChild(STEP, node));
 	AddRparentChild(node);	// RPARENT
 	AnalyzeSentence(AddSyntaxChild(SENTENCE, node), returnType);
-	midecodeGenerator->PrintStep(name1, name2, op, step);
+	midcodeGenerator->PrintStep(name1, name2, op, step);
 
-	midecodeGenerator->PrintGotoLabel(forLabel);
-	midecodeGenerator->PrintLabel(endForLabel);
+	midcodeGenerator->PrintGotoLabel(forLabel);
+	midcodeGenerator->PrintLabel(endForLabel);
 }
 
 bool ParseAnalyser::AnalyzeLoopSentence(SyntaxNode* node, TYPE_SYMBOL returnType) {
@@ -505,7 +517,7 @@ void ParseAnalyser::AnalyzeAssignSentence(SyntaxNode* node) {
 	AddChild(node);	// ASSIGN
 	expressionNode = AddSyntaxChild(EXPRESSION, node);
 	AnalyzeExpression(expressionNode);
-	midecodeGenerator->PrintAssign(name, arrayIndex, expressionNode->GetNumericalValue());
+	midcodeGenerator->PrintAssignValue(name, arrayIndex, expressionNode->GetNumericalValue());
 }
 
 void ParseAnalyser::AnalyseScanfIdentifier(SyntaxNode* node) {
@@ -514,7 +526,7 @@ void ParseAnalyser::AnalyseScanfIdentifier(SyntaxNode* node) {
 	} else {
 		Symbol* symbol = FindSymbol(0) != NULL ? FindSymbol(0) : FindSymbol(1);
 		string type = symbol->GetType() == INT ? INT_TYPE : CHAR_TYPE;
-		midecodeGenerator->PrintScanf(type, symbol->GetName());
+		midcodeGenerator->PrintScanf(type, symbol->GetName());
 	}
 	AddChild(node);	// IDENFR
 }
@@ -538,28 +550,28 @@ void ParseAnalyser::AnalyzePrintfSentence(SyntaxNode* node) {
 
 	if (IsThisIdentifier(STRCON)) {
 		int stringNumber = stringTable->AddString(iter->value);
-		midecodeGenerator->PrintString(stringNumber);
+		midcodeGenerator->PrintString(stringNumber);
 		AddChild(AddSyntaxChild(STRING, node));
 		if (IsThisIdentifier(COMMA)) {
 			AddChild(node);	// COMMA
 			SyntaxNode* expression = AddSyntaxChild(EXPRESSION, node);
 			TYPE_SYMBOL type = AnalyzeExpression(expression);
 			if (type == INT) {
-				midecodeGenerator->PrintInteger(expression->GetNumericalValue());
+				midcodeGenerator->PrintInteger(expression->GetNumericalValue());
 			} else {
-				midecodeGenerator->PrintChar(expression->GetNumericalValue());
+				midcodeGenerator->PrintChar(expression->GetNumericalValue());
 			}
-			midecodeGenerator->PrintNewline();
+			midcodeGenerator->PrintNewline();
 		}
 	} else {
 		SyntaxNode* expression = AddSyntaxChild(EXPRESSION, node);
 		TYPE_SYMBOL type = AnalyzeExpression(expression);
 		if (type == INT) {
-			midecodeGenerator->PrintInteger(expression->GetNumericalValue());
+			midcodeGenerator->PrintInteger(expression->GetNumericalValue());
 		} else {
-			midecodeGenerator->PrintChar(expression->GetNumericalValue());
+			midcodeGenerator->PrintChar(expression->GetNumericalValue());
 		}
-		midecodeGenerator->PrintNewline();
+		midcodeGenerator->PrintNewline();
 	}
 
 	AddRparentChild(node);	// RPARENT
@@ -571,7 +583,7 @@ TYPE_SYMBOL ParseAnalyser::AnalyzeReturnSentence(SyntaxNode* node) {
 	if (IsThisIdentifier(LPARENT)) {
 		AddChild(node);	// LPARENT
 		type = AnalyzeExpression(AddSyntaxChild(EXPRESSION, node));
-		midecodeGenerator->PrintReturn(false, node->GetNumericalValue());
+		midcodeGenerator->PrintReturn(false, node->GetNumericalValue());
 		AddRparentChild(node);	// RPARENT
 	}
 	return type;
@@ -683,10 +695,10 @@ void ParseAnalyser::AnalyzeMain(SyntaxNode* node) {
 	AddChild(node);	// MAINTK
 	AddChild(node);	// LPARENT
 	AddRparentChild(node);	// RPARENT
-	midecodeGenerator->PrintVoidFuncDeclare(tempFunction);
+	midcodeGenerator->PrintVoidFuncDeclare(tempFunction);
 	AddChild(node);	// LBRACE
 	AnalyzeCompositeSentence(AddSyntaxChild(COMPOSITE_SENTENCE, node), VOID);
-	midecodeGenerator->PrintReturn(true, NULL);
+	midcodeGenerator->PrintReturn(true, NULL);
 	AddChild(node);	// RBRACE
 	InsertSymbolTable(tempFunction->GetName(), 1);
 }
@@ -719,10 +731,10 @@ void ParseAnalyser::AnalyzeVoidFunc(SyntaxNode* node) {
 	AddChild(node);	// LPARENT
 	AnalyzeParameterTable(AddSyntaxChild(PARAMETER_TABLE, node));
 	AddRparentChild(node);	// RPARENT
-	midecodeGenerator->PrintVoidFuncDeclare(tempFunction);
+	midcodeGenerator->PrintVoidFuncDeclare(tempFunction);
 	AddChild(node);	// LBRACE
 	AnalyzeCompositeSentence(AddSyntaxChild(COMPOSITE_SENTENCE, node), VOID);
-	midecodeGenerator->PrintReturn(true, NULL);
+	midcodeGenerator->PrintReturn(true, NULL);
 	AddChild(node);	// RBRACE
 	InsertSymbolTable(tempFunction->GetName(), 1);
 }
@@ -744,7 +756,7 @@ void ParseAnalyser::AnalyzeFunc(SyntaxNode* node) {
 	AddChild(node);	// LPARENT
 	AnalyzeParameterTable(AddSyntaxChild(PARAMETER_TABLE, node));
 	AddRparentChild(node);	// RPARENT
-	midecodeGenerator->PrintFuncDeclare(tempFunction);
+	midcodeGenerator->PrintFuncDeclare(tempFunction);
 	AddChild(node);	// LBRACE
 	AnalyzeCompositeSentence(AddSyntaxChild(COMPOSITE_SENTENCE, node),
 		tempFunction->GetType());
@@ -801,5 +813,5 @@ map<string, SymbolTable*> ParseAnalyser::GetSymbolTableMap() {
 }
 
 void ParseAnalyser::FileClose() {
-	midecodeGenerator->FileClose();
+	midcodeGenerator->FileClose();
 }
