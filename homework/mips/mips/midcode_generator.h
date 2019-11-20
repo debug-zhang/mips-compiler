@@ -40,9 +40,9 @@ public:
 	void PrintVoidFuncDeclare(Symbol* function);
 	void PrintReturn(bool isVoid, string value);
 
-	void PrintElseLabel(int label);
-	void PrintEndifLabel(int label);
-	void PrintGotoEndifLabel(int label);
+	void PrintLabel(int label);
+	void PrintGotoLabel(int label);
+	void PrintStep(string name1, string name2, string op, int step);
 
 	void PrintBezOrBnz(int label, string expression, bool isFalseBranch);
 	void PrintBeqOrBne(int label, string expression, string expression2, JUDGE judge, bool isFalseBranch);
@@ -55,5 +55,10 @@ public:
 	void PrintNewline();
 
 	void PrintScanf(string type, string identifier);
+
+	void PrintAssign(string name, string arrayIndex, string value);
+
+	void PrintPushParameter(string value);
+	void PrintCallFunction(string name);
 };
 

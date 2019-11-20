@@ -209,8 +209,10 @@ void ParseAnalyser::AnalyzeValuePrameterTable(SyntaxNode* node) {
 	string str;
 	TYPE_SYMBOL type;
 	while (!IsThisIdentifier(RPARENT)) {
-		type = AnalyzeExpression(AddSyntaxChild(EXPRESSION, node));
+		SyntaxNode* expressionNode = AddSyntaxChild(EXPRESSION, node);
+		type = AnalyzeExpression(expressionNode);
 		str.push_back(type == INT ? '0' : '1');
+		midecodeGenerator->PrintPushParameter(expressionNode->GetNumericalValue());
 		while (IsThisIdentifier(COMMA)) {
 			AddChild(node);	// COMMA
 			type = AnalyzeExpression(AddSyntaxChild(EXPRESSION, node));
@@ -234,10 +236,7 @@ void ParseAnalyser::AnalyzeReturnCallSentence(SyntaxNode* node) {
 	AddChild(node);	// LPARENT
 	AnalyzeValuePrameterTable(AddSyntaxChild(VALUE_PARAMETER_TABLE, node));
 	AddRparentChild(node);	// RPARENT
-}
-
-void ParseAnalyser::AnalyzeNoReturnCallSentence(SyntaxNode* node) {
-	AnalyzeReturnCallSentence(node);
+	midecodeGenerator->PrintCallFunction(tempFunction->GetName());
 }
 
 TYPE_SYMBOL ParseAnalyser::AnalyzeFactor(SyntaxNode* node) {
@@ -366,14 +365,15 @@ bool ParseAnalyser::AnalyzeIfSentence(SyntaxNode* node, TYPE_SYMBOL returnType) 
 	noReturn = AnalyzeSentence(AddSyntaxChild(SENTENCE, node), returnType);
 
 	int endifLabel = labelCount++;
-	midecodeGenerator->PrintGotoEndifLabel(endifLabel);
-	midecodeGenerator->PrintElseLabel(elseLabel);
+	midecodeGenerator->PrintGotoLabel(endifLabel);
+	midecodeGenerator->PrintLabel(elseLabel);
 
 	if (IsThisIdentifier(ELSETK)) {
 		AddChild(node);	// ELSETK
 		noReturn = AnalyzeSentence(AddSyntaxChild(SENTENCE, node), returnType) && noReturn;
 	}
-	midecodeGenerator->PrintEndifLabel(labelCount);
+	midecodeGenerator->PrintLabel(endifLabel);
+
 	return noReturn;
 }
 
@@ -383,46 +383,90 @@ int ParseAnalyser::AnalyzeStep(SyntaxNode* node) {
 	return step;
 }
 
+void ParseAnalyser::AnalyseWhile(SyntaxNode* node, TYPE_SYMBOL returnType) {
+	AddChild(node);	// WHILETK
+	int whileLabel = labelCount++;
+	midecodeGenerator->PrintLabel(whileLabel);
+
+	AddChild(node);	// LPARENT
+	int endWhileLabel = labelCount++;
+	AnalyzeCondition(AddSyntaxChild(CONDITION, node), true);
+	AddRparentChild(node);	// RPARENT
+
+	AnalyzeSentence(AddSyntaxChild(SENTENCE, node), returnType);
+
+	midecodeGenerator->PrintGotoLabel(whileLabel);
+	midecodeGenerator->PrintLabel(endWhileLabel);
+}
+
+void ParseAnalyser::AnalyseDoWhile(SyntaxNode* node, bool& noReturn, TYPE_SYMBOL returnType) {
+	AddChild(node);	// DOTK
+
+	int doLabel = labelCount++;
+	midecodeGenerator->PrintLabel(doLabel);
+
+	noReturn = AnalyzeSentence(AddSyntaxChild(SENTENCE, node), returnType);
+
+	AddWhileChild(node);	// WHILETK
+	AddChild(node);	// LPARENT
+	AnalyzeCondition(AddSyntaxChild(CONDITION, node), false);
+	AddRparentChild(node);	// RPARENT
+}
+
+void ParseAnalyser::AnalyseFor(SyntaxNode* node, TYPE_SYMBOL returnType) {
+	AddChild(node);	// FORTK
+	AddChild(node);	// LPARENT
+	if (FindSymbol(0) == NULL && FindSymbol(1) == NULL) {
+		errorHanding->AddError(iter->lineNumber, UNDEFINED);
+	}
+
+	string name = iter->value;
+	AddChild(node);	// IDENFR
+	AddChild(node);	// ASSIGN
+	SyntaxNode* expressionNode = AddSyntaxChild(EXPRESSION, node);
+	AnalyzeExpression(expressionNode);
+	midecodeGenerator->PrintAssign(name, "", expressionNode->GetNumericalValue());
+
+	int forLabel = labelCount++;
+	midecodeGenerator->PrintLabel(forLabel);
+
+	AddSemicnChild(node);	// SEMICN
+
+	int endForLabel = labelCount++;
+	AnalyzeCondition(AddSyntaxChild(CONDITION, node), true);
+
+	AddSemicnChild(node);	// SEMICN
+
+	if (FindSymbol(0) == NULL && FindSymbol(1) == NULL) {
+		errorHanding->AddError(iter->lineNumber, UNDEFINED);
+	}
+	string name1 = iter->value;
+	AddChild(node);	// IDENFR
+	AddChild(node);	// ASSIGN
+	if (FindSymbol(0) == NULL && FindSymbol(1) == NULL) {
+		errorHanding->AddError(iter->lineNumber, UNDEFINED);
+	}
+	string name2 = iter->value;
+	AddChild(node);	// IDENFR
+	string op = iter->value;
+	AddChild(node);	// PLUS or MINU
+	int step = AnalyzeStep(AddSyntaxChild(STEP, node));
+	AddRparentChild(node);	// RPARENT
+	AnalyzeSentence(AddSyntaxChild(SENTENCE, node), returnType);
+	midecodeGenerator->PrintStep(name1, name2, op, step);
+
+	midecodeGenerator->PrintGotoLabel(forLabel);
+	midecodeGenerator->PrintLabel(endForLabel);
+}
+
 bool ParseAnalyser::AnalyzeLoopSentence(SyntaxNode* node, TYPE_SYMBOL returnType) {
 	bool noReturn = true;
 	if (IsThisIdentifier(WHILETK)) {
-		AddChild(node);	// WHILETK
-		AddChild(node);	// LPARENT
-		AnalyzeCondition(AddSyntaxChild(CONDITION, node));
-		AddRparentChild(node);	// RPARENT
-		AnalyzeSentence(AddSyntaxChild(SENTENCE, node), returnType);
+		AnalyseWhile(node, returnType);
 	} else if (IsThisIdentifier(DOTK)) {
-		AddChild(node);	// DOTK
-		noReturn = AnalyzeSentence(AddSyntaxChild(SENTENCE, node), returnType);
-		AddWhileChild(node);	// WHILETK
-		AddChild(node);	// LPARENT
-		AnalyzeCondition(AddSyntaxChild(CONDITION, node));
-		AddRparentChild(node);	// RPARENT
+		AnalyseDoWhile(node, noReturn, returnType);
 	} else if (IsThisIdentifier(FORTK)) {
-		AddChild(node);	// FORTK
-		AddChild(node);	// LPARENT
-		if (FindSymbol(0) == NULL && FindSymbol(1) == NULL) {
-			errorHanding->AddError(iter->lineNumber, UNDEFINED);
-		}
-		AddChild(node);	// IDENFR
-		AddChild(node);	// ASSIGN
-		AnalyzeExpression(AddSyntaxChild(EXPRESSION, node));
-		AddSemicnChild(node);	// SEMICN
-		AnalyzeCondition(AddSyntaxChild(CONDITION, node));
-		AddSemicnChild(node);	// SEMICN
-		if (FindSymbol(0) == NULL && FindSymbol(1) == NULL) {
-			errorHanding->AddError(iter->lineNumber, UNDEFINED);
-		}
-		AddChild(node);	// IDENFR
-		AddChild(node);	// ASSIGN
-		if (FindSymbol(0) == NULL && FindSymbol(1) == NULL) {
-			errorHanding->AddError(iter->lineNumber, UNDEFINED);
-		}
-		AddChild(node);	// IDENFR
-		AddChild(node);	// PLUS or MINU
-		AnalyzeStep(AddSyntaxChild(STEP, node));
-		AddRparentChild(node);	// RPARENT
-		AnalyzeSentence(AddSyntaxChild(SENTENCE, node), returnType);
+		AnalyseFor(node, returnType);
 	}
 	return noReturn;
 }
@@ -444,16 +488,24 @@ void ParseAnalyser::AnalyzeAssignSentence(SyntaxNode* node) {
 			errorHanding->AddError(iter->lineNumber, ASSIGN_TO_CONST);
 		}
 	}
+	string name = iter->value;
+	string arrayIndex = "";
 	AddChild(node);	// IDENFR
+
+	SyntaxNode* expressionNode;
 	if (IsThisIdentifier(LBRACK)) {
 		AddChild(node);	// LBRACK
-		if (AnalyzeExpression(AddSyntaxChild(EXPRESSION, node)) == CHAR) {
+		expressionNode = AddSyntaxChild(EXPRESSION, node);
+		if (AnalyzeExpression(expressionNode) == CHAR) {
 			errorHanding->AddError(iter->lineNumber, ILLEGAL_ARRAY_INDEX);
 		}
+		arrayIndex = expressionNode->GetNumericalValue();
 		AddRbrackChild(node);	// RBRACK
 	}
 	AddChild(node);	// ASSIGN
-	AnalyzeExpression(AddSyntaxChild(EXPRESSION, node));
+	expressionNode = AddSyntaxChild(EXPRESSION, node);
+	AnalyzeExpression(expressionNode);
+	midecodeGenerator->PrintAssign(name, arrayIndex, expressionNode->GetNumericalValue());
 }
 
 void ParseAnalyser::AnalyseScanfIdentifier(SyntaxNode* node) {

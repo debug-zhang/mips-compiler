@@ -80,29 +80,39 @@ private:
 	void AnalyzeConstDeclare(SyntaxNode* node, int level);
 	void AnalyzeVariableDefine(SyntaxNode* node, int level);
 	void AnalyzeVariableDeclare(SyntaxNode* node, int level);
+
 	void AnalyzeValuePrameterTable(SyntaxNode* node);
 	void AnalyzeReturnCallSentence(SyntaxNode* node);
-	void AnalyzeNoReturnCallSentence(SyntaxNode* node);
+
 	TYPE_SYMBOL AnalyzeFactor(SyntaxNode* node);
 	TYPE_SYMBOL AnalyzeItem(SyntaxNode* node);
 	TYPE_SYMBOL AnalyzeExpression(SyntaxNode* node);
+
 	void AnalyzeCondition(SyntaxNode* node, bool isFalseBranch);
 	bool AnalyzeIfSentence(SyntaxNode* node, TYPE_SYMBOL returnType);
+
 	int AnalyzeStep(SyntaxNode* node);
+	void AnalyseWhile(SyntaxNode* node, TYPE_SYMBOL returnType);
+	void AnalyseDoWhile(SyntaxNode* node, bool& noReturn, TYPE_SYMBOL returnType);
+	void AnalyseFor(SyntaxNode* node, TYPE_SYMBOL returnType);
 	bool AnalyzeLoopSentence(SyntaxNode* node, TYPE_SYMBOL returnType);
+
 	void AnalyzeAssignSentence(SyntaxNode* node);
 	void AnalyseScanfIdentifier(SyntaxNode* node);
 	void AnalyzeScanfSentence(SyntaxNode* node);
 	void AnalyzePrintfSentence(SyntaxNode* node);
 	TYPE_SYMBOL AnalyzeReturnSentence(SyntaxNode* node);
+
 	bool AnalyzeSentence(SyntaxNode* node, TYPE_SYMBOL returnType);
 	bool AnalyzeSentenceCollection(SyntaxNode* node, TYPE_SYMBOL returnType);
 	void AnalyzeCompositeSentence(SyntaxNode* node, TYPE_SYMBOL returnType);
+
 	void AnalyzeMain(SyntaxNode* node);
 	void AnalyzeParameterTable(SyntaxNode* node);
 	void AnalyzeVoidFunc(SyntaxNode* node);
 	void AnalyzeHeadState(SyntaxNode* node);
 	void AnalyzeFunc(SyntaxNode* node);
+
 	void BuildSyntaxTree(SyntaxNode* root);
 
 public:
