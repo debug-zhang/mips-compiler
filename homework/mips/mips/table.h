@@ -9,31 +9,36 @@ using namespace std;
 
 class StringTable {
 private:
-	map<int, string> stringMap;
-	int stringNumber;
+	map<int, string> string_map_;
+	int string_number_;
 public:
 	StringTable();
 	int AddString(string str);
-	int GetStringNumber();
+	int GetStringCount();
 	string GetString(int stringNumber);
 };
 
 class SymbolTable {
 private:
-	map<string, Symbol*> symbolMap;
+	map<string, Symbol*> symbol_map_;
 public:
 	SymbolTable();
-	Symbol* AddSymbol(string name, KIND_SYMBOL kind, TYPE_SYMBOL type);
+	Symbol* AddSymbol(string name, KindSymbol kind, TypeSymbol type);
 	Symbol* FindSymbol(string name);
+	map<string, Symbol*> symbol_map();
 };
 
 class CheckTable {
 private:
-	vector<SymbolTable*> symbolMapVector;
+	vector<SymbolTable*> symbol_table_vector_;
 public:
 	CheckTable();
-	Symbol* AddSymbol(string name, KIND_SYMBOL kind, TYPE_SYMBOL type, int level);
+	Symbol* AddSymbol(string name, KindSymbol kind, TypeSymbol type, int level);
+	Symbol* FindSymbol(string name);
 	Symbol* FindSymbol(string name, int level);
+	int GetSymbolLevel(string name);
 	void ClearLevel(int level);
-	SymbolTable* GetSymbolMap(int level);
+	void SetTable(int level, SymbolTable* symbolTable);
+	SymbolTable* GetSymbolTable(int level);
+	map<string, Symbol*> GetSymbolMap(int level);
 };

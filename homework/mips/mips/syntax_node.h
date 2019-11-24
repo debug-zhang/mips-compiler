@@ -9,11 +9,12 @@ using namespace std;
 class SyntaxNode
 {
 private:
-	string synIdentifier;
-	string lexIdentifier;
-	string lexValue;
-	string numericalValue;
-	list<SyntaxNode*> childList;
+	string syntax_identifier_;
+	string lexeme_identifier_;
+	string lexeme_value_;
+	string value_;
+	list<SyntaxNode*> child_list_;
+
 	void WriteLexical(ofstream& output);
 	void WriteSyntax(ofstream& output);
 
@@ -21,15 +22,15 @@ public:
 	SyntaxNode();
 	SyntaxNode(string synIdentifier);
 	SyntaxNode(string lexIdentifier, string lexValue);
-	void SetSynIdentifier(string synIdentifier);
-	void SetNumericalValue(string numericalValue);
+	void set_syntax_identifier(string synIdentifier);
+	void set_value(string numericalValue);
 	bool IsLeaf();
-	bool IsLexEmpty();
+	bool IsLexemeEmpty();
 	void AddChild(SyntaxNode* child);
-	string GetSynIdentifier();
-	string GetLexIdentifier();
-	string GetLexValue();
-	string GetNumericalValue();
+	string syntax_identifier();
+	string lexeme_identifier();
+	string lexeme_value();
+	string value();
 	string GetFirstChildNumericalValue();
 	list<SyntaxNode*> GetChildList();
 	void Print(ofstream& output);

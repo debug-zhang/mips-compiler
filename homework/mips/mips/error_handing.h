@@ -8,8 +8,8 @@ using namespace std;
 
 class ErrorHanding {
 private:
-	ofstream errorFile;
-	list<Error> errorList;
+	ofstream error_file_;
+	list<Error> error_list_;
 public:
 	ErrorHanding(string fileName);
 	void AddError(Error error);

@@ -4,75 +4,75 @@ SyntaxNode::SyntaxNode() {
 }
 
 SyntaxNode::SyntaxNode(string synIdentifier) {
-	this->synIdentifier = synIdentifier;
+	this->syntax_identifier_ = synIdentifier;
 }
 
 SyntaxNode::SyntaxNode(string lexIdentifier, string lexValue) {
-	this->lexIdentifier = lexIdentifier;
-	this->lexValue = lexValue;
+	this->lexeme_identifier_ = lexIdentifier;
+	this->lexeme_value_ = lexValue;
 }
 
-void SyntaxNode::SetSynIdentifier(string synIdentifier) {
-	this->synIdentifier = synIdentifier;
+void SyntaxNode::set_syntax_identifier(string synIdentifier) {
+	this->syntax_identifier_ = synIdentifier;
 }
 
-void SyntaxNode::SetNumericalValue(string numericalValue) {
-	this->numericalValue = numericalValue;
+void SyntaxNode::set_value(string numericalValue) {
+	this->value_ = numericalValue;
 }
 
 bool SyntaxNode::IsLeaf() {
-	return childList.empty();
+	return child_list_.empty();
 }
 
-bool SyntaxNode::IsLexEmpty() {
-	return this->lexIdentifier.empty();
+bool SyntaxNode::IsLexemeEmpty() {
+	return this->lexeme_identifier_.empty();
 }
 
 void SyntaxNode::AddChild(SyntaxNode* child) {
-	childList.push_back(child);
+	child_list_.push_back(child);
 }
 
-string SyntaxNode::GetSynIdentifier() {
-	return synIdentifier;
+string SyntaxNode::syntax_identifier() {
+	return syntax_identifier_;
 }
 
-string SyntaxNode::GetLexIdentifier() {
-	return lexIdentifier;
+string SyntaxNode::lexeme_identifier() {
+	return lexeme_identifier_;
 }
 
-string SyntaxNode::GetLexValue() {
-	return lexValue;
+string SyntaxNode::lexeme_value() {
+	return lexeme_value_;
 }
 
-string SyntaxNode::GetNumericalValue() {
-	return numericalValue;
+string SyntaxNode::value() {
+	return value_;
 }
 
 string SyntaxNode::GetFirstChildNumericalValue() {
-	return childList.front()->GetNumericalValue();
+	return child_list_.front()->value();
 }
 
 list<SyntaxNode*> SyntaxNode::GetChildList() {
-	return childList;
+	return child_list_;
 }
 
 void SyntaxNode::WriteLexical(ofstream& output) {
-	output << GetLexIdentifier() << " " << GetLexValue() << endl;
+	output << this->lexeme_identifier() << " " << lexeme_value() << endl;
 }
 
 void SyntaxNode::WriteSyntax(ofstream& output) {
-	output << GetSynIdentifier() << endl;
+	output << this->syntax_identifier() << endl;
 }
 
 void SyntaxNode::Print(ofstream& output) {
-	if (IsLeaf()) {
-		if (IsLexEmpty()) {
-			WriteSyntax(output);
+	if (this->IsLeaf()) {
+		if (this->IsLexemeEmpty()) {
+			this->WriteSyntax(output);
 		} else {
-			WriteLexical(output);
+			this->WriteLexical(output);
 		}
 	} else {
-		list<SyntaxNode*> childList = GetChildList();
+		list<SyntaxNode*> childList = this->GetChildList();
 		list<SyntaxNode*>::iterator iter = childList.begin();
 
 		while (iter != childList.end()) {
@@ -80,10 +80,10 @@ void SyntaxNode::Print(ofstream& output) {
 			iter++;
 		}
 
-		if (IsLexEmpty()) {
-			WriteSyntax(output);
+		if (this->IsLexemeEmpty()) {
+			this->WriteSyntax(output);
 		} else {
-			WriteLexical(output);
+			this->WriteLexical(output);
 		}
 	}
 }

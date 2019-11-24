@@ -1,48 +1,52 @@
 ﻿#include "parse_analyser.h"
 
 ParseAnalyser::ParseAnalyser(string fileName, list<struct Lexeme>* lexList, ErrorHanding* errorHanding) {
-	this->checkTable = new CheckTable();
-	this->stringTable = new StringTable();
-	this->midcodeGenerator = new MidcodeGenerator();
+	this->check_table_ = new CheckTable();
+	this->string_table_ = new StringTable();
+	this->midcode_generator_ = new MidcodeGenerator();
 
-	this->labelCount = 0;
-	this->regCount = 0;
-	this->midcodeGenerator->OpenMidcodeFile(fileName);
-	this->iter = lexList->begin();
-	this->iterEnd = lexList->end();
-	this->errorHanding = errorHanding;
+	this->label_count_ = 0;
+	this->reg_count_ = 0;
+	this->midcode_generator_->OpenMidcodeFile(fileName);
+	this->iter_ = lexList->begin();
+	this->iter_end_ = lexList->end();
+	this->error_handing_ = errorHanding;
 }
 
 void ParseAnalyser::CountIterator(int step) {
 	if (step > 0) {
 		while (step--) {
-			iter++;
+			iter_++;
 		}
 	} else {
 		while (step++) {
-			iter--;
+			iter_--;
 		}
 	}
 }
 
-Symbol* ParseAnalyser::InsertIdentifier(KIND_SYMBOL kind, TYPE_SYMBOL type, int level) {
-	return checkTable->AddSymbol(iter->value, kind, type, level);
+Symbol* ParseAnalyser::InsertIdentifier(KindSymbol kind, TypeSymbol type, int level) {
+	return check_table_->AddSymbol(iter_->value, kind, type, level);
 }
 
 void ParseAnalyser::InsertSymbolTable(string name, int level) {
-	symbolTableMap.insert(pair<string, SymbolTable*>(name, checkTable->GetSymbolMap(level)));
+	symbol_table_map_.insert(pair<string, SymbolTable*>(name, check_table_->GetSymbolTable(level)));
 }
 
 void ParseAnalyser::CleanLevel(int level) {
-	checkTable->ClearLevel(level);
+	check_table_->ClearLevel(level);
+}
+
+Symbol* ParseAnalyser::FindSymbol() {
+	return check_table_->FindSymbol(iter_->value);
 }
 
 Symbol* ParseAnalyser::FindSymbol(int level) {
-	return checkTable->FindSymbol(iter->value, level);
+	return check_table_->FindSymbol(iter_->value, level);
 }
 
 bool ParseAnalyser::IsThisIdentifier(string identifier) {
-	return iter->identifier == identifier;
+	return iter_->identifier == identifier;
 }
 
 bool ParseAnalyser::IsPlusOrMinu() {
@@ -54,13 +58,13 @@ bool ParseAnalyser::IsMultOrDiv() {
 }
 
 bool ParseAnalyser::IsVariableDefine() {
-	if (IsThisIdentifier(INTTK) || IsThisIdentifier(CHARTK)) {
-		CountIterator(+2);
-		if (IsThisIdentifier(LPARENT)) {
-			CountIterator(-2);
+	if (this->IsThisIdentifier(INTTK) || this->IsThisIdentifier(CHARTK)) {
+		this->CountIterator(+2);
+		if (this->IsThisIdentifier(LPARENT)) {
+			this->CountIterator(-2);
 			return false;
 		} else {
-			CountIterator(-2);
+			this->CountIterator(-2);
 			return true;
 		}
 	} else {
@@ -69,53 +73,53 @@ bool ParseAnalyser::IsVariableDefine() {
 }
 
 void ParseAnalyser::AddChild(SyntaxNode* node) {
-	node->AddChild(new SyntaxNode(iter->identifier, iter->value));
-	CountIterator(+1);
+	node->AddChild(new SyntaxNode(iter_->identifier, iter_->value));
+	this->CountIterator(+1);
 }
 
 void ParseAnalyser::AddCommaChild(SyntaxNode* node) {
-	if (IsThisIdentifier(COMMA)) {
-		AddChild(node);
+	if (this->IsThisIdentifier(COMMA)) {
+		this->AddChild(node);
 	}
 }
 
 void ParseAnalyser::AddSemicnChild(SyntaxNode* node) {
-	if (IsThisIdentifier(SEMICN)) {
-		AddChild(node);	// SEMICN
+	if (this->IsThisIdentifier(SEMICN)) {
+		this->AddChild(node);	// SEMICN
 	} else {
-		CountIterator(-1);
-		errorHanding->AddError(iter->lineNumber, MISSING_SEMICN);
-		CountIterator(+1);
+		this->CountIterator(-1);
+		error_handing_->AddError(iter_->line_number, MISSING_SEMICN);
+		this->CountIterator(+1);
 	}
 }
 
 void ParseAnalyser::AddWhileChild(SyntaxNode* node) {
-	if (IsThisIdentifier(WHILETK)) {
-		AddChild(node);	// WHILETK
+	if (this->IsThisIdentifier(WHILETK)) {
+		this->AddChild(node);	// WHILETK
 	} else {
-		CountIterator(-1);
-		errorHanding->AddError(iter->lineNumber, MISSING_WHILE_IN_DO_WHILE);
-		CountIterator(+1);
+		this->CountIterator(-1);
+		error_handing_->AddError(iter_->line_number, MISSING_WHILE_IN_DO_WHILE);
+		this->CountIterator(+1);
 	}
 }
 
 void ParseAnalyser::AddRbrackChild(SyntaxNode* node) {
-	if (IsThisIdentifier(RBRACK)) {
-		AddChild(node);	// RBRACK
+	if (this->IsThisIdentifier(RBRACK)) {
+		this->AddChild(node);	// RBRACK
 	} else {
-		CountIterator(-1);
-		errorHanding->AddError(iter->lineNumber, MISSING_RBRACK);
-		CountIterator(+1);
+		this->CountIterator(-1);
+		error_handing_->AddError(iter_->line_number, MISSING_RBRACK);
+		this->CountIterator(+1);
 	}
 }
 
 void ParseAnalyser::AddRparentChild(SyntaxNode* node) {
-	if (IsThisIdentifier(RPARENT)) {
-		AddChild(node);	// RPARENT
+	if (this->IsThisIdentifier(RPARENT)) {
+		this->AddChild(node);	// RPARENT
 	} else {
-		CountIterator(-1);
-		errorHanding->AddError(iter->lineNumber, MISSING_RPARENT);
-		CountIterator(+1);
+		this->CountIterator(-1);
+		error_handing_->AddError(iter_->line_number, MISSING_RPARENT);
+		this->CountIterator(+1);
 	}
 }
 
@@ -125,224 +129,228 @@ SyntaxNode* ParseAnalyser::AddSyntaxChild(string syntaxName, SyntaxNode* node) {
 	return subRoot;
 }
 
+void ParseAnalyser::SetSymbolType(TypeSymbol& type) {
+	type = iter_->identifier == INTTK ? TypeSymbol::INT : TypeSymbol::CHAR;
+}
+
 int ParseAnalyser::AnalyzeInteger(SyntaxNode* node) {
 	int op = 1;
-	if (IsPlusOrMinu()) {
-		if (IsThisIdentifier(MINU)) {
+	if (this->IsPlusOrMinu()) {
+		if (this->IsThisIdentifier(MINU)) {
 			op = -1;
 		}
-		AddChild(node);
+		this->AddChild(node);
 	}
 
-	int integer = op * stoi(iter->value);
-	AddChild(AddSyntaxChild(UNSIGNINT, node));		// INTCON
+	int integer = op * stoi(iter_->value);
+	this->AddChild(this->AddSyntaxChild(UNSIGNINT, node));		// INTCON
 
 	return integer;
 }
 
 void ParseAnalyser::AnalyzeConstDefine(SyntaxNode* node, int level) {
 	Symbol* symbol = new Symbol();
-	TYPE_SYMBOL type = iter->identifier == INTTK ? INT : CHAR;
-	AddChild(node);	// INTTK or CHARTK
-	while (IsThisIdentifier(IDENFR)) {
-		if (FindSymbol(level)) {
-			errorHanding->AddError(iter->lineNumber, REDEFINITION);
+	TypeSymbol type;
+	this->SetSymbolType(type);
+	this->AddChild(node);	// INTTK or CHARTK
+
+	while (this->IsThisIdentifier(IDENFR)) {
+		if (this->FindSymbol(level)) {
+			error_handing_->AddError(iter_->line_number, REDEFINITION);
 		} else {
-			symbol = InsertIdentifier(CONST, type, level);
+			symbol = this->InsertIdentifier(KindSymbol::CONST, type, level);
 		}
-		AddChild(node);	// IDENFR
-		AddChild(node);	// ASDSIGN
-		if (IsThisIdentifier(CHARCON)) {
-			symbol->SetConstValue("\'" + iter->value + "\'");
-			AddChild(node);	// CHARCON
-		} else if (IsThisIdentifier(INTCON) || IsPlusOrMinu()) {
-			int value = AnalyzeInteger(AddSyntaxChild(INTEGER, node));
-			symbol->SetConstValue(to_string(value));
+		this->AddChild(node);	// IDENFR
+		this->AddChild(node);	// ASDSIGN
+		if (this->IsThisIdentifier(CHARCON)) {
+			symbol->set_const_value("\'" + iter_->value + "\'");
+			this->AddChild(node);	// CHARCON
+		} else if (this->IsThisIdentifier(INTCON) || this->IsPlusOrMinu()) {
+			int value = this->AnalyzeInteger(this->AddSyntaxChild(INTEGER, node));
+			symbol->set_const_value(to_string(value));
 		} else {
-			errorHanding->AddError(iter->lineNumber, DEFINE_CONST_OTHERS);
-			AddChild(node);
+			error_handing_->AddError(iter_->line_number, DEFINE_CONST_OTHERS);
+			this->AddChild(node);
 		}
-		AddCommaChild(node);	// COMMA
+		this->AddCommaChild(node);	// COMMA
 	}
 }
 
 void ParseAnalyser::AnalyzeConstDeclare(SyntaxNode* node, int level) {
-	while (IsThisIdentifier(CONSTTK)) {
-		AddChild(node);	// CONSTTK
-		AnalyzeConstDefine(AddSyntaxChild(CONST_DEFINE, node), level);
-		AddSemicnChild(node);	// SEMICN
+	while (this->IsThisIdentifier(CONSTTK)) {
+		this->AddChild(node);	// CONSTTK
+		this->AnalyzeConstDefine(this->AddSyntaxChild(CONST_DEFINE, node), level);
+		this->AddSemicnChild(node);	// SEMICN
 	}
 }
 
 void ParseAnalyser::AnalyzeVariableDefine(SyntaxNode* node, int level) {
-	TYPE_SYMBOL type = iter->identifier == INTTK ? INT : CHAR;
-	AddChild(node);	// INTTK or CHARTK
-	while (IsThisIdentifier(IDENFR)) {
-		if (FindSymbol(level)) {
-			errorHanding->AddError(iter->lineNumber, REDEFINITION);
+	TypeSymbol type;
+	SetSymbolType(type);
+	this->AddChild(node);	// INTTK or CHARTK
+	while (this->IsThisIdentifier(IDENFR)) {
+		if (this->FindSymbol(level)) {
+			error_handing_->AddError(iter_->line_number, REDEFINITION);
 		}
-		InsertIdentifier(VARIABLE, type, level);
-		AddChild(node);	// IDENFR
+		this->InsertIdentifier(KindSymbol::VARIABLE, type, level);
+		this->AddChild(node);	// IDENFR
 
-		if (IsThisIdentifier(LBRACK)) {
-			AddChild(node);	// LBRACK
-			int arrayLength = stoi(iter->value);
-			AddChild(AddSyntaxChild(UNSIGNINT, node));	// INTCON
-			AddRbrackChild(node);
-			Symbol* symbol = InsertIdentifier(ARRAY, type, level);
-			symbol->SetArrayLength(arrayLength);
+		if (this->IsThisIdentifier(LBRACK)) {
+			this->AddChild(node);	// LBRACK
+			int arrayLength = stoi(iter_->value);
+			this->AddChild(this->AddSyntaxChild(UNSIGNINT, node));	// INTCON
+			this->AddRbrackChild(node);
+			Symbol* symbol = this->InsertIdentifier(KindSymbol::ARRAY, type, level);
+			symbol->set_array_length(arrayLength);
 		}
-		AddCommaChild(node);	// COMMA
+		this->AddCommaChild(node);	// COMMA
 	}
 }
 
 void ParseAnalyser::AnalyzeVariableDeclare(SyntaxNode* node, int level) {
-	while (IsVariableDefine()) {
-		AnalyzeVariableDefine(AddSyntaxChild(VARIABLE_DEFINE, node), level);
-		AddSemicnChild(node);	// SEMICN
+	while (this->IsVariableDefine()) {
+		this->AnalyzeVariableDefine(this->AddSyntaxChild(VARIABLE_DEFINE, node), level);
+		this->AddSemicnChild(node);	// SEMICN
 	}
 }
 
 void ParseAnalyser::AnalyzeValuePrameterTable(SyntaxNode* node) {
-	if (IsThisIdentifier(RPARENT)) {
-		if (tempFunction != NULL && tempFunction->GetParameterCount() != 0) {
-			errorHanding->AddError(iter->lineNumber, FUNCTION_PARAMETER_NUMBER_DONT_MATCH);
+	if (this->IsThisIdentifier(RPARENT)) {
+		if (temp_function_ != NULL && temp_function_->GetParameterCount() != 0) {
+			error_handing_->AddError(iter_->line_number, FUNCTION_PARAMETER_NUMBER_DONT_MATCH);
 		}
 		return;
 	}
 	string str;
-	TYPE_SYMBOL type;
-	while (!IsThisIdentifier(RPARENT)) {
-		SyntaxNode* expressionNode = AddSyntaxChild(EXPRESSION, node);
-		type = AnalyzeExpression(expressionNode);
-		str.push_back(type == INT ? '0' : '1');
-		midcodeGenerator->PrintPushParameter(expressionNode->GetNumericalValue());
-		while (IsThisIdentifier(COMMA)) {
-			AddChild(node);	// COMMA
-			type = AnalyzeExpression(AddSyntaxChild(EXPRESSION, node));
-			str.push_back(type == INT ? '0' : '1');
+	TypeSymbol type;
+	while (!this->IsThisIdentifier(RPARENT)) {
+		SyntaxNode* expressionNode = this->AddSyntaxChild(EXPRESSION, node);
+		type = this->AnalyzeExpression(expressionNode);
+		str.push_back(type == TypeSymbol::INT ? '0' : '1');
+		midcode_generator_->PrintPushParameter(expressionNode->value());
+		while (this->IsThisIdentifier(COMMA)) {
+			this->AddChild(node);	// COMMA
+			type = this->AnalyzeExpression(this->AddSyntaxChild(EXPRESSION, node));
+			str.push_back(type == TypeSymbol::INT ? '0' : '1');
 		}
 	}
 
-	if (tempFunction != NULL && tempFunction->GetParameterCount() != str.length()) {
-		errorHanding->AddError(iter->lineNumber, FUNCTION_PARAMETER_NUMBER_DONT_MATCH);
-	} else if (tempFunction != NULL && tempFunction->GetParameter() != str) {
-		errorHanding->AddError(iter->lineNumber, FUNCTION_PARAMETER_TYPE_DONT_MATCH);
+	if (temp_function_ != NULL && temp_function_->GetParameterCount() != str.length()) {
+		error_handing_->AddError(iter_->line_number, FUNCTION_PARAMETER_NUMBER_DONT_MATCH);
+	} else if (temp_function_ != NULL && temp_function_->parameter() != str) {
+		error_handing_->AddError(iter_->line_number, FUNCTION_PARAMETER_TYPE_DONT_MATCH);
 	}
 }
 
 void ParseAnalyser::AnalyzeReturnCallSentence(SyntaxNode* node) {
-	if (FindSymbol(0) == NULL) {
-		errorHanding->AddError(iter->lineNumber, UNDEFINED);
+	if (this->FindSymbol(0) == NULL) {
+		error_handing_->AddError(iter_->line_number, UNDEFINED);
 	}
-	tempFunction = FindSymbol(0);
-	AddChild(node);	// IDENFR
-	AddChild(node);	// LPARENT
-	AnalyzeValuePrameterTable(AddSyntaxChild(VALUE_PARAMETER_TABLE, node));
-	AddRparentChild(node);	// RPARENT
-	midcodeGenerator->PrintCallFunction(tempFunction->GetName());
+	temp_function_ = this->FindSymbol(0);
+	this->AddChild(node);	// IDENFR
+	this->AddChild(node);	// LPARENT
+	this->AnalyzeValuePrameterTable(this->AddSyntaxChild(VALUE_PARAMETER_TABLE, node));
+	this->AddRparentChild(node);	// RPARENT
+	midcode_generator_->PrintCallFunction(temp_function_->name());
 }
 
-TYPE_SYMBOL ParseAnalyser::AnalyzeFactor(SyntaxNode* node) {
-	TYPE_SYMBOL type;
-	if (IsThisIdentifier(IDENFR)) {
-		if (FindSymbol(0) != NULL
-			&& FindSymbol(0)->GetKind() == FUNCTION
-			&& FindSymbol(0)->GetType() != VOID) {
-			type = FindSymbol(0)->GetType();
-			AnalyzeReturnCallSentence(AddSyntaxChild(RETURN_CALL_SENTENCE, node));
-			midcodeGenerator->PrintAssignReturn(regCount++);
+TypeSymbol ParseAnalyser::AnalyzeFactor(SyntaxNode* node) {
+	TypeSymbol type;
+	if (this->IsThisIdentifier(IDENFR)) {
+		if (this->FindSymbol(0) != NULL
+			&& this->FindSymbol(0)->kind() == KindSymbol::FUNCTION
+			&& this->FindSymbol(0)->type() != TypeSymbol::VOID) {
+			type = this->FindSymbol(0)->type();
+			this->AnalyzeReturnCallSentence(this->AddSyntaxChild(RETURN_CALL_SENTENCE, node));
+			midcode_generator_->PrintAssignReturn(reg_count_++);
 		} else {
-			if (FindSymbol(0) == NULL) {
-				if (FindSymbol(1) == NULL) {
-					errorHanding->AddError(iter->lineNumber, UNDEFINED);
-					type = INT;
-				} else {
-					type = FindSymbol(1)->GetType();
-				}
+			Symbol* symbol = this->FindSymbol();
+			if (symbol == NULL) {
+				error_handing_->AddError(iter_->line_number, UNDEFINED);
+				type = TypeSymbol::INT;
 			} else {
-				type = FindSymbol(0)->GetType();
+				type = symbol->type();
 			}
-			string name = iter->value;
-			AddChild(node);	// IDENFR
-			if (IsThisIdentifier(LBRACK)) {
-				AddChild(node);	// LBRACK
-				SyntaxNode* expression = AddSyntaxChild(EXPRESSION, node);
-				TYPE_SYMBOL expressType = AnalyzeExpression(expression);
-				if (expressType != INT) {
-					errorHanding->AddError(iter->lineNumber, ILLEGAL_ARRAY_INDEX);
+			string name = iter_->value;
+			this->AddChild(node);	// IDENFR
+			if (this->IsThisIdentifier(LBRACK)) {
+				this->AddChild(node);	// LBRACK
+				SyntaxNode* expression = this->AddSyntaxChild(EXPRESSION, node);
+				TypeSymbol expressType = this->AnalyzeExpression(expression);
+				if (expressType != TypeSymbol::INT) {
+					error_handing_->AddError(iter_->line_number, ILLEGAL_ARRAY_INDEX);
 				}
-				midcodeGenerator->PrintLoadToTempReg(name,
-					expression->GetNumericalValue(), regCount++);
-				AddRbrackChild(node);	// RBRACK
+				midcode_generator_->PrintLoadToTempReg(name,
+					expression->value(), reg_count_++);
+				this->AddRbrackChild(node);	// RBRACK
 			} else {
-				node->SetNumericalValue(name);
+				node->set_value(name);
 			}
 		}
-	} else if (IsThisIdentifier(LPARENT)) {
-		AddChild(node);	// LPARENT
-		SyntaxNode* expression = AddSyntaxChild(EXPRESSION, node);
-		type = AnalyzeExpression(expression);
-		type = INT;
-		node->SetNumericalValue(expression->GetNumericalValue());
-		AddRparentChild(node);	// RPARENT
+	} else if (this->IsThisIdentifier(LPARENT)) {
+		this->AddChild(node);	// LPARENT
+		SyntaxNode* expression = this->AddSyntaxChild(EXPRESSION, node);
+		type = this->AnalyzeExpression(expression);
+		type = TypeSymbol::INT;
+		node->set_value(expression->value());
+		this->AddRparentChild(node);	// RPARENT
 	} else if (IsThisIdentifier(CHARCON)) {
-		type = CHAR;
-		midcodeGenerator->PrintChar(iter->value);
-		AddChild(node);
+		type = TypeSymbol::CHAR;
+		midcode_generator_->PrintChar(iter_->value);
+		this->AddChild(node);
 	} else {
-		type = INT;
-		int integer = AnalyzeInteger(AddSyntaxChild(INTEGER, node));
-		node->SetNumericalValue(to_string(integer));
+		type = TypeSymbol::INT;
+		int integer = this->AnalyzeInteger(this->AddSyntaxChild(INTEGER, node));
+		node->set_value(to_string(integer));
 	}
 	return type;
 }
 
-TYPE_SYMBOL ParseAnalyser::AnalyzeItem(SyntaxNode* node) {
-	TYPE_SYMBOL type;
+TypeSymbol ParseAnalyser::AnalyzeItem(SyntaxNode* node) {
+	TypeSymbol type;
 	string op;
 	int factorCount = 1;
 	SyntaxNode* factorRoot = NULL;
 
 	while (true) {
-		SyntaxNode* anotherFactorRoot = AddSyntaxChild(FACTOR, node);
-		int regNumber = regCount;
-		type = AnalyzeFactor(anotherFactorRoot);
+		SyntaxNode* anotherFactorRoot = this->AddSyntaxChild(FACTOR, node);
+		int regNumber = reg_count_;
+		type = this->AnalyzeFactor(anotherFactorRoot);
 
-		if (regNumber == regCount) {
+		if (regNumber == reg_count_) {
 			if (factorCount == 1) {
 				factorRoot = anotherFactorRoot;
 			} else if (factorCount == 2) {
 				if (factorRoot == NULL) {
-					midcodeGenerator->PrintRegOpNumber(regCount, regNumber - 1,
-						anotherFactorRoot->GetNumericalValue(), op);
-					regCount++;
+					midcode_generator_->PrintRegOpNumber(reg_count_, regNumber - 1,
+						anotherFactorRoot->value(), op);
+					reg_count_++;
 				} else {
-					midcodeGenerator->PrintNumberOpNumber(regCount,
-						factorRoot->GetNumericalValue(),
-						anotherFactorRoot->GetNumericalValue(), op);
-					regCount++;
+					midcode_generator_->PrintNumberOpNumber(reg_count_,
+						factorRoot->value(),
+						anotherFactorRoot->value(), op);
+					reg_count_++;
 				}
 			} else {
-				midcodeGenerator->PrintRegOpNumber(regCount, regNumber - 1,
-					anotherFactorRoot->GetNumericalValue(), op);
-				regCount++;
+				midcode_generator_->PrintRegOpNumber(reg_count_, regNumber - 1,
+					anotherFactorRoot->value(), op);
+				reg_count_++;
 			}
 		} else {
 			if (factorCount == 2 && factorCount != NULL) {
-				midcodeGenerator->PrintNumberOpReg(regCount,
-					factorRoot->GetNumericalValue(), regCount - 1, op);
-				regCount++;
+				midcode_generator_->PrintNumberOpReg(reg_count_,
+					factorRoot->value(), reg_count_ - 1, op);
+				reg_count_++;
 			} else if (factorCount != 1) {
-				midcodeGenerator->PrintRegOpReg(regCount, regNumber, regCount - 1, op);
-				regCount++;
+				midcode_generator_->PrintRegOpReg(reg_count_, regNumber, reg_count_ - 1, op);
+				reg_count_++;
 			}
 		}
 
-		if (IsMultOrDiv()) {
-			op = iter->value;
+		if (this->IsMultOrDiv()) {
+			op = iter_->value;
 			factorCount++;
-			AddChild(node);
+			this->AddChild(node);
 		} else {
 			break;
 		}
@@ -351,69 +359,69 @@ TYPE_SYMBOL ParseAnalyser::AnalyzeItem(SyntaxNode* node) {
 	if (factorCount == 1) {
 		return type;
 	} else {
-		return INT;
+		return TypeSymbol::INT;
 	}
 }
 
-TYPE_SYMBOL ParseAnalyser::AnalyzeExpression(SyntaxNode* node) {
-	TYPE_SYMBOL type;
+TypeSymbol ParseAnalyser::AnalyzeExpression(SyntaxNode* node) {
+	TypeSymbol type;
 	string op;
 	SyntaxNode* itemRoot = NULL;
 	int itemCount = 1;
 	int firstOpNumber = 1;
-	if (IsPlusOrMinu()) {
-		firstOpNumber = IsThisIdentifier(MINU) ? -1 : 1;
-		AddChild(node);	// PLUS or MINU
+	if (this->IsPlusOrMinu()) {
+		firstOpNumber = this->IsThisIdentifier(MINU) ? -1 : 1;
+		this->AddChild(node);	// PLUS or MINU
 	}
 
 	while (true) {
-		SyntaxNode* anotherItemRoot = AddSyntaxChild(ITEM, node);
-		int regNumber = regCount;
-		type = AnalyzeItem(anotherItemRoot);
+		SyntaxNode* anotherItemRoot = this->AddSyntaxChild(ITEM, node);
+		int regNumber = reg_count_;
+		type = this->AnalyzeItem(anotherItemRoot);
 
-		if (regNumber == regCount) {
+		if (regNumber == reg_count_) {
 			if (itemCount == 1) {
 				if (firstOpNumber == -1) {
-					midcodeGenerator->PrintNumberOpNumber(regCount++,
+					midcode_generator_->PrintNumberOpNumber(reg_count_++,
 						to_string(firstOpNumber),
-						itemRoot->GetNumericalValue(), "*");
+						itemRoot->value(), "*");
 				} else {
 					itemRoot = anotherItemRoot;
 				}
 			} else if (itemCount == 2) {
 				if (itemRoot == NULL) {
-					midcodeGenerator->PrintRegOpNumber(regCount, regCount - 1,
+					midcode_generator_->PrintRegOpNumber(reg_count_, reg_count_ - 1,
 						anotherItemRoot->GetFirstChildNumericalValue(), op);
-					regCount++;
+					reg_count_++;
 				} else {
-					midcodeGenerator->PrintNumberOpNumber(regCount++,
+					midcode_generator_->PrintNumberOpNumber(reg_count_++,
 						itemRoot->GetFirstChildNumericalValue(),
 						anotherItemRoot->GetFirstChildNumericalValue(), op);
 				}
 			} else {
-				midcodeGenerator->PrintRegOpNumber(regCount, regCount - 1,
+				midcode_generator_->PrintRegOpNumber(reg_count_, reg_count_ - 1,
 					anotherItemRoot->GetFirstChildNumericalValue(), op);
-				regCount++;
+				reg_count_++;
 			}
 		} else {
 			if (itemCount == 2 && itemRoot != NULL) {
-				midcodeGenerator->PrintNumberOpReg(regCount,
-					itemRoot->GetFirstChildNumericalValue(), regCount - 1, op);
-				regCount++;
+				midcode_generator_->PrintNumberOpReg(reg_count_,
+					itemRoot->GetFirstChildNumericalValue(), reg_count_ - 1, op);
+				reg_count_++;
 			} else if (itemCount != 1) {
-				midcodeGenerator->PrintRegOpReg(regCount, regNumber, regCount - 1, op);
-				regCount++;
+				midcode_generator_->PrintRegOpReg(reg_count_, regNumber, reg_count_ - 1, op);
+				reg_count_++;
 			} else {
 				if (firstOpNumber == -1) {
-					midcodeGenerator->PrintNumberOpNumber(regCount++,
+					midcode_generator_->PrintNumberOpNumber(reg_count_++,
 						to_string(firstOpNumber),
-						itemRoot->GetNumericalValue(), "*");
+						itemRoot->value(), "*");
 				}
 			}
 		}
 
-		if (IsPlusOrMinu()) {
-			op = iter->value;
+		if (this->IsPlusOrMinu()) {
+			op = iter_->value;
 			itemCount++;
 			AddChild(node);
 		} else {
@@ -422,362 +430,356 @@ TYPE_SYMBOL ParseAnalyser::AnalyzeExpression(SyntaxNode* node) {
 	}
 
 	if (itemCount == 1 && itemRoot != NULL) {
-		node->SetNumericalValue(itemRoot->GetFirstChildNumericalValue());
+		node->set_value(itemRoot->GetFirstChildNumericalValue());
 	} else {
-		node->SetNumericalValue("t" + to_string(regCount - 1));
+		node->set_value("t" + to_string(reg_count_ - 1));
 	}
 
 	if (itemCount == 1) {
 		return type;
 	} else {
-		return INT;
+		return TypeSymbol::INT;
 	}
 }
 
 void ParseAnalyser::AnalyzeCondition(SyntaxNode* node, bool isFalseBranch) {
-	SyntaxNode* expression1 = AddSyntaxChild(EXPRESSION, node);
-	if (AnalyzeExpression(expression1) != INT) {
-		CountIterator(-1);
-		errorHanding->AddError(iter->lineNumber, ILLEGAL_TYPE_IN_IF);
-		CountIterator(+1);
+	SyntaxNode* expression1 = this->AddSyntaxChild(EXPRESSION, node);
+	if (this->AnalyzeExpression(expression1) != TypeSymbol::INT) {
+		this->CountIterator(-1);
+		error_handing_->AddError(iter_->line_number, ILLEGAL_TYPE_IN_IF);
+		this->CountIterator(+1);
 	}
-	if (IsThisIdentifier(LSS)
-		|| IsThisIdentifier(LEQ)
-		|| IsThisIdentifier(GRE)
-		|| IsThisIdentifier(GEQ)
-		|| IsThisIdentifier(EQL)
-		|| IsThisIdentifier(NEQ)) {
-		string op = iter->value;
-		AddChild(node);
-		SyntaxNode* expression2 = AddSyntaxChild(EXPRESSION, node);
-		if (AnalyzeExpression(expression2) != INT) {
-			CountIterator(-1);
-			errorHanding->AddError(iter->lineNumber, ILLEGAL_TYPE_IN_IF);
-			CountIterator(+1);
+	if (this->IsThisIdentifier(LSS)
+		|| this->IsThisIdentifier(LEQ)
+		|| this->IsThisIdentifier(GRE)
+		|| this->IsThisIdentifier(GEQ)
+		|| this->IsThisIdentifier(EQL)
+		|| this->IsThisIdentifier(NEQ)) {
+		string op = iter_->value;
+		this->AddChild(node);
+		SyntaxNode* expression2 = this->AddSyntaxChild(EXPRESSION, node);
+		if (this->AnalyzeExpression(expression2) != TypeSymbol::INT) {
+			this->CountIterator(-1);
+			error_handing_->AddError(iter_->line_number, ILLEGAL_TYPE_IN_IF);
+			this->CountIterator(+1);
 		}
 		if (op == "==") {
-			midcodeGenerator->PrintBeqOrBne(labelCount, expression1->GetNumericalValue(),
-				expression2->GetNumericalValue(), BEQ, isFalseBranch);
+			midcode_generator_->PrintBeqOrBne(label_count_, expression1->value(),
+				expression2->value(), Judge::BEQ, isFalseBranch);
 		} else if (op == "!=") {
-			midcodeGenerator->PrintBeqOrBne(labelCount, expression1->GetNumericalValue(),
-				expression2->GetNumericalValue(), BNE, isFalseBranch);
+			midcode_generator_->PrintBeqOrBne(label_count_, expression1->value(),
+				expression2->value(), Judge::BNE, isFalseBranch);
 		} else if (op == "<") {
-			midcodeGenerator->PrintBgeOrBlt(labelCount, expression1->GetNumericalValue(),
-				expression2->GetNumericalValue(), BLT, isFalseBranch);
+			midcode_generator_->PrintBgeOrBlt(label_count_, expression1->value(),
+				expression2->value(), Judge::BLT, isFalseBranch);
 		} else if (op == ">=") {
-			midcodeGenerator->PrintBgeOrBlt(labelCount, expression1->GetNumericalValue(),
-				expression2->GetNumericalValue(), BGE, isFalseBranch);
+			midcode_generator_->PrintBgeOrBlt(label_count_, expression1->value(),
+				expression2->value(), Judge::BGE, isFalseBranch);
 		} else if (op == "<=") {
-			midcodeGenerator->PrintBgtOrBle(labelCount, expression1->GetNumericalValue(),
-				expression2->GetNumericalValue(), BLE, isFalseBranch);
+			midcode_generator_->PrintBgtOrBle(label_count_, expression1->value(),
+				expression2->value(), Judge::BLE, isFalseBranch);
 		} else if (op == ">") {
-			midcodeGenerator->PrintBgtOrBle(labelCount, expression1->GetNumericalValue(),
-				expression2->GetNumericalValue(), BGT, isFalseBranch);
+			midcode_generator_->PrintBgtOrBle(label_count_, expression1->value(),
+				expression2->value(), Judge::BGT, isFalseBranch);
 		}
 	} else {
-		midcodeGenerator->PrintBezOrBnz(labelCount,
-			expression1->GetNumericalValue(), isFalseBranch);
+		midcode_generator_->PrintBezOrBnz(label_count_,
+			expression1->value(), isFalseBranch);
 	}
 }
 
-bool ParseAnalyser::AnalyzeIfSentence(SyntaxNode* node, TYPE_SYMBOL returnType) {
+bool ParseAnalyser::AnalyzeIfSentence(SyntaxNode* node, TypeSymbol returnType) {
 	bool noReturn = true;
 
-	AddChild(node);	// IFTK
-	int elseLabel = labelCount++;
+	this->AddChild(node);	// IFTK
+	int elseLabel = label_count_++;
 
-	AddChild(node);	// LPARENT
-	AnalyzeCondition(AddSyntaxChild(CONDITION, node), true);
-	AddRparentChild(node);	// RPARENT
-	noReturn = AnalyzeSentence(AddSyntaxChild(SENTENCE, node), returnType);
+	this->AddChild(node);	// LPARENT
+	this->AnalyzeCondition(this->AddSyntaxChild(CONDITION, node), true);
+	this->AddRparentChild(node);	// RPARENT
+	noReturn = this->AnalyzeSentence(this->AddSyntaxChild(SENTENCE, node), returnType);
 
-	int endifLabel = labelCount++;
-	midcodeGenerator->PrintGotoLabel(endifLabel);
-	midcodeGenerator->PrintLabel(elseLabel);
+	int endifLabel = label_count_++;
+	midcode_generator_->PrintGotoLabel(endifLabel);
+	midcode_generator_->PrintLabel(elseLabel);
 
-	if (IsThisIdentifier(ELSETK)) {
-		AddChild(node);	// ELSETK
-		noReturn = AnalyzeSentence(AddSyntaxChild(SENTENCE, node), returnType) && noReturn;
+	if (this->IsThisIdentifier(ELSETK)) {
+		this->AddChild(node);	// ELSETK
+		noReturn = this->AnalyzeSentence(this->AddSyntaxChild(SENTENCE, node), returnType) && noReturn;
 	}
-	midcodeGenerator->PrintLabel(endifLabel);
+	midcode_generator_->PrintLabel(endifLabel);
 
 	return noReturn;
 }
 
 int ParseAnalyser::AnalyzeStep(SyntaxNode* node) {
-	int step = stoi(iter->value);
-	AddChild(AddSyntaxChild(UNSIGNINT, node));	// INTCON
+	int step = stoi(iter_->value);
+	this->AddChild(this->AddSyntaxChild(UNSIGNINT, node));	// INTCON
 	return step;
 }
 
-void ParseAnalyser::AnalyzeWhile(SyntaxNode* node, TYPE_SYMBOL returnType) {
-	AddChild(node);	// WHILETK
-	int whileLabel = labelCount++;
-	midcodeGenerator->PrintLabel(whileLabel);
+void ParseAnalyser::AnalyzeWhile(SyntaxNode* node, TypeSymbol returnType) {
+	this->AddChild(node);	// WHILETK
+	int whileLabel = label_count_++;
+	midcode_generator_->PrintLabel(whileLabel);
 
-	AddChild(node);	// LPARENT
-	int endWhileLabel = labelCount++;
-	AnalyzeCondition(AddSyntaxChild(CONDITION, node), true);
-	AddRparentChild(node);	// RPARENT
+	this->AddChild(node);	// LPARENT
+	int endWhileLabel = label_count_++;
+	this->AnalyzeCondition(this->AddSyntaxChild(CONDITION, node), true);
+	this->AddRparentChild(node);	// RPARENT
 
-	AnalyzeSentence(AddSyntaxChild(SENTENCE, node), returnType);
+	this->AnalyzeSentence(this->AddSyntaxChild(SENTENCE, node), returnType);
 
-	midcodeGenerator->PrintGotoLabel(whileLabel);
-	midcodeGenerator->PrintLabel(endWhileLabel);
+	midcode_generator_->PrintGotoLabel(whileLabel);
+	midcode_generator_->PrintLabel(endWhileLabel);
 }
 
-void ParseAnalyser::AnalyzeDoWhile(SyntaxNode* node, bool& noReturn, TYPE_SYMBOL returnType) {
-	AddChild(node);	// DOTK
+void ParseAnalyser::AnalyzeDoWhile(SyntaxNode* node, bool& noReturn, TypeSymbol returnType) {
+	this->AddChild(node);	// DOTK
 
-	int doLabel = labelCount++;
-	midcodeGenerator->PrintLabel(doLabel);
+	int doLabel = label_count_++;
+	midcode_generator_->PrintLabel(doLabel);
 
-	noReturn = AnalyzeSentence(AddSyntaxChild(SENTENCE, node), returnType);
+	noReturn = this->AnalyzeSentence(this->AddSyntaxChild(SENTENCE, node), returnType);
 
-	AddWhileChild(node);	// WHILETK
-	AddChild(node);	// LPARENT
-	AnalyzeCondition(AddSyntaxChild(CONDITION, node), false);
-	AddRparentChild(node);	// RPARENT
+	this->AddWhileChild(node);	// WHILETK
+	this->AddChild(node);	// LPARENT
+	this->AnalyzeCondition(this->AddSyntaxChild(CONDITION, node), false);
+	this->AddRparentChild(node);	// RPARENT
 }
 
-void ParseAnalyser::AnalyzeFor(SyntaxNode* node, TYPE_SYMBOL returnType) {
-	AddChild(node);	// FORTK
-	AddChild(node);	// LPARENT
-	if (FindSymbol(0) == NULL && FindSymbol(1) == NULL) {
-		errorHanding->AddError(iter->lineNumber, UNDEFINED);
+void ParseAnalyser::AnalyzeFor(SyntaxNode* node, TypeSymbol returnType) {
+	this->AddChild(node);	// FORTK
+	this->AddChild(node);	// LPARENT
+	if (this->FindSymbol() == NULL) {
+		error_handing_->AddError(iter_->line_number, UNDEFINED);
 	}
 
-	string name = iter->value;
-	AddChild(node);	// IDENFR
-	AddChild(node);	// ASSIGN
-	SyntaxNode* expressionNode = AddSyntaxChild(EXPRESSION, node);
-	AnalyzeExpression(expressionNode);
-	midcodeGenerator->PrintAssignValue(name, "", expressionNode->GetNumericalValue());
+	string name = iter_->value;
+	this->AddChild(node);	// IDENFR
+	this->AddChild(node);	// ASSIGN
+	SyntaxNode* expressionNode = this->AddSyntaxChild(EXPRESSION, node);
+	this->AnalyzeExpression(expressionNode);
+	midcode_generator_->PrintAssignValue(name, "", expressionNode->value());
 
-	int forLabel = labelCount++;
-	midcodeGenerator->PrintLabel(forLabel);
+	int forLabel = label_count_++;
+	midcode_generator_->PrintLabel(forLabel);
 
-	AddSemicnChild(node);	// SEMICN
+	this->AddSemicnChild(node);	// SEMICN
 
-	int endForLabel = labelCount++;
-	AnalyzeCondition(AddSyntaxChild(CONDITION, node), true);
+	int endForLabel = label_count_++;
+	this->AnalyzeCondition(this->AddSyntaxChild(CONDITION, node), true);
 
-	AddSemicnChild(node);	// SEMICN
+	this->AddSemicnChild(node);	// SEMICN
 
-	if (FindSymbol(0) == NULL && FindSymbol(1) == NULL) {
-		errorHanding->AddError(iter->lineNumber, UNDEFINED);
+	if (this->FindSymbol() == NULL) {
+		error_handing_->AddError(iter_->line_number, UNDEFINED);
 	}
-	string name1 = iter->value;
-	AddChild(node);	// IDENFR
-	AddChild(node);	// ASSIGN
-	if (FindSymbol(0) == NULL && FindSymbol(1) == NULL) {
-		errorHanding->AddError(iter->lineNumber, UNDEFINED);
+	string name1 = iter_->value;
+	this->AddChild(node);	// IDENFR
+	this->AddChild(node);	// ASSIGN
+	if (this->FindSymbol(0) == NULL) {
+		error_handing_->AddError(iter_->line_number, UNDEFINED);
 	}
-	string name2 = iter->value;
-	AddChild(node);	// IDENFR
-	string op = iter->value;
-	AddChild(node);	// PLUS or MINU
-	int step = AnalyzeStep(AddSyntaxChild(STEP, node));
-	AddRparentChild(node);	// RPARENT
-	AnalyzeSentence(AddSyntaxChild(SENTENCE, node), returnType);
-	midcodeGenerator->PrintStep(name1, name2, op, step);
+	string name2 = iter_->value;
+	this->AddChild(node);	// IDENFR
+	string op = iter_->value;
+	this->AddChild(node);	// PLUS or MINU
+	int step = this->AnalyzeStep(this->AddSyntaxChild(STEP, node));
+	this->AddRparentChild(node);	// RPARENT
+	this->AnalyzeSentence(this->AddSyntaxChild(SENTENCE, node), returnType);
+	midcode_generator_->PrintStep(name1, name2, op, step);
 
-	midcodeGenerator->PrintGotoLabel(forLabel);
-	midcodeGenerator->PrintLabel(endForLabel);
+	midcode_generator_->PrintGotoLabel(forLabel);
+	midcode_generator_->PrintLabel(endForLabel);
 }
 
-bool ParseAnalyser::AnalyzeLoopSentence(SyntaxNode* node, TYPE_SYMBOL returnType) {
+bool ParseAnalyser::AnalyzeLoopSentence(SyntaxNode* node, TypeSymbol returnType) {
 	bool noReturn = true;
-	if (IsThisIdentifier(WHILETK)) {
-		AnalyzeWhile(node, returnType);
-	} else if (IsThisIdentifier(DOTK)) {
-		AnalyzeDoWhile(node, noReturn, returnType);
-	} else if (IsThisIdentifier(FORTK)) {
-		AnalyzeFor(node, returnType);
+	if (this->IsThisIdentifier(WHILETK)) {
+		this->AnalyzeWhile(node, returnType);
+	} else if (this->IsThisIdentifier(DOTK)) {
+		this->AnalyzeDoWhile(node, noReturn, returnType);
+	} else if (this->IsThisIdentifier(FORTK)) {
+		this->AnalyzeFor(node, returnType);
 	}
 	return noReturn;
 }
 
 void ParseAnalyser::AnalyzeAssignSentence(SyntaxNode* node) {
-	KIND_SYMBOL kind;
-	if (FindSymbol(0) == NULL) {
-		if (FindSymbol(1) == NULL) {
-			errorHanding->AddError(iter->lineNumber, UNDEFINED);
-		} else {
-			kind = FindSymbol(1)->GetKind();
-			if (kind == CONST) {
-				errorHanding->AddError(iter->lineNumber, ASSIGN_TO_CONST);
-			}
-		}
+	KindSymbol kind;
+	if (this->FindSymbol() == NULL) {
+		error_handing_->AddError(iter_->line_number, UNDEFINED);
 	} else {
-		kind = FindSymbol(0)->GetKind();
-		if (kind == CONST) {
-			errorHanding->AddError(iter->lineNumber, ASSIGN_TO_CONST);
+		kind = this->FindSymbol()->kind();
+		if (kind == KindSymbol::CONST) {
+			error_handing_->AddError(iter_->line_number, ASSIGN_TO_CONST);
 		}
 	}
-	string name = iter->value;
+	string name = iter_->value;
 	string arrayIndex = "";
-	AddChild(node);	// IDENFR
+	this->AddChild(node);	// IDENFR
 
 	SyntaxNode* expressionNode;
-	if (IsThisIdentifier(LBRACK)) {
-		AddChild(node);	// LBRACK
-		expressionNode = AddSyntaxChild(EXPRESSION, node);
-		if (AnalyzeExpression(expressionNode) == CHAR) {
-			errorHanding->AddError(iter->lineNumber, ILLEGAL_ARRAY_INDEX);
+	if (this->IsThisIdentifier(LBRACK)) {
+		this->AddChild(node);	// LBRACK
+		expressionNode = this->AddSyntaxChild(EXPRESSION, node);
+		if (this->AnalyzeExpression(expressionNode) == TypeSymbol::CHAR) {
+			error_handing_->AddError(iter_->line_number, ILLEGAL_ARRAY_INDEX);
 		}
-		arrayIndex = expressionNode->GetNumericalValue();
-		AddRbrackChild(node);	// RBRACK
+		arrayIndex = expressionNode->value();
+		this->AddRbrackChild(node);	// RBRACK
 	}
-	AddChild(node);	// ASSIGN
-	expressionNode = AddSyntaxChild(EXPRESSION, node);
-	AnalyzeExpression(expressionNode);
-	midcodeGenerator->PrintAssignValue(name, arrayIndex, expressionNode->GetNumericalValue());
+	this->AddChild(node);	// ASSIGN
+	expressionNode = this->AddSyntaxChild(EXPRESSION, node);
+	this->AnalyzeExpression(expressionNode);
+	midcode_generator_->PrintAssignValue(name, arrayIndex, expressionNode->value());
 }
 
 void ParseAnalyser::AnalyseScanfIdentifier(SyntaxNode* node) {
-	if (FindSymbol(0) == NULL && FindSymbol(1) == NULL) {
-		errorHanding->AddError(iter->lineNumber, UNDEFINED);
+	if (this->FindSymbol() == NULL) {
+		error_handing_->AddError(iter_->line_number, UNDEFINED);
 	} else {
-		Symbol* symbol = FindSymbol(0) != NULL ? FindSymbol(0) : FindSymbol(1);
-		string type = symbol->GetType() == INT ? INT_TYPE : CHAR_TYPE;
-		midcodeGenerator->PrintScanf(type, symbol->GetName());
+		Symbol* symbol = this->FindSymbol(0) != NULL ? this->FindSymbol(0) : this->FindSymbol(1);
+		string type = symbol->type() == TypeSymbol::INT ? kIntType : kCharType;
+		midcode_generator_->PrintScanf(type, symbol->name());
 	}
-	AddChild(node);	// IDENFR
+	this->AddChild(node);	// IDENFR
 }
 
 void ParseAnalyser::AnalyzeScanfSentence(SyntaxNode* node) {
-	AddChild(node);	// SCANFTK
-	AddChild(node);	// LPARENT
+	this->AddChild(node);	// SCANFTK
+	this->AddChild(node);	// LPARENT
 
-	AnalyseScanfIdentifier(node);
-	while (IsThisIdentifier(COMMA)) {
-		AddChild(node);	// COMMA
-		AnalyseScanfIdentifier(node);
+	this->AnalyseScanfIdentifier(node);
+	while (this->IsThisIdentifier(COMMA)) {
+		this->AddChild(node);	// COMMA
+		this->AnalyseScanfIdentifier(node);
 	}
 
-	AddRparentChild(node);	// RPARENT
+	this->AddRparentChild(node);	// RPARENT
 }
 
 void ParseAnalyser::AnalyzePrintfSentence(SyntaxNode* node) {
-	AddChild(node);	// PRINTFTK
-	AddChild(node);	// LPARENT
+	this->AddChild(node);	// PRINTFTK
+	this->AddChild(node);	// LPARENT
 
-	if (IsThisIdentifier(STRCON)) {
-		int stringNumber = stringTable->AddString(iter->value);
-		midcodeGenerator->PrintString(stringNumber);
-		AddChild(AddSyntaxChild(STRING, node));
-		if (IsThisIdentifier(COMMA)) {
-			AddChild(node);	// COMMA
-			SyntaxNode* expression = AddSyntaxChild(EXPRESSION, node);
-			TYPE_SYMBOL type = AnalyzeExpression(expression);
-			if (type == INT) {
-				midcodeGenerator->PrintInteger(expression->GetNumericalValue());
+	if (this->IsThisIdentifier(STRCON)) {
+		int stringNumber = string_table_->AddString(iter_->value);
+		midcode_generator_->PrintString(stringNumber);
+		this->AddChild(AddSyntaxChild(STRING, node));
+		if (this->IsThisIdentifier(COMMA)) {
+			this->AddChild(node);	// COMMA
+			SyntaxNode* expression = this->AddSyntaxChild(EXPRESSION, node);
+			TypeSymbol type = this->AnalyzeExpression(expression);
+			if (type == TypeSymbol::INT) {
+				midcode_generator_->PrintInteger(expression->value());
 			} else {
-				midcodeGenerator->PrintChar(expression->GetNumericalValue());
+				midcode_generator_->PrintChar(expression->value());
 			}
 		}
 	} else {
-		SyntaxNode* expression = AddSyntaxChild(EXPRESSION, node);
-		TYPE_SYMBOL type = AnalyzeExpression(expression);
-		if (type == INT) {
-			midcodeGenerator->PrintInteger(expression->GetNumericalValue());
+		SyntaxNode* expression = this->AddSyntaxChild(EXPRESSION, node);
+		TypeSymbol type = this->AnalyzeExpression(expression);
+		if (type == TypeSymbol::INT) {
+			midcode_generator_->PrintInteger(expression->value());
 		} else {
-			midcodeGenerator->PrintChar(expression->GetNumericalValue());
+			midcode_generator_->PrintChar(expression->value());
 		}
 	}
+	midcode_generator_->PrintLineBreak();
 
-	AddRparentChild(node);	// RPARENT
+	this->AddRparentChild(node);	// RPARENT
 }
 
-TYPE_SYMBOL ParseAnalyser::AnalyzeReturnSentence(SyntaxNode* node) {
-	TYPE_SYMBOL type = VOID;
-	AddChild(node);	// RETURNTK
-	if (IsThisIdentifier(LPARENT)) {
-		AddChild(node);	// LPARENT
-		type = AnalyzeExpression(AddSyntaxChild(EXPRESSION, node));
-		midcodeGenerator->PrintReturn(false, node->GetNumericalValue());
-		AddRparentChild(node);	// RPARENT
+TypeSymbol ParseAnalyser::AnalyzeReturnSentence(SyntaxNode* node) {
+	TypeSymbol type = TypeSymbol::VOID;
+	this->AddChild(node);	// RETURNTK
+	if (this->IsThisIdentifier(LPARENT)) {
+		this->AddChild(node);	// LPARENT
+		type = this->AnalyzeExpression(this->AddSyntaxChild(EXPRESSION, node));
+		midcode_generator_->PrintReturn(false, node->value());
+		this->AddRparentChild(node);	// RPARENT
 	}
 	return type;
 }
 
-bool ParseAnalyser::AnalyzeSentence(SyntaxNode* node, TYPE_SYMBOL returnType) {
+bool ParseAnalyser::AnalyzeSentence(SyntaxNode* node, TypeSymbol returnType) {
 	bool noReturn = true;
-	if (IsThisIdentifier(IFTK)) {
-		noReturn = AnalyzeIfSentence(AddSyntaxChild(IF_SENTENCE, node), returnType);
-	} else if (IsThisIdentifier(WHILETK)
-		|| IsThisIdentifier(DOTK)
-		|| IsThisIdentifier(FORTK)) {
-		noReturn = AnalyzeLoopSentence(AddSyntaxChild(LOOP_SENTENCE, node), returnType);
-	} else if (IsThisIdentifier(LBRACE)) {
-		AddChild(node);	// LBRACE
-		noReturn = AnalyzeSentenceCollection(AddSyntaxChild(SENTENCE_COLLECTION, node), returnType);
-		AddChild(node);	// RBRACE
-	} else if (IsThisIdentifier(IDENFR)) {
+	if (this->IsThisIdentifier(IFTK)) {
+		noReturn = this->AnalyzeIfSentence(this->AddSyntaxChild(IF_SENTENCE, node), returnType);
+	} else if (this->IsThisIdentifier(WHILETK)
+		|| this->IsThisIdentifier(DOTK)
+		|| this->IsThisIdentifier(FORTK)) {
+		noReturn = this->AnalyzeLoopSentence(this->AddSyntaxChild(LOOP_SENTENCE, node), returnType);
+	} else if (this->IsThisIdentifier(LBRACE)) {
+		this->AddChild(node);	// LBRACE
+		noReturn = this->AnalyzeSentenceCollection(this->AddSyntaxChild(SENTENCE_COLLECTION, node), returnType);
+		this->AddChild(node);	// RBRACE
+	} else if (this->IsThisIdentifier(IDENFR)) {
 		noReturn = true;
-		if (FindSymbol(0) != NULL
-			&& FindSymbol(0)->GetKind() == FUNCTION
-			&& FindSymbol(0)->GetType() != VOID) {
-			AnalyzeReturnCallSentence(AddSyntaxChild(RETURN_CALL_SENTENCE, node));
-			AddSemicnChild(node);	// SEMICN
-		} else if (FindSymbol(0) != NULL
-			&& FindSymbol(0)->GetKind() == FUNCTION
-			&& FindSymbol(0)->GetType() == VOID) {
-			AnalyzeReturnCallSentence(AddSyntaxChild(NO_RETURN_CALL_SENTENCE, node));
-			AddSemicnChild(node);	// SEMICN
+		if (this->FindSymbol(0) != NULL
+			&& this->FindSymbol(0)->kind() == KindSymbol::FUNCTION
+			&& this->FindSymbol(0)->type() != TypeSymbol::VOID) {
+			this->AnalyzeReturnCallSentence(this->AddSyntaxChild(RETURN_CALL_SENTENCE, node));
+			this->AddSemicnChild(node);	// SEMICN
+		} else if (this->FindSymbol(0) != NULL
+			&& this->FindSymbol(0)->kind() == KindSymbol::FUNCTION
+			&& this->FindSymbol(0)->type() == TypeSymbol::VOID) {
+			this->AnalyzeReturnCallSentence(this->AddSyntaxChild(NO_RETURN_CALL_SENTENCE, node));
+			this->AddSemicnChild(node);	// SEMICN
 		} else {
-			if (FindSymbol(0) != NULL || FindSymbol(1) != NULL) {
-				AnalyzeAssignSentence(AddSyntaxChild(ASSIGN_SENTENCE, node));
-				AddSemicnChild(node);	// SEMICN
-			} else if (FindSymbol(0) == NULL) {
-				if (FindSymbol(1) == NULL) {
-					errorHanding->AddError(iter->lineNumber, UNDEFINED);
+			if (this->FindSymbol() != NULL) {
+				this->AnalyzeAssignSentence(this->AddSyntaxChild(ASSIGN_SENTENCE, node));
+				this->AddSemicnChild(node);	// SEMICN
+			} else if (this->FindSymbol(0) == NULL) {
+				if (this->FindSymbol(1) == NULL) {
+					error_handing_->AddError(iter_->line_number, UNDEFINED);
 				}
-				CountIterator(+1);
-				if (IsThisIdentifier(LPARENT)) {
-					while (!IsThisIdentifier(RPARENT)) {
-						CountIterator(+1);
+				this->CountIterator(+1);
+				if (this->IsThisIdentifier(LPARENT)) {
+					while (!this->IsThisIdentifier(RPARENT)) {
+						this->CountIterator(+1);
 					}
-					CountIterator(+1);
-				} else if (IsThisIdentifier(ASSIGN)) {
-					while (!IsThisIdentifier(SEMICN)) {
-						CountIterator(+1);
+					this->CountIterator(+1);
+				} else if (this->IsThisIdentifier(ASSIGN)) {
+					while (!this->IsThisIdentifier(SEMICN)) {
+						this->CountIterator(+1);
 					}
-					CountIterator(+1);
+					this->CountIterator(+1);
 				}
 			}
 		}
-	} else if (IsThisIdentifier(SCANFTK)) {
+	} else if (this->IsThisIdentifier(SCANFTK)) {
 		noReturn = true;
-		AnalyzeScanfSentence(AddSyntaxChild(SCANF_SENTENCE, node));
-		AddSemicnChild(node);	// SEMICN
-	} else if (IsThisIdentifier(PRINTFTK)) {
+		this->AnalyzeScanfSentence(this->AddSyntaxChild(SCANF_SENTENCE, node));
+		this->AddSemicnChild(node);	// SEMICN
+	} else if (this->IsThisIdentifier(PRINTFTK)) {
 		noReturn = true;
-		AnalyzePrintfSentence(AddSyntaxChild(PRINTF_SENTENCE, node));
-		AddSemicnChild(node);	// SEMICN
-	} else if (IsThisIdentifier(SEMICN)) {
+		this->AnalyzePrintfSentence(this->AddSyntaxChild(PRINTF_SENTENCE, node));
+		this->AddSemicnChild(node);	// SEMICN
+	} else if (this->IsThisIdentifier(SEMICN)) {
 		noReturn = true;
-		AddSemicnChild(node);	// SEMICN
-	} else if (IsThisIdentifier(RETURNTK)) {
-		TYPE_SYMBOL type = AnalyzeReturnSentence(AddSyntaxChild(RETURN_SENTENCE, node));
-		noReturn = type == VOID;
-		CountIterator(-1);
-		if (returnType == VOID && type != VOID) {
-			errorHanding->AddError(iter->lineNumber, RETURN_IN_NO_RETURN_FUNCTION);
+		this->AddSemicnChild(node);	// SEMICN
+	} else if (this->IsThisIdentifier(RETURNTK)) {
+		TypeSymbol type = this->AnalyzeReturnSentence(this->AddSyntaxChild(RETURN_SENTENCE, node));
+		noReturn = type == TypeSymbol::VOID;
+		this->CountIterator(-1);
+		if (returnType == TypeSymbol::VOID && type != TypeSymbol::VOID) {
+			error_handing_->AddError(iter_->line_number, RETURN_IN_NO_RETURN_FUNCTION);
 		} else if (returnType != type) {
-			errorHanding->AddError(iter->lineNumber, NO_RETURN_OR_WRONG_RETURN_IN_RETURN_FUNCTION);
+			error_handing_->AddError(iter_->line_number, NO_RETURN_OR_WRONG_RETURN_IN_RETURN_FUNCTION);
 		}
-		CountIterator(+1);
-		AddSemicnChild(node);	// SEMICN
+		this->CountIterator(+1);
+		this->AddSemicnChild(node);	// SEMICN
 	}
 	return noReturn;
 }
 
-bool ParseAnalyser::AnalyzeSentenceCollection(SyntaxNode* node, TYPE_SYMBOL returnType) {
+bool ParseAnalyser::AnalyzeSentenceCollection(SyntaxNode* node, TypeSymbol returnType) {
 	bool noReturn = true;
-	while (!IsThisIdentifier(RBRACE)) {
-		if (!AnalyzeSentence(AddSyntaxChild(SENTENCE, node), returnType)) {
+	while (!this->IsThisIdentifier(RBRACE)) {
+		if (!this->AnalyzeSentence(this->AddSyntaxChild(SENTENCE, node), returnType)) {
 			noReturn = false;
 		}
 	}
@@ -785,146 +787,153 @@ bool ParseAnalyser::AnalyzeSentenceCollection(SyntaxNode* node, TYPE_SYMBOL retu
 	return noReturn;
 }
 
-void ParseAnalyser::AnalyzeCompositeSentence(SyntaxNode* node, TYPE_SYMBOL returnType) {
-	if (IsThisIdentifier(CONSTTK)) {
-		AnalyzeConstDeclare(AddSyntaxChild(CONST_DECLARE, node), 1);
+void ParseAnalyser::AnalyzeCompositeSentence(SyntaxNode* node, TypeSymbol returnType) {
+	if (this->IsThisIdentifier(CONSTTK)) {
+		this->AnalyzeConstDeclare(this->AddSyntaxChild(CONST_DECLARE, node), 1);
 	}
-	if (IsThisIdentifier(INTTK) || IsThisIdentifier(CHARTK)) {
-		AnalyzeVariableDeclare(AddSyntaxChild(VARIABLE_DECLARE, node), 1);
+	if (this->IsThisIdentifier(INTTK) || this->IsThisIdentifier(CHARTK)) {
+		this->AnalyzeVariableDeclare(this->AddSyntaxChild(VARIABLE_DECLARE, node), 1);
 	}
-	bool noReturn = AnalyzeSentenceCollection(AddSyntaxChild(SENTENCE_COLLECTION, node), returnType);
-	if (returnType != VOID && noReturn) {
-		CountIterator(-1);
-		errorHanding->AddError(iter->lineNumber, NO_RETURN_OR_WRONG_RETURN_IN_RETURN_FUNCTION);
-		CountIterator(+1);
+	bool noReturn = this->AnalyzeSentenceCollection(
+		this->AddSyntaxChild(SENTENCE_COLLECTION, node), returnType);
+	if (returnType != TypeSymbol::VOID && noReturn) {
+		this->CountIterator(-1);
+		error_handing_->AddError(iter_->line_number, NO_RETURN_OR_WRONG_RETURN_IN_RETURN_FUNCTION);
+		this->CountIterator(+1);
 	}
 }
 
 void ParseAnalyser::AnalyzeMain(SyntaxNode* node) {
-	AddChild(node);	// VOIDTK
-	InsertIdentifier(FUNCTION, VOID, 0);
-	tempFunction = FindSymbol(0);
-	CleanLevel(1);
-	AddChild(node);	// MAINTK
-	AddChild(node);	// LPARENT
-	AddRparentChild(node);	// RPARENT
-	midcodeGenerator->PrintVoidFuncDeclare(tempFunction);
-	AddChild(node);	// LBRACE
-	AnalyzeCompositeSentence(AddSyntaxChild(COMPOSITE_SENTENCE, node), VOID);
-	midcodeGenerator->PrintReturn(true, "");
-	AddChild(node);	// RBRACE
-	InsertSymbolTable(tempFunction->GetName(), 1);
+	this->AddChild(node);	// VOIDTK
+	this->InsertIdentifier(KindSymbol::FUNCTION, TypeSymbol::VOID, 0);
+	temp_function_ = this->FindSymbol(0);
+	this->CleanLevel(1);
+	this->AddChild(node);	// MAINTK
+	this->AddChild(node);	// LPARENT
+	this->AddRparentChild(node);	// RPARENT
+	midcode_generator_->PrintVoidFuncDeclare(temp_function_);
+	this->AddChild(node);	// LBRACE
+	this->AnalyzeCompositeSentence(this->AddSyntaxChild(COMPOSITE_SENTENCE, node), TypeSymbol::VOID);
+	midcode_generator_->PrintReturn(true, "");
+	this->AddChild(node);	// RBRACE
+	this->InsertSymbolTable(temp_function_->name(), 1);
 }
 
 void ParseAnalyser::AnalyzeParameterTable(SyntaxNode* node) {
-	while (IsThisIdentifier(INTTK) || IsThisIdentifier(CHARTK)) {
+	while (this->IsThisIdentifier(INTTK) || this->IsThisIdentifier(CHARTK)) {
 
-		TYPE_SYMBOL type = iter->identifier == INTTK ? INT : CHAR;
-		AddChild(node);	// INTTK or CHARTK
+		TypeSymbol type;
+		this->SetSymbolType(type);
+		this->AddChild(node);	// INTTK or CHARTK
 
-		if (FindSymbol(1) != NULL) {
-			errorHanding->AddError(iter->lineNumber, REDEFINITION);
+		if (this->FindSymbol(1) != NULL) {
+			error_handing_->AddError(iter_->line_number, REDEFINITION);
 		}
-		tempFunction->AddParameter(type == INT ? '0' : '1');
-		InsertIdentifier(PARAMETER, type, 1);
-		AddChild(node);	// IDENTFR
-		AddCommaChild(node);
+		temp_function_->AddParameter(type == TypeSymbol::INT ? '0' : '1');
+		this->InsertIdentifier(KindSymbol::PARAMETER, type, 1);
+		this->AddChild(node);	// IDENTFR
+		this->AddCommaChild(node);
 	}
 }
 
 void ParseAnalyser::AnalyzeVoidFunc(SyntaxNode* node) {
-	AddChild(node);	// VOIDTK
-	if (FindSymbol(0) != NULL) {
-		errorHanding->AddError(iter->lineNumber, REDEFINITION);
+	this->AddChild(node);	// VOIDTK
+	if (this->FindSymbol(0) != NULL) {
+		error_handing_->AddError(iter_->line_number, REDEFINITION);
 	}
-	InsertIdentifier(FUNCTION, VOID, 0);
-	tempFunction = FindSymbol(0);
-	CleanLevel(1);
-	AddChild(node);	// IDENFR
-	AddChild(node);	// LPARENT
-	AnalyzeParameterTable(AddSyntaxChild(PARAMETER_TABLE, node));
-	AddRparentChild(node);	// RPARENT
-	midcodeGenerator->PrintVoidFuncDeclare(tempFunction);
-	AddChild(node);	// LBRACE
-	AnalyzeCompositeSentence(AddSyntaxChild(COMPOSITE_SENTENCE, node), VOID);
-	midcodeGenerator->PrintReturn(true, "");
-	AddChild(node);	// RBRACE
-	InsertSymbolTable(tempFunction->GetName(), 1);
+	this->InsertIdentifier(KindSymbol::FUNCTION, TypeSymbol::VOID, 0);
+	temp_function_ = FindSymbol(0);
+	this->CleanLevel(1);
+	this->AddChild(node);	// IDENFR
+	this->AddChild(node);	// LPARENT
+	this->AnalyzeParameterTable(this->AddSyntaxChild(PARAMETER_TABLE, node));
+	this->AddRparentChild(node);	// RPARENT
+	midcode_generator_->PrintVoidFuncDeclare(temp_function_);
+	this->AddChild(node);	// LBRACE
+	this->AnalyzeCompositeSentence(this->AddSyntaxChild(COMPOSITE_SENTENCE, node), TypeSymbol::VOID);
+	midcode_generator_->PrintReturn(true, "");
+	this->AddChild(node);	// RBRACE
+	this->InsertSymbolTable(temp_function_->name(), 1);
 }
 
 void ParseAnalyser::AnalyzeHeadState(SyntaxNode* node) {
-	TYPE_SYMBOL type = iter->identifier == INTTK ? INT : CHAR;
-	AddChild(node);	// INTTK or CHARTK
-	if (FindSymbol(0) != NULL) {
-		errorHanding->AddError(iter->lineNumber, REDEFINITION);
+	TypeSymbol type;
+	this->SetSymbolType(type);
+	this->AddChild(node);	// INTTK or CHARTK
+	if (this->FindSymbol(0) != NULL) {
+		error_handing_->AddError(iter_->line_number, REDEFINITION);
 	}
-	InsertIdentifier(FUNCTION, type, 0);
-	tempFunction = FindSymbol(0);
-	CleanLevel(1);
-	AddChild(node);	// IDENFR
+	this->InsertIdentifier(KindSymbol::FUNCTION, type, 0);
+	temp_function_ = this->FindSymbol(0);
+	this->CleanLevel(1);
+	this->AddChild(node);	// IDENFR
 }
 
 void ParseAnalyser::AnalyzeFunc(SyntaxNode* node) {
-	AnalyzeHeadState(AddSyntaxChild(HEAD_STATE, node));
-	AddChild(node);	// LPARENT
-	AnalyzeParameterTable(AddSyntaxChild(PARAMETER_TABLE, node));
-	AddRparentChild(node);	// RPARENT
-	midcodeGenerator->PrintFuncDeclare(tempFunction);
-	AddChild(node);	// LBRACE
-	AnalyzeCompositeSentence(AddSyntaxChild(COMPOSITE_SENTENCE, node),
-		tempFunction->GetType());
-	AddChild(node);	// RBRACE
-	InsertSymbolTable(tempFunction->GetName(), 1);
+	this->AnalyzeHeadState(this->AddSyntaxChild(HEAD_STATE, node));
+	this->AddChild(node);	// LPARENT
+	this->AnalyzeParameterTable(this->AddSyntaxChild(PARAMETER_TABLE, node));
+	this->AddRparentChild(node);	// RPARENT
+	midcode_generator_->PrintFuncDeclare(temp_function_);
+	this->AddChild(node);	// LBRACE
+	this->AnalyzeCompositeSentence(this->AddSyntaxChild(COMPOSITE_SENTENCE, node),
+		temp_function_->type());
+	this->AddChild(node);	// RBRACE
+	this->InsertSymbolTable(temp_function_->name(), 1);
 }
 
 void ParseAnalyser::BuildSyntaxTree(SyntaxNode* root) {
 	string flag = CONST_DECLARE;
 
-	while (iter != iterEnd) {
-		if (IsThisIdentifier(CONSTTK)) {
-			AnalyzeConstDeclare(AddSyntaxChild(CONST_DECLARE, root), 0);
-		} else if (IsThisIdentifier(INTTK) || IsThisIdentifier(CHARTK)) {
+	while (iter_ != iter_end_) {
+		if (this->IsThisIdentifier(CONSTTK)) {
+			this->AnalyzeConstDeclare(this->AddSyntaxChild(CONST_DECLARE, root), 0);
+		} else if (this->IsThisIdentifier(INTTK) || this->IsThisIdentifier(CHARTK)) {
 			if (flag == CONST_DECLARE) {
-				CountIterator(+2);
-				if (IsThisIdentifier(LPARENT)) {
+				this->CountIterator(+2);
+				if (this->IsThisIdentifier(LPARENT)) {
 					flag = RETURN_FUNCTION;
 				} else {
 					flag = VARIABLE_DECLARE;
 				}
-				CountIterator(-2);
+				this->CountIterator(-2);
 			}
 			if (flag == RETURN_FUNCTION) {
-				AnalyzeFunc(AddSyntaxChild(RETURN_FUNCTION, root));
+				this->AnalyzeFunc(this->AddSyntaxChild(RETURN_FUNCTION, root));
 			} else {
-				AnalyzeVariableDeclare(AddSyntaxChild(VARIABLE_DECLARE, root), 0);
+				this->AnalyzeVariableDeclare(this->AddSyntaxChild(VARIABLE_DECLARE, root), 0);
 				flag = RETURN_FUNCTION;
 			}
 		} else {
-			if (IsThisIdentifier(VOIDTK)) {
-				CountIterator(+1);
+			if (this->IsThisIdentifier(VOIDTK)) {
+				this->CountIterator(+1);
 			}
-			if (IsThisIdentifier(MAINTK)) {
-				CountIterator(-1);
-				AnalyzeMain(AddSyntaxChild(MAIN_FUNCTION, root));
+			if (this->IsThisIdentifier(MAINTK)) {
+				this->CountIterator(-1);
+				this->AnalyzeMain(this->AddSyntaxChild(MAIN_FUNCTION, root));
 			} else {
-				CountIterator(-1);
-				AnalyzeVoidFunc(AddSyntaxChild(NO_RETURN_FUNCTION, root));
+				this->CountIterator(-1);
+				this->AnalyzeVoidFunc(this->AddSyntaxChild(NO_RETURN_FUNCTION, root));
 			}
 		}
 	}
-	InsertSymbolTable("global", 0);
+	this->InsertSymbolTable("global", 0);
 }
 
 void ParseAnalyser::AnalyzeParse() {
 	SyntaxNode* root = new SyntaxNode(PROGRAM);
-	BuildSyntaxTree(root);
+	this->BuildSyntaxTree(root);
 	// root->print();
 }
 
-map<string, SymbolTable*> ParseAnalyser::GetSymbolTableMap() {
-	return this->symbolTableMap;
+map<string, SymbolTable*> ParseAnalyser::symbol_table_map() {
+	return this->symbol_table_map_;
+}
+
+StringTable* ParseAnalyser::string_table() {
+	return this->string_table_;
 }
 
 void ParseAnalyser::FileClose() {
-	midcodeGenerator->FileClose();
+	midcode_generator_->FileClose();
 }

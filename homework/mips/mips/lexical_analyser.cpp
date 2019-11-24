@@ -1,10 +1,10 @@
 ﻿#include "lexical_analyser.h"
 
 LexicalAnalyser::LexicalAnalyser(string fileName, ErrorHanding* errorHanding) {
-	this->testfile.open(fileName);
-	this->tempLexeme = new Lexeme();
-	this->errorHanding = errorHanding;
-	this->lineNumber = 1;
+	this->testfile_.open(fileName);
+	this->temp_lexeme_ = new Lexeme();
+	this->error_handing_ = errorHanding;
+	this->line_number_ = 1;
 	MapInitial();
 }
 
@@ -45,23 +45,23 @@ bool LexicalAnalyser::IsOpera(char c) {
 	str.clear();
 	str.append(1, c);
 
-	map<string, string>::iterator iter = operaMap.find(str);
+	map<string, string>::iterator iter = opera_map_.find(str);
 
-	if (iter == operaMap.end()) {
+	if (iter == opera_map_.end()) {
 		return false;
 	} else {
 		return true;
 	}
 }
 
-bool LexicalAnalyser::isCharLetter(char c) {
-	if (c == '+' || c == '-' || c == '*' || c == '/' || c== '_' || isalnum(c)) {
+bool LexicalAnalyser::IsCharLetter(char c) {
+	if (c == '+' || c == '-' || c == '*' || c == '/' || c == '_' || isalnum(c)) {
 		return true;
 	}
 	return false;
 }
 
-bool LexicalAnalyser::isStringLetter(char c) {
+bool LexicalAnalyser::IsStringLetter(char c) {
 	if (c >= 32 && c <= 126 && c != 34) {
 		return true;
 	}
@@ -70,9 +70,9 @@ bool LexicalAnalyser::isStringLetter(char c) {
 
 bool LexicalAnalyser::CheckKey(struct Lexeme* temp) {
 
-	map<string, string>::iterator iter = keyMap.find(temp->value);
+	map<string, string>::iterator iter = key_map_.find(temp->value);
 
-	if (iter == keyMap.end()) {
+	if (iter == key_map_.end()) {
 		return false;
 	} else {
 		temp->identifier = iter->second;
@@ -81,9 +81,9 @@ bool LexicalAnalyser::CheckKey(struct Lexeme* temp) {
 }
 
 bool LexicalAnalyser::CheckSymbol(struct Lexeme* temp) {
-	map<string, string>::iterator iter = operaMap.find(temp->value);
+	map<string, string>::iterator iter = opera_map_.find(temp->value);
 
-	if (iter == operaMap.end()) {
+	if (iter == opera_map_.end()) {
 		return false;
 	} else {
 		temp->identifier = iter->second;
@@ -92,83 +92,83 @@ bool LexicalAnalyser::CheckSymbol(struct Lexeme* temp) {
 }
 
 void LexicalAnalyser::MapInitial() {
-	keyMap.insert(pair<string, string>("const", CONSTTK));
-	keyMap.insert(pair<string, string>("int", INTTK));
-	keyMap.insert(pair<string, string>("char", CHARTK));
-	keyMap.insert(pair<string, string>("void", VOIDTK));
-	keyMap.insert(pair<string, string>("main", MAINTK));
-	keyMap.insert(pair<string, string>("if", IFTK));
-	keyMap.insert(pair<string, string>("else", ELSETK));
-	keyMap.insert(pair<string, string>("do", DOTK));
-	keyMap.insert(pair<string, string>("while", WHILETK));
-	keyMap.insert(pair<string, string>("for", FORTK));
-	keyMap.insert(pair<string, string>("scanf", SCANFTK));
-	keyMap.insert(pair<string, string>("printf", PRINTFTK));
-	keyMap.insert(pair<string, string>("return", RETURNTK));
+	key_map_.insert(pair<string, string>("const", CONSTTK));
+	key_map_.insert(pair<string, string>("int", INTTK));
+	key_map_.insert(pair<string, string>("char", CHARTK));
+	key_map_.insert(pair<string, string>("void", VOIDTK));
+	key_map_.insert(pair<string, string>("main", MAINTK));
+	key_map_.insert(pair<string, string>("if", IFTK));
+	key_map_.insert(pair<string, string>("else", ELSETK));
+	key_map_.insert(pair<string, string>("do", DOTK));
+	key_map_.insert(pair<string, string>("while", WHILETK));
+	key_map_.insert(pair<string, string>("for", FORTK));
+	key_map_.insert(pair<string, string>("scanf", SCANFTK));
+	key_map_.insert(pair<string, string>("printf", PRINTFTK));
+	key_map_.insert(pair<string, string>("return", RETURNTK));
 
-	operaMap.insert(pair<string, string>("+", PLUS));
-	operaMap.insert(pair<string, string>("-", MINU));
-	operaMap.insert(pair<string, string>("*", MULT));
-	operaMap.insert(pair<string, string>("/", DIV));
-	operaMap.insert(pair<string, string>("<", LSS));
-	operaMap.insert(pair<string, string>("<=", LEQ));
-	operaMap.insert(pair<string, string>(">", GRE));
-	operaMap.insert(pair<string, string>(">=", GEQ));
-	operaMap.insert(pair<string, string>("=", ASSIGN));
-	operaMap.insert(pair<string, string>("==", EQL));
-	operaMap.insert(pair<string, string>("!=", NEQ));
-	operaMap.insert(pair<string, string>(";", SEMICN));
-	operaMap.insert(pair<string, string>(",", COMMA));
-	operaMap.insert(pair<string, string>("(", LPARENT));
-	operaMap.insert(pair<string, string>(")", RPARENT));
-	operaMap.insert(pair<string, string>("[", LBRACK));
-	operaMap.insert(pair<string, string>("]", RBRACK));
-	operaMap.insert(pair<string, string>("{", LBRACE));
-	operaMap.insert(pair<string, string>("}", RBRACE));
+	opera_map_.insert(pair<string, string>("+", PLUS));
+	opera_map_.insert(pair<string, string>("-", MINU));
+	opera_map_.insert(pair<string, string>("*", MULT));
+	opera_map_.insert(pair<string, string>("/", DIV));
+	opera_map_.insert(pair<string, string>("<", LSS));
+	opera_map_.insert(pair<string, string>("<=", LEQ));
+	opera_map_.insert(pair<string, string>(">", GRE));
+	opera_map_.insert(pair<string, string>(">=", GEQ));
+	opera_map_.insert(pair<string, string>("=", ASSIGN));
+	opera_map_.insert(pair<string, string>("==", EQL));
+	opera_map_.insert(pair<string, string>("!=", NEQ));
+	opera_map_.insert(pair<string, string>(";", SEMICN));
+	opera_map_.insert(pair<string, string>(",", COMMA));
+	opera_map_.insert(pair<string, string>("(", LPARENT));
+	opera_map_.insert(pair<string, string>(")", RPARENT));
+	opera_map_.insert(pair<string, string>("[", LBRACK));
+	opera_map_.insert(pair<string, string>("]", RBRACK));
+	opera_map_.insert(pair<string, string>("{", LBRACE));
+	opera_map_.insert(pair<string, string>("}", RBRACE));
 }
 
 void LexicalAnalyser::GetChar(char& c) {
-	c = testfile.get();
+	c = testfile_.get();
 }
 
 void LexicalAnalyser::UngetChar() {
-	testfile.unget();
+	testfile_.unget();
 }
 
 void LexicalAnalyser::GoForward(char& c) {
 	while (isspace(c)) {
 		if (c == '\n') {
-			this->lineNumber++;
+			this->line_number_++;
 		}
 		GetChar(c);
 	}
 }
 
 void LexicalAnalyser::AddList(struct Lexeme temp) {
-	temp.lineNumber = this->lineNumber;
-	lexList.push_back(temp);
+	temp.line_number = this->line_number_;
+	lexeme_list_.push_back(temp);
 }
 
 void LexicalAnalyser::AddList(struct Lexeme temp, string identifier) {
-	temp.lineNumber = this->lineNumber;
+	temp.line_number = this->line_number_;
 	temp.identifier = identifier;
-	lexList.push_back(temp);
+	lexeme_list_.push_back(temp);
 }
 
 bool LexicalAnalyser::AnalyzeKey(char& c) {
 	if (isalpha(c) || IsUnder(c)) {
-		tempLexeme = new Lexeme();
+		temp_lexeme_ = new Lexeme();
 		do {
-			tempLexeme->value.push_back(c);
-			GetChar(c);
-		} while (isalpha(c) || IsUnder(c) || isdigit(c));
-		UngetChar();
+			temp_lexeme_->value.push_back(c);
+			this->GetChar(c);
+		} while (isalpha(c) || this->IsUnder(c) || isdigit(c));
+		this->UngetChar();
 
-		if (CheckKey(tempLexeme)) {
-			AddList(*tempLexeme);
+		if (this->CheckKey(temp_lexeme_)) {
+			this->AddList(*temp_lexeme_);
 			return true;
 		} else {
-			AddList(*tempLexeme, IDENFR);
+			this->AddList(*temp_lexeme_, IDENFR);
 			return true;
 		}
 	}
@@ -177,33 +177,33 @@ bool LexicalAnalyser::AnalyzeKey(char& c) {
 }
 
 bool LexicalAnalyser::AnalyzeQuote(char& c) {
-	if (IsSingleQuote(c)) {
-		tempLexeme = new Lexeme();
-		GetChar(c);
-		if (!isCharLetter(c)) {
-			errorHanding->AddError(lineNumber, ILLEGAL_SYMBOL_OR_LEXICAL_INCONFORMITY);
+	if (this->IsSingleQuote(c)) {
+		temp_lexeme_ = new Lexeme();
+		this->GetChar(c);
+		if (!this->IsCharLetter(c)) {
+			error_handing_->AddError(line_number_, ILLEGAL_SYMBOL_OR_LEXICAL_INCONFORMITY);
 		}
-		tempLexeme->value.push_back(c);
-		GetChar(c);
-		if (!IsSingleQuote(c)) {
-			UngetChar();
-			errorHanding->AddError(lineNumber, ILLEGAL_SYMBOL_OR_LEXICAL_INCONFORMITY);
+		temp_lexeme_->value.push_back(c);
+		this->GetChar(c);
+		if (!this->IsSingleQuote(c)) {
+			this->UngetChar();
+			error_handing_->AddError(line_number_, ILLEGAL_SYMBOL_OR_LEXICAL_INCONFORMITY);
 		}
-		AddList(*tempLexeme, CHARCON);
+		this->AddList(*temp_lexeme_, CHARCON);
 		return true;
-	} else if (IsDoubleQuote(c)) {
-		tempLexeme = new Lexeme();
+	} else if (this->IsDoubleQuote(c)) {
+		temp_lexeme_ = new Lexeme();
 		while (true) {
-			GetChar(c);
-			if (IsDoubleQuote(c)) {
+			this->GetChar(c);
+			if (this->IsDoubleQuote(c)) {
 				break;
 			}
-			if (!isStringLetter(c)) {
-				errorHanding->AddError(lineNumber, ILLEGAL_SYMBOL_OR_LEXICAL_INCONFORMITY);
+			if (!this->IsStringLetter(c)) {
+				error_handing_->AddError(line_number_, ILLEGAL_SYMBOL_OR_LEXICAL_INCONFORMITY);
 			}
-			tempLexeme->value.push_back(c);
+			temp_lexeme_->value.push_back(c);
 		}
-		AddList(*tempLexeme, STRCON);
+		this->AddList(*temp_lexeme_, STRCON);
 		return true;
 	}
 
@@ -211,31 +211,31 @@ bool LexicalAnalyser::AnalyzeQuote(char& c) {
 }
 
 bool LexicalAnalyser::AnalyzeOpera(char& c) {
-	if (IsOpera(c) || c == '!') {
-		tempLexeme = new Lexeme();
-		tempLexeme->value.push_back(c);
+	if (this->IsOpera(c) || c == '!') {
+		temp_lexeme_ = new Lexeme();
+		temp_lexeme_->value.push_back(c);
 
 		if (c == '>' || c == '<' || c == '=') {
-			GetChar(c);
-			if (IsEqu(c)) {
-				tempLexeme->value.push_back(c);
+			this->GetChar(c);
+			if (this->IsEqu(c)) {
+				temp_lexeme_->value.push_back(c);
 			} else {
-				UngetChar();
+				this->UngetChar();
 			}
 		} else if (c == '!') {
-			GetChar(c);
-			if (IsEqu(c)) {
-				tempLexeme->value.push_back(c);
+			this->GetChar(c);
+			if (this->IsEqu(c)) {
+				temp_lexeme_->value.push_back(c);
 			} else {
-				UngetChar();
-				tempLexeme->value.push_back('=');
-				errorHanding->AddError(lineNumber, ILLEGAL_SYMBOL_OR_LEXICAL_INCONFORMITY);
+				this->UngetChar();
+				temp_lexeme_->value.push_back('=');
+				error_handing_->AddError(line_number_, ILLEGAL_SYMBOL_OR_LEXICAL_INCONFORMITY);
 			}
-			tempLexeme->isError = true;
+			temp_lexeme_->is_error = true;
 		}
 
-		if (CheckSymbol(tempLexeme)) {
-			AddList(*tempLexeme);
+		if (this->CheckSymbol(temp_lexeme_)) {
+			this->AddList(*temp_lexeme_);
 			return true;
 		}
 	}
@@ -245,16 +245,16 @@ bool LexicalAnalyser::AnalyzeOpera(char& c) {
 
 bool LexicalAnalyser::AnalyzeDigit(char& c) {
 	if (isdigit(c)) {
-		tempLexeme = new Lexeme();
+		temp_lexeme_ = new Lexeme();
 		do {
-			tempLexeme->value.push_back(c);
-			GetChar(c);
+			temp_lexeme_->value.push_back(c);
+			this->GetChar(c);
 		} while (isdigit(c));
-		UngetChar();
-		if (tempLexeme->value[0] == '0' && tempLexeme->value.size() > 1) {
-			errorHanding->AddError(lineNumber, ILLEGAL_SYMBOL_OR_LEXICAL_INCONFORMITY);
+		this->UngetChar();
+		if (temp_lexeme_->value[0] == '0' && temp_lexeme_->value.size() > 1) {
+			error_handing_->AddError(line_number_, ILLEGAL_SYMBOL_OR_LEXICAL_INCONFORMITY);
 		}
-		AddList(*tempLexeme, INTCON);
+		this->AddList(*temp_lexeme_, INTCON);
 		return true;
 	}
 
@@ -264,20 +264,20 @@ bool LexicalAnalyser::AnalyzeDigit(char& c) {
 list<struct Lexeme>* LexicalAnalyser::Analyze() {
 	char c;
 
-	while ((c = testfile.get()) != -1) {
-		GoForward(c);
+	while ((c = testfile_.get()) != -1) {
+		this->GoForward(c);
 
-		if (AnalyzeKey(c)
-			|| AnalyzeQuote(c)
-			|| AnalyzeOpera(c)
-			|| AnalyzeDigit(c)) {
+		if (this->AnalyzeKey(c)
+			|| this->AnalyzeQuote(c)
+			|| this->AnalyzeOpera(c)
+			|| this->AnalyzeDigit(c)) {
 			continue;
 		}
 	}
 
-	return &lexList;
+	return &lexeme_list_;
 }
 
 void LexicalAnalyser::FileClose() {
-	testfile.close();
+	testfile_.close();
 }

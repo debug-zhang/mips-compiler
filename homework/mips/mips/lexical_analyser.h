@@ -48,31 +48,31 @@ const string RBRACE		= "RBRACE";
 struct Lexeme {
 	string identifier;
 	string value;
-	bool isError;
-	int lineNumber;
+	bool is_error;
+	int line_number;
 	Lexeme() {
-		isError = false;
-		lineNumber = 0;
+		is_error = false;
+		line_number = 0;
 	}
 };
 
 class LexicalAnalyser {
 private:
-	ifstream testfile;
-	struct Lexeme* tempLexeme;
-	list<struct Lexeme> lexList;
-	ErrorHanding* errorHanding;
-	int lineNumber;
-	map<string, string> keyMap;
-	map<string, string> operaMap;
+	ifstream testfile_;
+	struct Lexeme* temp_lexeme_;
+	list<struct Lexeme> lexeme_list_;
+	ErrorHanding* error_handing_;
+	int line_number_;
+	map<string, string> key_map_;
+	map<string, string> opera_map_;
 
 	bool IsUnder(char c);
 	bool IsEqu(char c);
 	bool IsSingleQuote(char c);
 	bool IsDoubleQuote(char c);
 	bool IsOpera(char c);
-	bool isCharLetter(char c);
-	bool isStringLetter(char c);
+	bool IsCharLetter(char c);
+	bool IsStringLetter(char c);
 
 	bool CheckKey(struct Lexeme* temp);
 	bool CheckSymbol(struct Lexeme* temp);

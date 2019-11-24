@@ -2,26 +2,26 @@
 
 
 ErrorHanding::ErrorHanding(string fileName) {
-	this->errorFile.open(fileName);
+	this->error_file_.open(fileName);
 }
 
 void ErrorHanding::AddError(Error error) {
-	errorList.push_back(error);
+	error_list_.push_back(error);
 }
 
 void ErrorHanding::AddError(int lineNumber, char errorType) {
-	errorList.push_back(Error(lineNumber, errorType));
+	error_list_.push_back(Error(lineNumber, errorType));
 }
 
 void ErrorHanding::PrintError() {
-	list<Error>::iterator iter = errorList.begin();
+	list<Error>::iterator iter = error_list_.begin();
 
-	while (iter != errorList.end()) {
-		errorFile << iter->GetLineNumber() << " " << iter->GetErrorType() << endl;
+	while (iter != error_list_.end()) {
+		error_file_ << iter->line_number() << " " << iter->error_type() << endl;
 		iter++;
 	}
 }
 
 void ErrorHanding::FileClose() {
-	errorFile.close();
+	error_file_.close();
 }

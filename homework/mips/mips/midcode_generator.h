@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <fstream>
 #include <string>
@@ -6,7 +6,7 @@
 
 using namespace std;
 
-enum JUDGE {
+enum class Judge {
 	BEQ,
 	BNE,
 	BGE,
@@ -15,12 +15,12 @@ enum JUDGE {
 	BLE
 };
 
-const string INT_TYPE = "int";
-const string CHAR_TYPE = "char";
+const string kIntType = "int";
+const string kCharType = "char";
 
 class MidcodeGenerator {
 private:
-	ofstream midcode;
+	ofstream midcode_;
 
 	void PrintBez(int label, string expression);
 	void PrintBnz(int label, string expression);
@@ -45,13 +45,14 @@ public:
 	void PrintStep(string name1, string name2, string op, int step);
 
 	void PrintBezOrBnz(int label, string expression, bool isFalseBranch);
-	void PrintBeqOrBne(int label, string expression, string expression2, JUDGE judge, bool isFalseBranch);
-	void PrintBgeOrBlt(int label, string expression, string expression2, JUDGE judge, bool isFalseBranch);
-	void PrintBgtOrBle(int label, string expression, string expression2, JUDGE judge, bool isFalseBranch);
+	void PrintBeqOrBne(int label, string expression, string expression2, Judge judge, bool isFalseBranch);
+	void PrintBgeOrBlt(int label, string expression, string expression2, Judge judge, bool isFalseBranch);
+	void PrintBgtOrBle(int label, string expression, string expression2, Judge judge, bool isFalseBranch);
 	
 	void PrintString(int stringNumber);
 	void PrintInteger(string number);
 	void PrintChar(string c);
+	void PrintLineBreak();
 
 	void PrintScanf(string type, string identifier);
 

@@ -1,31 +1,31 @@
 ﻿#include "error.h"
 
 Error::Error() {
-	lineNumber = 0;
-	errorType = NO_ERROR;
+	line_number_ = 0;
+	error_type_ = NO_ERROR;
 }
 
 Error::Error(int lineNumber, char errorType) {
-	this->lineNumber = lineNumber;
-	this->errorType = errorType;
+	this->line_number_ = lineNumber;
+	this->error_type_ = errorType;
 }
 
-void Error::SetLineNumber(int lineNumber) {
-	this->lineNumber = lineNumber;
+void Error::set_line_number(int lineNumber) {
+	this->line_number_ = lineNumber;
 }
 
-void Error::SetErrorType(char errorType) {
-	this->errorType = errorType;
+void Error::set_error_type(char errorType) {
+	this->error_type_ = errorType;
 }
 
 bool Error::IsError() {
-	return errorType != NO_ERROR;
+	return error_type_ != NO_ERROR;
 }
 
-int Error::GetLineNumber() {
-	return lineNumber;
+int Error::line_number() {
+	return line_number_;
 }
 
-char Error::GetErrorType() {
-	return errorType;
+char Error::error_type() {
+	return error_type_;
 }

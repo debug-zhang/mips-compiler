@@ -1,8 +1,8 @@
-﻿#include "lexical_analyser.h"
+﻿#include <iostream>
+#include "lexical_analyser.h"
 #include "parse_analyser.h"
 #include "mips_generator.h"
 #include "error_handing.h"
-#include <iostream>
 
 using namespace std;
 
@@ -12,20 +12,22 @@ int main() {
 	string mips = "mips.txt";
 	string error = "error.txt";
 
-	ErrorHanding* errorHanding = new ErrorHanding(error);
+	ErrorHanding* error_handing = new ErrorHanding(error);
 
-	LexicalAnalyser* lexicalAnalyser = new LexicalAnalyser(testfile, errorHanding);
+	LexicalAnalyser* lexical_analyser = new LexicalAnalyser(testfile, error_handing);
 
-	ParseAnalyser* parseAnalyser = new ParseAnalyser(midcode, lexicalAnalyser->Analyze(), errorHanding);
-	lexicalAnalyser->FileClose();
-	parseAnalyser->AnalyzeParse();
-	parseAnalyser->FileClose();
+	ParseAnalyser* parse_analyser = new ParseAnalyser(midcode, lexical_analyser->Analyze(), error_handing);
+	lexical_analyser->FileClose();
+	parse_analyser->AnalyzeParse();
+	parse_analyser->FileClose();
 
-	MipsGenerator* mipsGenerator = new MipsGenerator(midcode, mips, parseAnalyser->GetSymbolTableMap());
-	mipsGenerator->FileClose();
+	MipsGenerator* mips_generator = new MipsGenerator(midcode, mips, 
+		parse_analyser->string_table(), parse_analyser->symbol_table_map());
+	mips_generator->GenerateMips();
+	mips_generator->FileClose();
 
-	errorHanding->PrintError();
-	errorHanding->FileClose();
+	error_handing->PrintError();
+	error_handing->FileClose();
 
 	return 0;
 }

@@ -1,5 +1,39 @@
 void main()
 printf str_0
-scanf int test
-printf int test
+printf int _begini
+printf_end
+scanf int i
+a = i
+printf int a
+printf_end
+a = testfg
+printf int a
+printf_end
+t0 = a + _endi
+t1 = t0 + testfg
+a = t1
+printf int a
+printf_end
+printf str_1
+printf_end
+a = 1
+t2 = a + 1700
+t3 = t2 + 5
+t4 = t3 * 1000
+a = t4
+printf int a
+printf_end
+printf str_2
+printf_end
+printf str_3
+printf_end
+t5 = _begini + _endi
+t6 = t5 * testfg
+t7 = t6 / 2
+a = t7
+printf str_4
+printf int a
+printf_end
+printf str_5
+printf_end
 return

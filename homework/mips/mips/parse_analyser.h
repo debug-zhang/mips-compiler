@@ -45,21 +45,23 @@ const string RETURN_SENTENCE = "<返回语句>";
 
 class ParseAnalyser {
 private:
-	int labelCount;
-	int regCount;
-	list<struct Lexeme>::iterator iter;
-	list<struct Lexeme>::iterator iterEnd;
-	CheckTable* checkTable;
-	StringTable* stringTable;
-	map<string, SymbolTable*> symbolTableMap;
-	MidcodeGenerator* midcodeGenerator;
-	ErrorHanding* errorHanding;
-	Symbol* tempFunction;
+	int label_count_;
+	int reg_count_;
+	list<struct Lexeme>::iterator iter_;
+	list<struct Lexeme>::iterator iter_end_;
+	CheckTable* check_table_;
+	StringTable* string_table_;
+	map<string, SymbolTable*> symbol_table_map_;
+	MidcodeGenerator* midcode_generator_;
+	ErrorHanding* error_handing_;
+	Symbol* temp_function_;
 
 	void CountIterator(int step);
 
+	Symbol* FindSymbol();
 	Symbol* FindSymbol(int level);
-	Symbol* InsertIdentifier(KIND_SYMBOL kind, TYPE_SYMBOL type, int level);
+
+	Symbol* InsertIdentifier(KindSymbol kind, TypeSymbol type, int level);
 	void InsertSymbolTable(string name, int level);
 	void CleanLevel(int level);
 	void AddChild(SyntaxNode* node);
@@ -69,6 +71,8 @@ private:
 	void AddRbrackChild(SyntaxNode* node);
 	void AddRparentChild(SyntaxNode* node);
 	SyntaxNode* AddSyntaxChild(string syntaxName, SyntaxNode* node);
+
+	void SetSymbolType(TypeSymbol& type);
 
 	bool IsThisIdentifier(string identifier);
 	bool IsPlusOrMinu();
@@ -84,28 +88,28 @@ private:
 	void AnalyzeValuePrameterTable(SyntaxNode* node);
 	void AnalyzeReturnCallSentence(SyntaxNode* node);
 
-	TYPE_SYMBOL AnalyzeFactor(SyntaxNode* node);
-	TYPE_SYMBOL AnalyzeItem(SyntaxNode* node);
-	TYPE_SYMBOL AnalyzeExpression(SyntaxNode* node);
+	TypeSymbol AnalyzeFactor(SyntaxNode* node);
+	TypeSymbol AnalyzeItem(SyntaxNode* node);
+	TypeSymbol AnalyzeExpression(SyntaxNode* node);
 
 	void AnalyzeCondition(SyntaxNode* node, bool isFalseBranch);
-	bool AnalyzeIfSentence(SyntaxNode* node, TYPE_SYMBOL returnType);
+	bool AnalyzeIfSentence(SyntaxNode* node, TypeSymbol returnType);
 
 	int AnalyzeStep(SyntaxNode* node);
-	void AnalyzeWhile(SyntaxNode* node, TYPE_SYMBOL returnType);
-	void AnalyzeDoWhile(SyntaxNode* node, bool& noReturn, TYPE_SYMBOL returnType);
-	void AnalyzeFor(SyntaxNode* node, TYPE_SYMBOL returnType);
-	bool AnalyzeLoopSentence(SyntaxNode* node, TYPE_SYMBOL returnType);
+	void AnalyzeWhile(SyntaxNode* node, TypeSymbol returnType);
+	void AnalyzeDoWhile(SyntaxNode* node, bool& noReturn, TypeSymbol returnType);
+	void AnalyzeFor(SyntaxNode* node, TypeSymbol returnType);
+	bool AnalyzeLoopSentence(SyntaxNode* node, TypeSymbol returnType);
 
 	void AnalyzeAssignSentence(SyntaxNode* node);
 	void AnalyseScanfIdentifier(SyntaxNode* node);
 	void AnalyzeScanfSentence(SyntaxNode* node);
 	void AnalyzePrintfSentence(SyntaxNode* node);
-	TYPE_SYMBOL AnalyzeReturnSentence(SyntaxNode* node);
+	TypeSymbol AnalyzeReturnSentence(SyntaxNode* node);
 
-	bool AnalyzeSentence(SyntaxNode* node, TYPE_SYMBOL returnType);
-	bool AnalyzeSentenceCollection(SyntaxNode* node, TYPE_SYMBOL returnType);
-	void AnalyzeCompositeSentence(SyntaxNode* node, TYPE_SYMBOL returnType);
+	bool AnalyzeSentence(SyntaxNode* node, TypeSymbol returnType);
+	bool AnalyzeSentenceCollection(SyntaxNode* node, TypeSymbol returnType);
+	void AnalyzeCompositeSentence(SyntaxNode* node, TypeSymbol returnType);
 
 	void AnalyzeMain(SyntaxNode* node);
 	void AnalyzeParameterTable(SyntaxNode* node);
@@ -118,7 +122,8 @@ private:
 public:
 	ParseAnalyser(string fileName, list<struct Lexeme>* lexList, ErrorHanding* errorHanding);
 	void AnalyzeParse();
-	map<string, SymbolTable*> GetSymbolTableMap();
+	map<string, SymbolTable*> symbol_table_map();
+	StringTable* string_table();
 	void FileClose();
 };
 

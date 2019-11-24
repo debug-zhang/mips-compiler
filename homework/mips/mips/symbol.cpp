@@ -1,80 +1,80 @@
 ﻿#include "symbol.h"
 
 Symbol::Symbol() {
-	this->arrayLength = 0;
-	this->regNumber = 0;
-	this->spOffer = 0;
-	this->kind = CONST;
-	this->type = INT;
-	this->isUse = false;
+	this->array_length_ = 0;
+	this->reg_number_ = 0;
+	this->sp_offer_ = 0;
+	this->kind_ = KindSymbol::CONST;
+	this->type_ = TypeSymbol::INT;
+	this->is_use_ = false;
 };
 
-void Symbol::SetProperty(string name, KIND_SYMBOL kind, TYPE_SYMBOL type) {
-	this->name = name;
-	this->kind = kind;
-	this->type = type;
+void Symbol::SetProperty(string name, KindSymbol kind, TypeSymbol type) {
+	this->name_ = name;
+	this->kind_ = kind;
+	this->type_ = type;
 }
 
-string Symbol::GetName() {
-	return this->name;
+string Symbol::name() {
+	return this->name_;
 }
 
-KIND_SYMBOL Symbol::GetKind() {
-	return this->kind;
+KindSymbol Symbol::kind() {
+	return this->kind_;
 }
 
-TYPE_SYMBOL Symbol::GetType() {
-	return this->type;
+TypeSymbol Symbol::type() {
+	return this->type_;
 }
 
 void Symbol::AddParameter(char c) {
-	this->parameter.push_back(c);
+	this->parameter_.push_back(c);
 }
 
-string Symbol::GetParameter() {
-	return this->parameter;
+string Symbol::parameter() {
+	return this->parameter_;
 }
 
 int Symbol::GetParameterCount() {
-	return this->parameter.length();
+	return this->parameter_.length();
 }
 
-void Symbol::SetConstValue(string constValue) {
-	this->constValue = constValue;
+void Symbol::set_const_value(string constValue) {
+	this->const_value_ = constValue;
 }
 
-string Symbol::GetConstValue() {
-	return this->constValue;
+string Symbol::const_value() {
+	return this->const_value_;
 }
 
-void Symbol::SetArrayLength(int arrayLength) {
-	this->arrayLength = arrayLength;
+void Symbol::set_array_length(int arrayLength) {
+	this->array_length_ = arrayLength;
 }
 
-int Symbol::GetArrayLength() {
-	return this->arrayLength;
+int Symbol::array_length() {
+	return this->array_length_;
 }
 
-void Symbol::SetRegNumber(int regNumber) {
-	this->regNumber = regNumber;
+void Symbol::set_reg_number(int regNumber) {
+	this->reg_number_ = regNumber;
 }
 
-int Symbol::GetRegNumber() {
-	return this->regNumber;
+int Symbol::reg_number() {
+	return this->reg_number_;
 }
 
-void Symbol::SetSpOffer(int spOffer) {
-	this->spOffer = spOffer;
+void Symbol::set_sp_offer(int spOffer) {
+	this->sp_offer_ = spOffer;
 }
 
-int Symbol::GetSpOffer() {
-	return this->spOffer;
+int Symbol::sp_offer() {
+	return this->sp_offer_;
 }
 
-void Symbol::SetUse(bool isUse) {
-	this->isUse = isUse;
+void Symbol::set_is_use(bool isUse) {
+	this->is_use_ = isUse;
 }
 
-bool Symbol::IsUse() {
-	return isUse;
+bool Symbol::is_use() {
+	return is_use_;
 }

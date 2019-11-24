@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -129,7 +129,9 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="midcode_generator.cpp" />
     <ClCompile Include="mips_generator.cpp" />
+    <ClCompile Include="objcode.cpp" />
     <ClCompile Include="parse_analyser.cpp" />
+    <ClCompile Include="reg.cpp" />
     <ClCompile Include="symbol.cpp" />
     <ClCompile Include="syntax_node.cpp" />
     <ClCompile Include="table.cpp" />
@@ -137,10 +139,13 @@
   <ItemGroup>
     <ClInclude Include="error.h" />
     <ClInclude Include="error_handing.h" />
+    <ClInclude Include="instr.h" />
     <ClInclude Include="lexical_analyser.h" />
     <ClInclude Include="midcode_generator.h" />
     <ClInclude Include="mips_generator.h" />
+    <ClInclude Include="objcode.h" />
     <ClInclude Include="parse_analyser.h" />
+    <ClInclude Include="reg.h" />
     <ClInclude Include="symbol.h" />
     <ClInclude Include="syntax_node.h" />
     <ClInclude Include="table.h" />

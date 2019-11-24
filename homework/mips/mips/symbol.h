@@ -4,7 +4,7 @@
 
 using namespace std;
 
-enum KIND_SYMBOL {
+enum class KindSymbol {
 	CONST,
 	VARIABLE,
 	ARRAY,
@@ -12,7 +12,7 @@ enum KIND_SYMBOL {
 	PARAMETER
 };
 
-enum TYPE_SYMBOL {
+enum class TypeSymbol {
 	INT,
 	CHAR,
 	VOID
@@ -20,44 +20,44 @@ enum TYPE_SYMBOL {
 
 class Symbol {
 private:
-	string name;
-	string parameter;
-	string constValue;
+	string name_;
+	string parameter_;
+	string const_value_;
 
-	int arrayLength;
-	int regNumber;
-	int spOffer;
+	int array_length_;
+	int reg_number_;
+	int sp_offer_;
 
-	KIND_SYMBOL kind;
-	TYPE_SYMBOL type;
+	KindSymbol kind_;
+	TypeSymbol type_;
 
-	bool isUse;
+	bool is_use_;
 
 public:
 	Symbol();
 
-	void SetProperty(string name, KIND_SYMBOL kind, TYPE_SYMBOL type);
-	string GetName();
-	KIND_SYMBOL GetKind();
-	TYPE_SYMBOL GetType();
+	void SetProperty(string name, KindSymbol kind, TypeSymbol type);
+	string name();
+	KindSymbol kind();
+	TypeSymbol type();
 
 	void AddParameter(char c);
-	string GetParameter();
+	string parameter();
 	int GetParameterCount();
 
-	void SetConstValue(string constValue);
-	string GetConstValue();
+	void set_const_value(string constValue);
+	string const_value();
 
-	void SetArrayLength(int arrayLength);
-	int GetArrayLength();
+	void set_array_length(int arrayLength);
+	int array_length();
 
-	void SetRegNumber(int regNumber);
-	int GetRegNumber();
+	void set_reg_number(int regNumber);
+	int reg_number();
 
-	void SetSpOffer(int spOffer);
-	int GetSpOffer();
+	void set_sp_offer(int spOffer);
+	int sp_offer();
 
-	void SetUse(bool isUse);
-	bool IsUse();
+	void set_is_use(bool isUse);
+	bool is_use();
 };
 

@@ -45,6 +45,12 @@
     <ClCompile Include="table.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="objcode.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="reg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="error.h">
@@ -59,9 +65,6 @@
     <ClInclude Include="midcode_generator.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="mips_generator.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="parse_analyser.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -72,6 +75,18 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="table.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="instr.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="objcode.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="mips_generator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="reg.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,0 +1,19 @@
+
+.data
+	global: .space 240
+	str_0: .asciiz "_begini = "
+	str_1: .asciiz "Let's have fun."
+	str_2: .asciiz "My stunum is : "
+	str_3: .asciiz "17060000"
+	str_4: .asciiz "a is : "
+	str_5: .asciiz "Congratulations"
+	.align 4
+.text
+
+move $gp $sp
+move $fp $sp
+jal main
+li $v0 10
+syscall
+addi $sp $sp 8
+jr $ra
