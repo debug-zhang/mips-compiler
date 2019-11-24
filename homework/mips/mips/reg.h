@@ -17,9 +17,12 @@ enum class Reg {
 	gp,
 	sp,
 	fp,
-	ra
+	ra,
+	wrong
 };
 
-extern string RegToString(Reg reg);
+namespace reg {
+	string RegToString(Reg reg);
 
-extern Reg NumberToReg(int regNumber);
+	Reg NumberToReg(int regNumber);
+}

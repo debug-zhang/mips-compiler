@@ -136,7 +136,7 @@ void MipsGenerator::PopSymbolMapVar(int level) {
 	while (iter != symbol_map.end()) {
 		symbol = iter->second;
 		if (symbol->reg_number() != 0 && !symbol->is_use()) {
-			objcode_->Output(Instr::sw, NumberToReg(symbol->reg_number()),
+			objcode_->Output(Instr::sw, reg::NumberToReg(symbol->reg_number()),
 				Reg::gp, symbol->sp_offer());
 			reg_use_stack_[symbol->reg_number()] = 0;
 			symbol->set_reg_number(0);
@@ -157,7 +157,7 @@ int MipsGenerator::LoadValue(string name) {
 	if (symbol->reg_number() == 0) {
 		int reg_number = this->GetUnuseReg();
 		Reg t1 = level == 1 ? Reg::fp : Reg::gp;
-		objcode_->Output(Instr::lw, NumberToReg(reg_number), t1,
+		objcode_->Output(Instr::lw, reg::NumberToReg(reg_number), t1,
 			symbol->sp_offer());
 		symbol->set_reg_number(reg_number);
 	}
@@ -170,7 +170,7 @@ int MipsGenerator::LoadMidReg(string name) {
 		return mid_var_reg_map_.at(name);
 	} else {
 		int unuse_reg = this->GetUnuseReg();
-		objcode_->Output(Instr::lw, NumberToReg(unuse_reg), Reg::k0, -mid_var_reg_map_.at(name));
+		objcode_->Output(Instr::lw, reg::NumberToReg(unuse_reg), Reg::k0, -mid_var_reg_map_.at(name));
 		mid_var_reg_map_.at(name) = unuse_reg;
 		return unuse_reg;
 	}
@@ -198,7 +198,7 @@ int MipsGenerator::GetUnuseRegInTable(int& unuse_reg, bool& retflag, int level) 
 		symbol = iter->second;
 		if (symbol->reg_number() != 0 && !symbol->is_use()) {
 			unuse_reg = symbol->reg_number();
-			objcode_->Output(Instr::sw, NumberToReg(unuse_reg),
+			objcode_->Output(Instr::sw, reg::NumberToReg(unuse_reg),
 				Reg::gp, symbol->sp_offer());
 			symbol->set_reg_number(0);
 			return unuse_reg;
@@ -246,7 +246,7 @@ int MipsGenerator::GetUnuseReg() {
 			unuse_reg = iter->second;
 			dm_offset += 4;
 			iter->second = -dm_offset;
-			objcode_->Output(Instr::sw, NumberToReg(unuse_reg),
+			objcode_->Output(Instr::sw, reg::NumberToReg(unuse_reg),
 				Reg::k0, dm_offset);
 			return unuse_reg;
 		}
@@ -257,7 +257,7 @@ int MipsGenerator::GetUnuseReg() {
 }
 
 bool MipsGenerator::IsInteger(string str) {
-	for (int i = 0; i < str.length(); i++) {
+	for (int i = 0; i < (int)str.length(); i++) {
 		if (!isdigit(str[i]) && str[i] != '+' && str[i] != '-') {
 			return false;
 		}
@@ -301,7 +301,7 @@ void MipsGenerator::SaveAllReg() {
 
 	int offset = 0;
 	for (int i = 8; i < 32; i++) {
-		objcode_->Output(Instr::sw, NumberToReg(i), Reg::sp, offset);
+		objcode_->Output(Instr::sw, reg::NumberToReg(i), Reg::sp, offset);
 		offset += 4;
 	}
 }
@@ -309,7 +309,7 @@ void MipsGenerator::SaveAllReg() {
 void MipsGenerator::ResetAllReg() {
 	int offset = 0;
 	for (int i = 8; i < 32; i++) {
-		objcode_->Output(Instr::lw, NumberToReg(i), Reg::sp, offset);
+		objcode_->Output(Instr::lw, reg::NumberToReg(i), Reg::sp, offset);
 		offset += 4;
 	}
 
@@ -340,11 +340,11 @@ void MipsGenerator::GenerateBody() {
 		} else if (this->IsThisInstr(strs, "goto")) {
 
 		} else if (this->IsThisInstr(strs, "bez")) {
-			Reg reg = NumberToReg(this->LoadMidReg(strs[1]));
+			Reg reg = reg::NumberToReg(this->LoadMidReg(strs[1]));
 			objcode_->Output(Instr::beq, reg, Reg::zero, strs[2]);
 			this->PopMidReg(strs[1]);
 		} else if (this->IsThisInstr(strs, "bnz")) {
-			Reg reg = NumberToReg(this->LoadMidReg(strs[1]));
+			Reg reg = reg::NumberToReg(this->LoadMidReg(strs[1]));
 			objcode_->Output(Instr::beq, Reg::zero, reg, strs[2]);
 			this->PopMidReg(strs[1]);
 		} else if (this->IsThisInstr(strs, "bge")) {
