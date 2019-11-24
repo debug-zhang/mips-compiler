@@ -1,16 +1,16 @@
 ﻿#include "error_handing.h"
 
 
-ErrorHanding::ErrorHanding(string fileName) {
-	this->error_file_.open(fileName);
+ErrorHanding::ErrorHanding(string file_name) {
+	this->error_file_.open(file_name);
 }
 
 void ErrorHanding::AddError(Error error) {
 	error_list_.push_back(error);
 }
 
-void ErrorHanding::AddError(int lineNumber, char errorType) {
-	error_list_.push_back(Error(lineNumber, errorType));
+void ErrorHanding::AddError(int line_number, char error_type) {
+	error_list_.push_back(Error(line_number, error_type));
 }
 
 void ErrorHanding::PrintError() {

@@ -3,21 +3,21 @@
 SyntaxNode::SyntaxNode() {
 }
 
-SyntaxNode::SyntaxNode(string synIdentifier) {
-	this->syntax_identifier_ = synIdentifier;
+SyntaxNode::SyntaxNode(string syntax_identifier) {
+	this->syntax_identifier_ = syntax_identifier;
 }
 
-SyntaxNode::SyntaxNode(string lexIdentifier, string lexValue) {
-	this->lexeme_identifier_ = lexIdentifier;
-	this->lexeme_value_ = lexValue;
+SyntaxNode::SyntaxNode(string lexeme_identifier, string lexeme_value) {
+	this->lexeme_identifier_ = lexeme_identifier;
+	this->lexeme_value_ = lexeme_value;
 }
 
-void SyntaxNode::set_syntax_identifier(string synIdentifier) {
-	this->syntax_identifier_ = synIdentifier;
+void SyntaxNode::set_syntax_identifier(string syntax_identifier) {
+	this->syntax_identifier_ = syntax_identifier;
 }
 
-void SyntaxNode::set_value(string numericalValue) {
-	this->value_ = numericalValue;
+void SyntaxNode::set_value(string value) {
+	this->value_ = value;
 }
 
 bool SyntaxNode::IsLeaf() {

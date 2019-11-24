@@ -11,9 +11,9 @@ private:
 	ofstream error_file_;
 	list<Error> error_list_;
 public:
-	ErrorHanding(string fileName);
+	ErrorHanding(string file_name);
 	void AddError(Error error);
-	void AddError(int lineNumber, char errorType);
+	void AddError(int line_number, char error_type);
 	void PrintError();
 	void FileClose();
 };

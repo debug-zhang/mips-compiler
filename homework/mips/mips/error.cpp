@@ -5,17 +5,17 @@ Error::Error() {
 	error_type_ = NO_ERROR;
 }
 
-Error::Error(int lineNumber, char errorType) {
-	this->line_number_ = lineNumber;
-	this->error_type_ = errorType;
+Error::Error(int line_number, char error_type) {
+	this->line_number_ = line_number;
+	this->error_type_ = error_type;
 }
 
-void Error::set_line_number(int lineNumber) {
-	this->line_number_ = lineNumber;
+void Error::set_line_number(int line_number) {
+	this->line_number_ = line_number;
 }
 
-void Error::set_error_type(char errorType) {
-	this->error_type_ = errorType;
+void Error::set_error_type(char error_type) {
+	this->error_type_ = error_type;
 }
 
 bool Error::IsError() {

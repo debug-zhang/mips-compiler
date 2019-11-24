@@ -20,10 +20,10 @@ private:
 
 public:
 	SyntaxNode();
-	SyntaxNode(string synIdentifier);
-	SyntaxNode(string lexIdentifier, string lexValue);
-	void set_syntax_identifier(string synIdentifier);
-	void set_value(string numericalValue);
+	SyntaxNode(string syntax_identifier);
+	SyntaxNode(string lexeme_identifier, string lexeme_value);
+	void set_syntax_identifier(string syntax_identifier);
+	void set_value(string value);
 	bool IsLeaf();
 	bool IsLexemeEmpty();
 	void AddChild(SyntaxNode* child);

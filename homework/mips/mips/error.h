@@ -23,9 +23,9 @@ private:
 	char error_type_;
 public:
 	Error();
-	Error(int lineNumber, char errorType);
-	void set_line_number(int lineNumber);
-	void set_error_type(char errorType);
+	Error(int line_number, char error_type);
+	void set_line_number(int line_number);
+	void set_error_type(char error_type);
 	bool IsError();
 	int line_number();
 	char error_type();

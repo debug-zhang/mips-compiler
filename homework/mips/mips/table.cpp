@@ -14,8 +14,8 @@ int StringTable::GetStringCount() {
 	return this->string_number_;
 }
 
-string StringTable::GetString(int stringNumber) {
-	map<int, string>::iterator iter = this->string_map_.find(stringNumber);
+string StringTable::GetString(int string_number) {
+	map<int, string>::iterator iter = this->string_map_.find(string_number);
 
 	if (iter == this->string_map_.end()) {
 		return "";
@@ -93,8 +93,8 @@ void CheckTable::ClearLevel(int level) {
 	this->symbol_table_vector_[level] = new SymbolTable();
 }
 
-void CheckTable::SetTable(int level, SymbolTable* symbolTable) {
-	this->symbol_table_vector_[level] = symbolTable;
+void CheckTable::SetTable(int level, SymbolTable* symbol_table) {
+	this->symbol_table_vector_[level] = symbol_table;
 }
 
 SymbolTable* CheckTable::GetSymbolTable(int level) {

@@ -3,8 +3,8 @@
 MidcodeGenerator::MidcodeGenerator() {
 }
 
-void MidcodeGenerator::OpenMidcodeFile(string fileName) {
-	this->midcode_.open(fileName);
+void MidcodeGenerator::OpenMidcodeFile(string file_name) {
+	this->midcode_.open(file_name);
 }
 
 void MidcodeGenerator::FileClose() {
@@ -48,8 +48,8 @@ void MidcodeGenerator::PrintBnz(int label, string expression) {
 	this->midcode_ << "bnz " << expression << " Label_" << ":" << label << endl;
 }
 
-void MidcodeGenerator::PrintBezOrBnz(int label, string expression, bool isFalseBranch) {
-	if (isFalseBranch) {
+void MidcodeGenerator::PrintBezOrBnz(int label, string expression, bool is_false_branch) {
+	if (is_false_branch) {
 		this->PrintBez(label, expression);
 	} else {
 		this->PrintBnz(label, expression);
@@ -66,15 +66,15 @@ void MidcodeGenerator::PrintBne(int label, string expression1, string expression
 		<< " " + expression2 << " Label_" << label << endl;
 }
 
-void MidcodeGenerator::PrintBeqOrBne(int label, string expression1, string expression2, Judge judge, bool isFalseBranch) {
+void MidcodeGenerator::PrintBeqOrBne(int label, string expression1, string expression2, Judge judge, bool is_false_branch) {
 	if (judge == Judge::BEQ) {
-		if (isFalseBranch) {
+		if (is_false_branch) {
 			this->PrintBne(label, expression1, expression2);
 		} else {
 			this->PrintBeq(label, expression1, expression2);
 		}
 	} else {
-		if (isFalseBranch) {
+		if (is_false_branch) {
 			this->PrintBeq(label, expression1, expression2);
 		} else {
 			this->PrintBne(label, expression1, expression2);
@@ -92,15 +92,15 @@ void MidcodeGenerator::PrintBlt(int label, string expression1, string expression
 		<< " " + expression2 << " Label_" << label << endl;
 }
 
-void MidcodeGenerator::PrintBgeOrBlt(int label, string expression1, string expression2, Judge judge, bool isFalseBranch) {
+void MidcodeGenerator::PrintBgeOrBlt(int label, string expression1, string expression2, Judge judge, bool is_false_branch) {
 	if (judge == Judge::BGE) {
-		if (isFalseBranch) {
+		if (is_false_branch) {
 			this->PrintBlt(label, expression1, expression2);
 		} else {
 			this->PrintBge(label, expression1, expression2);
 		}
 	} else {
-		if (isFalseBranch) {
+		if (is_false_branch) {
 			this->PrintBge(label, expression1, expression2);
 		} else {
 			this->PrintBlt(label, expression1, expression2);
@@ -118,15 +118,15 @@ void MidcodeGenerator::PrintBle(int label, string expression1, string expression
 		<< " " + expression2 << " Label_" << label << endl;
 }
 
-void MidcodeGenerator::PrintBgtOrBle(int label, string expression1, string expression2, Judge judge, bool isFalseBranch) {
+void MidcodeGenerator::PrintBgtOrBle(int label, string expression1, string expression2, Judge judge, bool is_false_branch) {
 	if (judge == Judge::BGT) {
-		if (isFalseBranch) {
+		if (is_false_branch) {
 			this->PrintBle(label, expression1, expression2);
 		} else {
 			this->PrintBgt(label, expression1, expression2);
 		}
 	} else {
-		if (isFalseBranch) {
+		if (is_false_branch) {
 			this->PrintBgt(label, expression1, expression2);
 		} else {
 			this->PrintBle(label, expression1, expression2);
@@ -134,8 +134,8 @@ void MidcodeGenerator::PrintBgtOrBle(int label, string expression1, string expre
 	}
 }
 
-void MidcodeGenerator::PrintString(int stringNumber) {
-	midcode_ << "printf str_" << stringNumber << endl;
+void MidcodeGenerator::PrintString(int string_number) {
+	midcode_ << "printf str_" << string_number << endl;
 }
 
 void MidcodeGenerator::PrintInteger(string number) {
@@ -154,19 +154,19 @@ void MidcodeGenerator::PrintScanf(string type, string identifier) {
 	midcode_ << "scanf " + type << " " + identifier << endl;
 }
 
-void MidcodeGenerator::PrintAssignValue(string name, string arrayIndex, string value) {
-	if (arrayIndex == "") {
+void MidcodeGenerator::PrintAssignValue(string name, string array_index, string value) {
+	if (array_index == "") {
 		midcode_ << name + " = " + value << endl;
 	} else {
-		midcode_ << name + "[" + arrayIndex + "] = " + value << endl;
+		midcode_ << name + "[" + array_index + "] = " + value << endl;
 	}
 }
 
-void MidcodeGenerator::PrintLoadToTempReg(string name, string arrayIndex, int tempRegNumber) {
-	if (arrayIndex == "") {
-		midcode_ << "t" << tempRegNumber << " = " << name << endl;
+void MidcodeGenerator::PrintLoadToTempReg(string name, string array_index, int temp_reg_count) {
+	if (array_index == "") {
+		midcode_ << "t" << temp_reg_count << " = " << name << endl;
 	} else {
-		midcode_ << "t" << tempRegNumber << " = " << name + "[" + arrayIndex + "]" << endl;
+		midcode_ << "t" << temp_reg_count << " = " << name + "[" + array_index + "]" << endl;
 	}
 }
 
@@ -178,23 +178,23 @@ void MidcodeGenerator::PrintCallFunction(string name) {
 	midcode_ << "call " + name << endl;
 }
 
-void MidcodeGenerator::PrintAssignReturn(int tempRegCount) {
-	midcode_ << "t" << tempRegCount << " = RET" << endl;
+void MidcodeGenerator::PrintAssignReturn(int temp_reg_count) {
+	midcode_ << "t" << temp_reg_count << " = RET" << endl;
 }
 
-void MidcodeGenerator::PrintRegOpReg(int resultReg, int opReg1, int opReg2, string op) {
-	midcode_ << "t" << resultReg << " = t" << opReg1 << " " + op + " t" << opReg2 << endl;
+void MidcodeGenerator::PrintRegOpReg(int result_reg, int op_reg1, int op_reg2, string op) {
+	midcode_ << "t" << result_reg << " = t" << op_reg1 << " " + op + " t" << op_reg2 << endl;
 }
 
-void MidcodeGenerator::PrintRegOpNumber(int resultReg, int opReg, string number, string op) {
-	midcode_ << "t" << resultReg << " = t" << opReg << " " + op + " " + number << endl;
+void MidcodeGenerator::PrintRegOpNumber(int result_reg, int op_reg, string number, string op) {
+	midcode_ << "t" << result_reg << " = t" << op_reg << " " + op + " " + number << endl;
 }
 
-void MidcodeGenerator::PrintNumberOpReg(int resultReg, string number, int opReg, string op) {
-	midcode_ << "t" << resultReg << " = " + number + " " + op + " t" << opReg << endl;
+void MidcodeGenerator::PrintNumberOpReg(int result_reg, string number, int op_reg, string op) {
+	midcode_ << "t" << result_reg << " = " + number + " " + op + " t" << op_reg << endl;
 }
 
-void MidcodeGenerator::PrintNumberOpNumber(int resultReg, string number1, string number2, string op) {
-	midcode_ << "t" << resultReg << " = " + number1 + " " + op + " " + number2 << endl;
+void MidcodeGenerator::PrintNumberOpNumber(int result_reg, string number1, string number2, string op) {
+	midcode_ << "t" << result_reg << " = " + number1 + " " + op + " " + number2 << endl;
 }
 

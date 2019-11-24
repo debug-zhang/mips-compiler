@@ -90,7 +90,7 @@ private:
 	bool AnalyzeDigit(char& c);
 
 public:
-	LexicalAnalyser(string fileName, ErrorHanding* errorHanding);
+	LexicalAnalyser(string file_name, ErrorHanding* error_handing);
 	list<struct Lexeme>* Analyze();
 	void FileClose();
 };

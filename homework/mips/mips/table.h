@@ -15,7 +15,7 @@ public:
 	StringTable();
 	int AddString(string str);
 	int GetStringCount();
-	string GetString(int stringNumber);
+	string GetString(int string_number);
 };
 
 class SymbolTable {
@@ -38,7 +38,7 @@ public:
 	Symbol* FindSymbol(string name, int level);
 	int GetSymbolLevel(string name);
 	void ClearLevel(int level);
-	void SetTable(int level, SymbolTable* symbolTable);
+	void SetTable(int level, SymbolTable* symbol_table);
 	SymbolTable* GetSymbolTable(int level);
 	map<string, Symbol*> GetSymbolMap(int level);
 };

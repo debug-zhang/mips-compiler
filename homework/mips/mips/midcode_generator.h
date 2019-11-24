@@ -33,7 +33,7 @@ private:
 	void PrintBlt(int label, string expression1, string expression2);
 public:
 	MidcodeGenerator();
-	void OpenMidcodeFile(string fileName);
+	void OpenMidcodeFile(string file_name);
 	void FileClose();
 
 	void PrintFuncDeclare(Symbol* function);
@@ -44,28 +44,28 @@ public:
 	void PrintGotoLabel(int label);
 	void PrintStep(string name1, string name2, string op, int step);
 
-	void PrintBezOrBnz(int label, string expression, bool isFalseBranch);
-	void PrintBeqOrBne(int label, string expression, string expression2, Judge judge, bool isFalseBranch);
-	void PrintBgeOrBlt(int label, string expression, string expression2, Judge judge, bool isFalseBranch);
-	void PrintBgtOrBle(int label, string expression, string expression2, Judge judge, bool isFalseBranch);
+	void PrintBezOrBnz(int label, string expression, bool is_false_branch);
+	void PrintBeqOrBne(int label, string expression, string expression2, Judge judge, bool is_false_branch);
+	void PrintBgeOrBlt(int label, string expression, string expression2, Judge judge, bool is_false_branch);
+	void PrintBgtOrBle(int label, string expression, string expression2, Judge judge, bool is_false_branch);
 	
-	void PrintString(int stringNumber);
+	void PrintString(int string_number);
 	void PrintInteger(string number);
 	void PrintChar(string c);
 	void PrintLineBreak();
 
 	void PrintScanf(string type, string identifier);
 
-	void PrintAssignValue(string name, string arrayIndex, string value);
-	void PrintLoadToTempReg(string name, string arrayIndex, int tempRegNumber);
+	void PrintAssignValue(string name, string array_index, string value);
+	void PrintLoadToTempReg(string name, string array_index, int temp_reg_count);
 
 	void PrintPushParameter(string value);
 	void PrintCallFunction(string name);
-	void PrintAssignReturn(int tempRegCount);
+	void PrintAssignReturn(int temp_reg_count);
 
-	void PrintRegOpReg(int resultReg, int opReg1, int opReg2, string op);
-	void PrintRegOpNumber(int resultReg, int opReg, string number, string op);
-	void PrintNumberOpReg(int resultReg, string number, int opReg, string op);
-	void PrintNumberOpNumber(int resultReg, string number1, string number2, string op);
+	void PrintRegOpReg(int result_reg, int op_reg1, int op_reg2, string op);
+	void PrintRegOpNumber(int result_reg, int op_reg, string number, string op);
+	void PrintNumberOpReg(int result_reg, string number, int op_reg, string op);
+	void PrintNumberOpNumber(int result_reg, string number1, string number2, string op);
 };
 

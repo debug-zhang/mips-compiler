@@ -45,19 +45,19 @@ public:
 	string parameter();
 	int GetParameterCount();
 
-	void set_const_value(string constValue);
+	void set_const_value(string const_value);
 	string const_value();
 
-	void set_array_length(int arrayLength);
+	void set_array_length(int array_length);
 	int array_length();
 
-	void set_reg_number(int regNumber);
+	void set_reg_number(int reg_number);
 	int reg_number();
 
-	void set_sp_offer(int spOffer);
+	void set_sp_offer(int sp_offer);
 	int sp_offer();
 
-	void set_is_use(bool isUse);
+	void set_is_use(bool is_use);
 	bool is_use();
 };
 

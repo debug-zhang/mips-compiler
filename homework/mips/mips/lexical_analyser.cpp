@@ -1,9 +1,9 @@
 ﻿#include "lexical_analyser.h"
 
-LexicalAnalyser::LexicalAnalyser(string fileName, ErrorHanding* errorHanding) {
-	this->testfile_.open(fileName);
+LexicalAnalyser::LexicalAnalyser(string file_name, ErrorHanding* error_handing) {
+	this->testfile_.open(file_name);
 	this->temp_lexeme_ = new Lexeme();
-	this->error_handing_ = errorHanding;
+	this->error_handing_ = error_handing;
 	this->line_number_ = 1;
 	MapInitial();
 }

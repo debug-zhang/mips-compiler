@@ -39,40 +39,40 @@ int Symbol::GetParameterCount() {
 	return this->parameter_.length();
 }
 
-void Symbol::set_const_value(string constValue) {
-	this->const_value_ = constValue;
+void Symbol::set_const_value(string const_value) {
+	this->const_value_ = const_value;
 }
 
 string Symbol::const_value() {
 	return this->const_value_;
 }
 
-void Symbol::set_array_length(int arrayLength) {
-	this->array_length_ = arrayLength;
+void Symbol::set_array_length(int array_length) {
+	this->array_length_ = array_length;
 }
 
 int Symbol::array_length() {
 	return this->array_length_;
 }
 
-void Symbol::set_reg_number(int regNumber) {
-	this->reg_number_ = regNumber;
+void Symbol::set_reg_number(int reg_number) {
+	this->reg_number_ = reg_number;
 }
 
 int Symbol::reg_number() {
 	return this->reg_number_;
 }
 
-void Symbol::set_sp_offer(int spOffer) {
-	this->sp_offer_ = spOffer;
+void Symbol::set_sp_offer(int sp_offer) {
+	this->sp_offer_ = sp_offer;
 }
 
 int Symbol::sp_offer() {
 	return this->sp_offer_;
 }
 
-void Symbol::set_is_use(bool isUse) {
-	this->is_use_ = isUse;
+void Symbol::set_is_use(bool is_use) {
+	this->is_use_ = is_use;
 }
 
 bool Symbol::is_use() {
