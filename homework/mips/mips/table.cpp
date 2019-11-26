@@ -104,3 +104,11 @@ SymbolTable* CheckTable::GetSymbolTable(int level) {
 map<string, Symbol*> CheckTable::GetSymbolMap(int level) {
 	return this->GetSymbolTable(level)->symbol_map();
 }
+
+void CheckTable::AddFunctionVariableNumber(string function_name, int number) {
+	function_variable.insert(pair<string, int>(function_name, number));
+}
+
+int CheckTable::GetFunctionVariableNumber(string function_name) {
+	return function_variable.at(function_name);
+}

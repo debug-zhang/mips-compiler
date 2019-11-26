@@ -54,7 +54,6 @@ private:
 	map<string, SymbolTable*> symbol_table_map_;
 	MidcodeGenerator* midcode_generator_;
 	ErrorHanding* error_handing_;
-	Symbol* temp_function_;
 
 	void CountIterator(int step);
 
@@ -85,7 +84,7 @@ private:
 	void AnalyzeVariableDefine(SyntaxNode* node, int level);
 	void AnalyzeVariableDeclare(SyntaxNode* node, int level);
 
-	void AnalyzeValuePrameterTable(SyntaxNode* node);
+	void AnalyzeValuePrameterTable(SyntaxNode* node, Symbol* function);
 	void AnalyzeReturnCallSentence(SyntaxNode* node);
 
 	TypeSymbol AnalyzeFactor(SyntaxNode* node);
@@ -102,7 +101,7 @@ private:
 	bool AnalyzeLoopSentence(SyntaxNode* node, TypeSymbol returnType);
 
 	void AnalyzeAssignSentence(SyntaxNode* node);
-	void AnalyseScanfIdentifier(SyntaxNode* node);
+	void AnalyzeScanfIdentifier(SyntaxNode* node);
 	void AnalyzeScanfSentence(SyntaxNode* node);
 	void AnalyzePrintfSentence(SyntaxNode* node);
 	TypeSymbol AnalyzeReturnSentence(SyntaxNode* node);
@@ -112,9 +111,9 @@ private:
 	void AnalyzeCompositeSentence(SyntaxNode* node, TypeSymbol returnType);
 
 	void AnalyzeMain(SyntaxNode* node);
-	void AnalyzeParameterTable(SyntaxNode* node);
+	void AnalyzeParameterTable(SyntaxNode* node, Symbol* function);
 	void AnalyzeVoidFunc(SyntaxNode* node);
-	void AnalyzeHeadState(SyntaxNode* node);
+	void AnalyzeHeadState(SyntaxNode* node, Symbol* &function);
 	void AnalyzeFunc(SyntaxNode* node);
 
 	void BuildSyntaxTree(SyntaxNode* root);
@@ -124,6 +123,7 @@ public:
 	void AnalyzeParse();
 	map<string, SymbolTable*> symbol_table_map();
 	StringTable* string_table();
+	CheckTable* check_table();
 	void FileClose();
 };
 

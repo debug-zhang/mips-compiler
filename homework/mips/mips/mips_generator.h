@@ -25,17 +25,32 @@ private:
 
 	vector<string> Split(string s, char delimiter);
 
+	void InitVariable(int level);
+	void InitVariable(string function_name);
+	void InitDataSeg(string function_name);
 	void InitDataSeg();
 	void InitStack();
-	void InitVariable(int level);
-
-	void LoadTable(int levle, string tableName);
 
 	void PrintText();
 	void PrintMain();
 	void PrintSyscall();
 	void PrintEnd();
 
+	bool IsInteger(string str);
+	bool IsChar(string str);
+	bool IsTempReg(string str);
+	bool IsConstVar(string name);
+	int GetConstVar(string name);
+	bool IsThisInstr(string strs, string instr);
+
+	void SaveAllReg();
+	void ResetAllReg();
+
+	int IsTempValue(string name);
+	void LoadValue(string symbol, string function, Reg reg);
+	void StoreValue(string symbol, string function, Reg reg);
+
+	void LoadTable(int levle, string tableName);
 	void SetStackRegUse(int number);
 	void SetStackRegUnuse(int number);
 	void PopStack();
@@ -46,24 +61,15 @@ private:
 	void PopMidReg(string name);
 	int GetUnuseRegInTable(int& unUseReg, bool& retflag, int level);
 	int GetUnuseReg();
-
-	bool IsInteger(string str);
-	bool IsChar(string str);
-	bool IsTempReg(string str);
-	bool IsConstVar(string name);
-	int GetConstVar(string name);
-	bool IsThisInstr(vector<string>& strs, string instr);
-
-	void SaveAllReg();
-	void ResetAllReg();
-
 	void SetSymbolUse(string name, bool isUse);
 
-	void GenerateBody();
+	void GenerateBody(string function_name);
+
+	void GenerateFunction();
 	
 public:
 	MipsGenerator(string inputFileName, string outputFileName, StringTable* stringTable,
-		map<string, SymbolTable*> symbolTableMap);
+		CheckTable* check_table, map<string, SymbolTable*> symbolTableMap);
 	void GenerateMips();
 	void FileClose();
 };

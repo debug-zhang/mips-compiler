@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include "symbol.h"
+#include "instr.h"
 
 using namespace std;
 
@@ -52,7 +53,7 @@ public:
 	void PrintString(int string_number);
 	void PrintInteger(string number);
 	void PrintChar(string c);
-	void PrintLineBreak();
+	void PrintEnd();
 
 	void PrintScanf(string type, string identifier);
 
@@ -61,6 +62,7 @@ public:
 
 	void PrintPushParameter(string value);
 	void PrintCallFunction(string name);
+	void PrintSave();
 	void PrintAssignReturn(int temp_reg_count);
 
 	void PrintRegOpReg(int result_reg, int op_reg1, int op_reg2, string op);

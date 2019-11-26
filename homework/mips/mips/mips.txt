@@ -1,19 +1,51 @@
+.data
+	gets1_space: .space 200
+	var1: .space 4
+	var2: .space 4
+	.align 4
 
 .data
-	global: .space 240
-	str_0: .asciiz "_begini = "
-	str_1: .asciiz "Let's have fun."
-	str_2: .asciiz "My stunum is : "
-	str_3: .asciiz "17060000"
-	str_4: .asciiz "a is : "
-	str_5: .asciiz "Congratulations"
+	global_space: .space 200
+	str_0: .asciiz "Hello World"
+	change1: .space 4
+	change3: .space 4
 	.align 4
+
+.data
+	main_space: .space 400
+	.align 4
+
 .text
 
+la $k0 global_space
 move $gp $sp
 move $fp $sp
+
 jal main
 li $v0 10
 syscall
+addi $sp $sp 8
+jr $ra
+addi $sp $sp -80
+sw $t0 0($sp)
+sw $t1 4($sp)
+sw $t2 8($sp)
+sw $t3 12($sp)
+sw $t4 16($sp)
+sw $t5 20($sp)
+sw $t6 24($sp)
+sw $t7 28($sp)
+sw $s0 32($sp)
+sw $s1 36($sp)
+sw $s2 40($sp)
+sw $s3 44($sp)
+sw $s4 48($sp)
+sw $s5 52($sp)
+sw $s6 56($sp)
+sw $s7 60($sp)
+sw $t8 64($sp)
+sw $t9 68($sp)
+sw $fp 72($sp)
+sw $ra 72($sp)
 addi $sp $sp 8
 jr $ra

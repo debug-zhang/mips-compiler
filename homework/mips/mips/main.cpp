@@ -16,13 +16,15 @@ int main() {
 
 	LexicalAnalyser* lexical_analyser = new LexicalAnalyser(testfile, error_handing);
 
-	ParseAnalyser* parse_analyser = new ParseAnalyser(midcode, lexical_analyser->Analyze(), error_handing);
+	ParseAnalyser* parse_analyser = new ParseAnalyser(midcode, 
+		lexical_analyser->Analyze(), error_handing);
 	lexical_analyser->FileClose();
 	parse_analyser->AnalyzeParse();
 	parse_analyser->FileClose();
 
-	MipsGenerator* mips_generator = new MipsGenerator(midcode, mips, 
-		parse_analyser->string_table(), parse_analyser->symbol_table_map());
+	MipsGenerator* mips_generator = new MipsGenerator(midcode, mips,
+		parse_analyser->string_table(), parse_analyser->check_table(),
+		parse_analyser->symbol_table_map());
 	mips_generator->GenerateMips();
 	mips_generator->FileClose();
 

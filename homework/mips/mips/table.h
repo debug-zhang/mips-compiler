@@ -30,6 +30,7 @@ public:
 
 class CheckTable {
 private:
+	map<string, int> function_variable;
 	vector<SymbolTable*> symbol_table_vector_;
 public:
 	CheckTable();
@@ -41,4 +42,6 @@ public:
 	void SetTable(int level, SymbolTable* symbol_table);
 	SymbolTable* GetSymbolTable(int level);
 	map<string, Symbol*> GetSymbolMap(int level);
+	void AddFunctionVariableNumber(string function_name, int number);
+	int GetFunctionVariableNumber(string function_name);
 };

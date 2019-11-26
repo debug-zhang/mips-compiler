@@ -1,10 +1,11 @@
 ﻿#include "mips_generator.h"
 
 MipsGenerator::MipsGenerator(string inputFileName, string outputFileName,
-	StringTable* stringTable, map<string, SymbolTable*> symbolTableMap) {
+	StringTable* stringTable, CheckTable* check_table, 
+	map<string, SymbolTable*> symbolTableMap) {
 	this->midcode_.open(inputFileName);
 	this->objcode_ = new Objcode(outputFileName);
-	this->check_table_ = new CheckTable();
+	this->check_table_ = check_table;
 	this->string_table_ = stringTable;
 	this->symbol_table_map_ = symbolTableMap;
 	this->new_reg = 0;
@@ -19,25 +20,6 @@ vector<string> MipsGenerator::Split(string s, char delimiter) {
 		tokens.push_back(token);
 	}
 	return tokens;
-}
-
-void MipsGenerator::InitDataSeg() {
-	objcode_->Output(Instr::data);
-	objcode_->Output(Instr::data_identifier, "global", 240);
-	for (int i = 0; i < string_table_->GetStringCount(); i++) {
-		string data_string = "str_" + to_string(i) + ": .asciiz \"" + string_table_->GetString(i) + "\"";
-		objcode_->Output(Instr::data_string, data_string);
-	}
-	objcode_->Output(Instr::data_align, 4);
-}
-
-void MipsGenerator::InitStack() {
-	objcode_->Output(Instr::move, Reg::gp, Reg::sp);
-	objcode_->Output(Instr::move, Reg::fp, Reg::sp);
-}
-
-void MipsGenerator::LoadTable(int level, string table_name) {
-	this->check_table_->SetTable(level, symbol_table_map_.at(table_name));
 }
 
 void MipsGenerator::InitVariable(int level) {
@@ -66,25 +48,178 @@ void MipsGenerator::InitVariable(int level) {
 	}
 
 	if (count != 0) {
-		objcode_->Output(Instr::subi, Reg::sp, Reg::sp, count * 4);
+		objcode_->Output(MipsInstr::subi, Reg::sp, Reg::sp, count * 4);
 	}
 }
 
+void MipsGenerator::InitVariable(string function_name) {
+	map<string, Symbol*> table = symbol_table_map_.at(function_name)->symbol_map();
+	map<string, Symbol*>::iterator iter = table.begin();
+	while (iter != table.end()) {
+		if (iter->second->kind() == KindSymbol::ARRAY) {
+			objcode_->Output(MipsInstr::data_identifier, iter->second->name(),
+				4 * (iter->second->array_length() + 5));
+		} else if (iter->second->kind() == KindSymbol::VARIABLE) {
+			objcode_->Output(MipsInstr::data_identifier, iter->second->name(), 4);
+		} else if (iter->second->kind() == KindSymbol::PARAMETER) {
+			objcode_->Output(MipsInstr::data_identifier, iter->second->name(), 4);
+		}
+		iter++;
+	}
+}
+
+void MipsGenerator::InitDataSeg(string function_name) {
+	objcode_->Output(MipsInstr::data);
+	objcode_->Output(MipsInstr::data_identifier, function_name + "_space",
+		check_table_->GetFunctionVariableNumber(function_name) * 200);
+
+	if (function_name == "global") {
+		for (int i = 0; i < string_table_->GetStringCount(); i++) {
+			string data_string = "str_" + to_string(i) + ": .asciiz \""
+				+ string_table_->GetString(i) + "\"";
+			objcode_->Output(MipsInstr::data_string, data_string);
+		}
+	}
+
+	InitVariable(function_name);
+
+	objcode_->Output(MipsInstr::data_align, 4);
+	objcode_->Output();
+}
+
+void MipsGenerator::InitDataSeg() {
+	map<string, SymbolTable*>::iterator iter = symbol_table_map_.begin();
+	while (iter != symbol_table_map_.end()) {
+		InitDataSeg(iter->first);
+		iter++;
+	}
+}
+
+void MipsGenerator::InitStack() {
+	objcode_->Output(MipsInstr::la, Reg::k0, "global_space");
+	objcode_->Output(MipsInstr::move, Reg::gp, Reg::sp);
+	objcode_->Output(MipsInstr::move, Reg::fp, Reg::sp);
+	objcode_->Output();
+}
+
 void MipsGenerator::PrintText() {
-	objcode_->Output(Instr::text);
+	objcode_->Output(MipsInstr::text);
+	objcode_->Output();
 }
 
 void MipsGenerator::PrintMain() {
-	objcode_->Output(Instr::jal, "main");
+	objcode_->Output(MipsInstr::jal, "main");
 }
 
 void MipsGenerator::PrintSyscall() {
-	objcode_->Output(Instr::syscall);
+	objcode_->Output(MipsInstr::syscall);
 }
 
 void MipsGenerator::PrintEnd() {
-	objcode_->Output(Instr::li, Reg::v0, 10);
+	objcode_->Output(MipsInstr::li, Reg::v0, 10);
 	this->PrintSyscall();
+}
+
+bool MipsGenerator::IsInteger(string str) {
+	for (int i = 0; i < (int)str.length(); i++) {
+		if (!isdigit(str[i]) && str[i] != '+' && str[i] != '-') {
+			return false;
+		}
+	}
+	return true;
+}
+
+bool MipsGenerator::IsChar(string str) {
+	return str[0] == '\'';
+}
+
+bool MipsGenerator::IsTempReg(string str) {
+	return str[0] == '#' && isdigit(str[1]);
+}
+
+bool MipsGenerator::IsConstVar(string name) {
+	Symbol* symbol = check_table_->FindSymbol(name);
+	if (symbol != NULL && symbol->kind() == KindSymbol::CONST) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+int MipsGenerator::GetConstVar(string name) {
+	Symbol* symbol = check_table_->FindSymbol(name);
+
+	if (symbol->type() == TypeSymbol::INT) {
+		return stoi(symbol->const_value());
+	} else {
+		return symbol->const_value()[1];
+	}
+}
+
+bool MipsGenerator::IsThisInstr(string strs, string instr) {
+	return strs == instr;
+}
+
+void MipsGenerator::SaveAllReg() {
+	objcode_->Output(MipsInstr::addi, Reg::sp, Reg::sp, -20 * 4);
+
+	int offset = 0;
+	for (int i = 8; i < 26; i++) {
+		objcode_->Output(MipsInstr::sw, reg::NumberToReg(i), Reg::sp, offset);
+		offset += 4;
+	}
+	objcode_->Output(MipsInstr::sw, Reg::fp, Reg::sp, offset);
+	objcode_->Output(MipsInstr::sw, Reg::ra, Reg::sp, offset);
+}
+
+void MipsGenerator::ResetAllReg() {
+	int offset = 0;
+	for (int i = 8; i < 26; i++) {
+		objcode_->Output(MipsInstr::lw, reg::NumberToReg(i), Reg::sp, offset);
+		offset += 4;
+	}
+
+	objcode_->Output(MipsInstr::addi, Reg::sp, Reg::sp, 24 * 4);
+}
+
+int MipsGenerator::IsTempValue(string name) {
+	if (name[0] == '#') {
+		int offset = 0;
+
+		string::iterator iter = name.begin();
+		while (iter!= name.end()) {
+			offset = offset * 10 + *iter - '0';
+			iter++;
+		}
+
+		return offset;
+	} else { 
+		return 0; 
+	}
+}
+
+void MipsGenerator::LoadValue(string symbol, string function, Reg reg) {
+	if (IsTempValue(symbol)) {
+		this->objcode_->Output(MipsInstr::li, Reg::t1, IsTempValue(symbol)*4);
+		this->objcode_->Output(MipsInstr::lw, reg, Reg::t1, function+"_space");
+		
+	} else {
+		this->objcode_->Output(MipsInstr::lw, reg, Reg::t1, symbol);
+	}
+}
+
+void MipsGenerator::StoreValue(string symbol, string function, Reg reg) {
+	if (IsTempValue(symbol)) {
+		this->objcode_->Output(MipsInstr::li, Reg::t1, IsTempValue(symbol) * 4);
+		this->objcode_->Output(MipsInstr::sw, reg, Reg::t1, function + "_space");
+
+	} else {
+		this->objcode_->Output(MipsInstr::sw, reg, Reg::t1, symbol);
+	}
+}
+
+void MipsGenerator::LoadTable(int level, string table_name) {
+	this->check_table_->SetTable(level, symbol_table_map_.at(table_name));
 }
 
 void MipsGenerator::SetStackRegUse(int number) {
@@ -124,7 +259,7 @@ void MipsGenerator::PopStack() {
 	}
 
 	if (count != 0) {
-		objcode_->Output(Instr::addi, Reg::sp, Reg::sp, count * 4);
+		objcode_->Output(MipsInstr::addi, Reg::sp, Reg::sp, count * 4);
 	}
 }
 
@@ -136,7 +271,7 @@ void MipsGenerator::PopSymbolMapVar(int level) {
 	while (iter != symbol_map.end()) {
 		symbol = iter->second;
 		if (symbol->reg_number() != 0 && !symbol->is_use()) {
-			objcode_->Output(Instr::sw, reg::NumberToReg(symbol->reg_number()),
+			objcode_->Output(MipsInstr::sw, reg::NumberToReg(symbol->reg_number()),
 				Reg::gp, symbol->sp_offer());
 			reg_use_stack_[symbol->reg_number()] = 0;
 			symbol->set_reg_number(0);
@@ -157,7 +292,7 @@ int MipsGenerator::LoadValue(string name) {
 	if (symbol->reg_number() == 0) {
 		int reg_number = this->GetUnuseReg();
 		Reg t1 = level == 1 ? Reg::fp : Reg::gp;
-		objcode_->Output(Instr::lw, reg::NumberToReg(reg_number), t1,
+		objcode_->Output(MipsInstr::lw, reg::NumberToReg(reg_number), t1,
 			symbol->sp_offer());
 		symbol->set_reg_number(reg_number);
 	}
@@ -170,7 +305,7 @@ int MipsGenerator::LoadMidReg(string name) {
 		return mid_var_reg_map_.at(name);
 	} else {
 		int unuse_reg = this->GetUnuseReg();
-		objcode_->Output(Instr::lw, reg::NumberToReg(unuse_reg), Reg::k0, -mid_var_reg_map_.at(name));
+		objcode_->Output(MipsInstr::lw, reg::NumberToReg(unuse_reg), Reg::k0, -mid_var_reg_map_.at(name));
 		mid_var_reg_map_.at(name) = unuse_reg;
 		return unuse_reg;
 	}
@@ -198,7 +333,7 @@ int MipsGenerator::GetUnuseRegInTable(int& unuse_reg, bool& retflag, int level) 
 		symbol = iter->second;
 		if (symbol->reg_number() != 0 && !symbol->is_use()) {
 			unuse_reg = symbol->reg_number();
-			objcode_->Output(Instr::sw, reg::NumberToReg(unuse_reg),
+			objcode_->Output(MipsInstr::sw, reg::NumberToReg(unuse_reg),
 				Reg::gp, symbol->sp_offer());
 			symbol->set_reg_number(0);
 			return unuse_reg;
@@ -246,7 +381,7 @@ int MipsGenerator::GetUnuseReg() {
 			unuse_reg = iter->second;
 			dm_offset += 4;
 			iter->second = -dm_offset;
-			objcode_->Output(Instr::sw, reg::NumberToReg(unuse_reg),
+			objcode_->Output(MipsInstr::sw, reg::NumberToReg(unuse_reg),
 				Reg::k0, dm_offset);
 			return unuse_reg;
 		}
@@ -256,71 +391,11 @@ int MipsGenerator::GetUnuseReg() {
 	return 0;
 }
 
-bool MipsGenerator::IsInteger(string str) {
-	for (int i = 0; i < (int)str.length(); i++) {
-		if (!isdigit(str[i]) && str[i] != '+' && str[i] != '-') {
-			return false;
-		}
-	}
-	return true;
-}
-
-bool MipsGenerator::IsChar(string str) {
-	return str[0] == '\'';
-}
-
-bool MipsGenerator::IsTempReg(string str) {
-	return str[0] == 't' && isdigit(str[1]);
-}
-
-bool MipsGenerator::IsConstVar(string name) {
-	Symbol* symbol = check_table_->FindSymbol(name);
-	if (symbol != NULL && symbol->kind() == KindSymbol::CONST) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-int MipsGenerator::GetConstVar(string name) {
-	Symbol* symbol = check_table_->FindSymbol(name);
-
-	if (symbol->type() == TypeSymbol::INT) {
-		return stoi(symbol->const_value());
-	} else {
-		return symbol->const_value()[1];
-	}
-}
-
-bool MipsGenerator::IsThisInstr(vector<string>& strs, string instr) {
-	return strs[0] == instr;
-}
-
-void MipsGenerator::SaveAllReg() {
-	objcode_->Output(Instr::subi, Reg::sp, Reg::sp, 24 * 4);
-
-	int offset = 0;
-	for (int i = 8; i < 32; i++) {
-		objcode_->Output(Instr::sw, reg::NumberToReg(i), Reg::sp, offset);
-		offset += 4;
-	}
-}
-
-void MipsGenerator::ResetAllReg() {
-	int offset = 0;
-	for (int i = 8; i < 32; i++) {
-		objcode_->Output(Instr::lw, reg::NumberToReg(i), Reg::sp, offset);
-		offset += 4;
-	}
-
-	objcode_->Output(Instr::addi, Reg::sp, Reg::sp, 24 * 4);
-}
-
 void MipsGenerator::SetSymbolUse(string name, bool isUse) {
 	check_table_->FindSymbol(name)->set_is_use(isUse);
 }
 
-void MipsGenerator::GenerateBody() {
+void MipsGenerator::GenerateBody(string function_name) {
 	string line;
 
 	while (!midcode_.eof()) {
@@ -331,33 +406,84 @@ void MipsGenerator::GenerateBody() {
 		}
 
 		vector<string> strs = this->Split(line, ' ');
-		if (this->IsThisInstr(strs, "scanf")) {
+		if (this->IsThisInstr(strs[0], midcodeinstr::FUNC_DECLARE)) {
 
-		} else if (this->IsThisInstr(strs, "printf")) {
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::VOID_FUNC_DECLARE)) {
 
-		} else if (this->IsThisInstr(strs, "printf_end")) {
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::PUSH)) {
 
-		} else if (this->IsThisInstr(strs, "goto")) {
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::CALL)) {
 
-		} else if (this->IsThisInstr(strs, "bez")) {
-			Reg reg = reg::NumberToReg(this->LoadMidReg(strs[1]));
-			objcode_->Output(Instr::beq, reg, Reg::zero, strs[2]);
-			this->PopMidReg(strs[1]);
-		} else if (this->IsThisInstr(strs, "bnz")) {
-			Reg reg = reg::NumberToReg(this->LoadMidReg(strs[1]));
-			objcode_->Output(Instr::beq, Reg::zero, reg, strs[2]);
-			this->PopMidReg(strs[1]);
-		} else if (this->IsThisInstr(strs, "bge")) {
-		} else if (this->IsThisInstr(strs, "blt")) {
-		} else if (this->IsThisInstr(strs, "bgt")) {
-		} else if (this->IsThisInstr(strs, "ble")) {
-		} else if (this->IsThisInstr(strs, "push")) {
-		} else if (this->IsThisInstr(strs, "return")) {
-			objcode_->Output(Instr::addi, Reg::sp, Reg::sp, 8);
-			objcode_->Output(Instr::jr, Reg::ra);
-		} else if (this->IsTempReg(strs[0])) {
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::SAVE)) {
+			SaveAllReg();
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::RETURN)) {
+			objcode_->Output(MipsInstr::addi, Reg::sp, Reg::sp, 8);
+			objcode_->Output(MipsInstr::jr, Reg::ra);
+			break;
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::SCANF)) {
+
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::PRINTF)) {
+
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::PRINTF_END)) {
+
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::LABEL)) {
+
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::GO_TO_LABEL)) {
+			objcode_->Output(MipsInstr::j, strs[2]);
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::ASSIGN)) {
+
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::ASSIGN_RETURN)) {
+
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::LOAD)) {
+
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::REG_OP_NUMBER)) {
+
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::REG_OP_REG)) {
+
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::NUMBER_OP_REG)) {
+
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::NUMBER_OP_NUMBER)) {
+
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::BEZ)) {
+			objcode_->Output(MipsInstr::beq, Reg::zero, strs[3]);
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::BNZ)) {
+
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::BEQ)) {
+
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::BNE)) {
+
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::BGE)) {
+
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::BLT)) {
+
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::BGT)) {
+
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::BLE)) {
+
 		} else {
+			assert(0);
+		}
+	}
+}
 
+void MipsGenerator::GenerateFunction() {
+	string line;
+
+	while (!midcode_.eof()) {
+		getline(midcode_, line);
+
+		if (line.empty()) {
+			return;
+		}
+
+		vector<string> strs = this->Split(line, ' ');
+
+		if (this->IsThisInstr(strs[0], midcodeinstr::FUNC_DECLARE)) {
+			GenerateBody(strs[2]);
+		} else if (this->IsThisInstr(strs[0], midcodeinstr::VOID_FUNC_DECLARE)) {
+			GenerateBody(strs[2]);
+		} else {
+			assert(0);
 		}
 	}
 }
@@ -366,11 +492,9 @@ void MipsGenerator::GenerateMips() {
 	this->InitDataSeg();
 	this->PrintText();
 	this->InitStack();
-	this->LoadTable(0, "global");
-	this->InitVariable(0);
 	this->PrintMain();
 	this->PrintEnd();
-	this->GenerateBody();
+	this->GenerateFunction();
 }
 
 void MipsGenerator::FileClose() {

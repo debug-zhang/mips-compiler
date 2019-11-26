@@ -5,8 +5,8 @@ ParseAnalyser::ParseAnalyser(string fileName, list<struct Lexeme>* lexList, Erro
 	this->string_table_ = new StringTable();
 	this->midcode_generator_ = new MidcodeGenerator();
 
-	this->label_count_ = 0;
-	this->reg_count_ = 0;
+	this->label_count_ = 1;
+	this->reg_count_ = 1;
 	this->midcode_generator_->OpenMidcodeFile(fileName);
 	this->iter_ = lexList->begin();
 	this->iter_end_ = lexList->end();
@@ -214,30 +214,33 @@ void ParseAnalyser::AnalyzeVariableDeclare(SyntaxNode* node, int level) {
 	}
 }
 
-void ParseAnalyser::AnalyzeValuePrameterTable(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeValuePrameterTable(SyntaxNode* node, Symbol* function) {
 	if (this->IsThisIdentifier(RPARENT)) {
-		if (temp_function_ != NULL && temp_function_->GetParameterCount() != 0) {
+		if (function != NULL && function->GetParameterCount() != 0) {
 			error_handing_->AddError(iter_->line_number, FUNCTION_PARAMETER_NUMBER_DONT_MATCH);
 		}
 		return;
 	}
 	string str;
 	TypeSymbol type;
-	while (!this->IsThisIdentifier(RPARENT)) {
-		SyntaxNode* expressionNode = this->AddSyntaxChild(EXPRESSION, node);
+	if (!this->IsThisIdentifier(RPARENT)) {
+		SyntaxNode* expressionNode;
+		expressionNode = this->AddSyntaxChild(EXPRESSION, node);
 		type = this->AnalyzeExpression(expressionNode);
 		str.push_back(type == TypeSymbol::INT ? '0' : '1');
 		midcode_generator_->PrintPushParameter(expressionNode->value());
 		while (this->IsThisIdentifier(COMMA)) {
 			this->AddChild(node);	// COMMA
-			type = this->AnalyzeExpression(this->AddSyntaxChild(EXPRESSION, node));
+			expressionNode = this->AddSyntaxChild(EXPRESSION, node);
+			type = this->AnalyzeExpression(expressionNode);
 			str.push_back(type == TypeSymbol::INT ? '0' : '1');
+			midcode_generator_->PrintPushParameter(expressionNode->value());
 		}
 	}
 
-	if (temp_function_ != NULL && temp_function_->GetParameterCount() != str.length()) {
+	if (function != NULL && function->GetParameterCount() != str.length()) {
 		error_handing_->AddError(iter_->line_number, FUNCTION_PARAMETER_NUMBER_DONT_MATCH);
-	} else if (temp_function_ != NULL && temp_function_->parameter() != str) {
+	} else if (function != NULL && function->parameter() != str) {
 		error_handing_->AddError(iter_->line_number, FUNCTION_PARAMETER_TYPE_DONT_MATCH);
 	}
 }
@@ -246,12 +249,14 @@ void ParseAnalyser::AnalyzeReturnCallSentence(SyntaxNode* node) {
 	if (this->FindSymbol(0) == NULL) {
 		error_handing_->AddError(iter_->line_number, UNDEFINED);
 	}
-	temp_function_ = this->FindSymbol(0);
+	midcode_generator_->PrintSave();
+	Symbol* function = this->FindSymbol(0);
 	this->AddChild(node);	// IDENFR
 	this->AddChild(node);	// LPARENT
-	this->AnalyzeValuePrameterTable(this->AddSyntaxChild(VALUE_PARAMETER_TABLE, node));
+	this->AnalyzeValuePrameterTable(
+		this->AddSyntaxChild(VALUE_PARAMETER_TABLE, node), function);
 	this->AddRparentChild(node);	// RPARENT
-	midcode_generator_->PrintCallFunction(temp_function_->name());
+	midcode_generator_->PrintCallFunction(function->name());
 }
 
 TypeSymbol ParseAnalyser::AnalyzeFactor(SyntaxNode* node) {
@@ -296,12 +301,14 @@ TypeSymbol ParseAnalyser::AnalyzeFactor(SyntaxNode* node) {
 		this->AddRparentChild(node);	// RPARENT
 	} else if (IsThisIdentifier(CHARCON)) {
 		type = TypeSymbol::CHAR;
-		midcode_generator_->PrintChar(iter_->value);
+		string c = "\'" + iter_->value + "\'";
+		node->set_value(c);
 		this->AddChild(node);
 	} else {
 		type = TypeSymbol::INT;
 		int integer = this->AnalyzeInteger(this->AddSyntaxChild(INTEGER, node));
 		node->set_value(to_string(integer));
+		this->AddChild(node);
 	}
 	return type;
 }
@@ -432,7 +439,7 @@ TypeSymbol ParseAnalyser::AnalyzeExpression(SyntaxNode* node) {
 	if (itemCount == 1 && itemRoot != NULL) {
 		node->set_value(itemRoot->GetFirstChildNumericalValue());
 	} else {
-		node->set_value("t" + to_string(reg_count_ - 1));
+		node->set_value("#" + to_string(reg_count_ - 1));
 	}
 
 	if (itemCount == 1) {
@@ -636,7 +643,7 @@ void ParseAnalyser::AnalyzeAssignSentence(SyntaxNode* node) {
 	midcode_generator_->PrintAssignValue(name, arrayIndex, expressionNode->value());
 }
 
-void ParseAnalyser::AnalyseScanfIdentifier(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeScanfIdentifier(SyntaxNode* node) {
 	if (this->FindSymbol() == NULL) {
 		error_handing_->AddError(iter_->line_number, UNDEFINED);
 	} else {
@@ -651,10 +658,10 @@ void ParseAnalyser::AnalyzeScanfSentence(SyntaxNode* node) {
 	this->AddChild(node);	// SCANFTK
 	this->AddChild(node);	// LPARENT
 
-	this->AnalyseScanfIdentifier(node);
+	this->AnalyzeScanfIdentifier(node);
 	while (this->IsThisIdentifier(COMMA)) {
 		this->AddChild(node);	// COMMA
-		this->AnalyseScanfIdentifier(node);
+		this->AnalyzeScanfIdentifier(node);
 	}
 
 	this->AddRparentChild(node);	// RPARENT
@@ -687,7 +694,7 @@ void ParseAnalyser::AnalyzePrintfSentence(SyntaxNode* node) {
 			midcode_generator_->PrintChar(expression->value());
 		}
 	}
-	midcode_generator_->PrintLineBreak();
+	midcode_generator_->PrintEnd();
 
 	this->AddRparentChild(node);	// RPARENT
 }
@@ -697,8 +704,9 @@ TypeSymbol ParseAnalyser::AnalyzeReturnSentence(SyntaxNode* node) {
 	this->AddChild(node);	// RETURNTK
 	if (this->IsThisIdentifier(LPARENT)) {
 		this->AddChild(node);	// LPARENT
-		type = this->AnalyzeExpression(this->AddSyntaxChild(EXPRESSION, node));
-		midcode_generator_->PrintReturn(false, node->value());
+		SyntaxNode* expression_root = this->AddSyntaxChild(EXPRESSION, node);
+		type = this->AnalyzeExpression(expression_root);
+		midcode_generator_->PrintReturn(false, expression_root->value());
 		this->AddRparentChild(node);	// RPARENT
 	}
 	return type;
@@ -804,22 +812,24 @@ void ParseAnalyser::AnalyzeCompositeSentence(SyntaxNode* node, TypeSymbol return
 }
 
 void ParseAnalyser::AnalyzeMain(SyntaxNode* node) {
+	int temp_reg = reg_count_;
 	this->AddChild(node);	// VOIDTK
 	this->InsertIdentifier(KindSymbol::FUNCTION, TypeSymbol::VOID, 0);
-	temp_function_ = this->FindSymbol(0);
+	Symbol* function = this->FindSymbol(0);
 	this->CleanLevel(1);
 	this->AddChild(node);	// MAINTK
 	this->AddChild(node);	// LPARENT
 	this->AddRparentChild(node);	// RPARENT
-	midcode_generator_->PrintVoidFuncDeclare(temp_function_);
+	midcode_generator_->PrintVoidFuncDeclare(function);
 	this->AddChild(node);	// LBRACE
 	this->AnalyzeCompositeSentence(this->AddSyntaxChild(COMPOSITE_SENTENCE, node), TypeSymbol::VOID);
 	midcode_generator_->PrintReturn(true, "");
 	this->AddChild(node);	// RBRACE
-	this->InsertSymbolTable(temp_function_->name(), 1);
+	check_table_->AddFunctionVariableNumber(function->name(), reg_count_ - temp_reg);
+	this->InsertSymbolTable(function->name(), 1);
 }
 
-void ParseAnalyser::AnalyzeParameterTable(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeParameterTable(SyntaxNode* node, Symbol* function) {
 	while (this->IsThisIdentifier(INTTK) || this->IsThisIdentifier(CHARTK)) {
 
 		TypeSymbol type;
@@ -829,7 +839,7 @@ void ParseAnalyser::AnalyzeParameterTable(SyntaxNode* node) {
 		if (this->FindSymbol(1) != NULL) {
 			error_handing_->AddError(iter_->line_number, REDEFINITION);
 		}
-		temp_function_->AddParameter(type == TypeSymbol::INT ? '0' : '1');
+		function->AddParameter(type == TypeSymbol::INT ? '0' : '1');
 		this->InsertIdentifier(KindSymbol::PARAMETER, type, 1);
 		this->AddChild(node);	// IDENTFR
 		this->AddCommaChild(node);
@@ -837,26 +847,29 @@ void ParseAnalyser::AnalyzeParameterTable(SyntaxNode* node) {
 }
 
 void ParseAnalyser::AnalyzeVoidFunc(SyntaxNode* node) {
+	int temp_reg = reg_count_;
 	this->AddChild(node);	// VOIDTK
 	if (this->FindSymbol(0) != NULL) {
 		error_handing_->AddError(iter_->line_number, REDEFINITION);
 	}
 	this->InsertIdentifier(KindSymbol::FUNCTION, TypeSymbol::VOID, 0);
-	temp_function_ = FindSymbol(0);
+	Symbol* function = FindSymbol(0);
 	this->CleanLevel(1);
 	this->AddChild(node);	// IDENFR
 	this->AddChild(node);	// LPARENT
-	this->AnalyzeParameterTable(this->AddSyntaxChild(PARAMETER_TABLE, node));
+	this->AnalyzeParameterTable(
+		this->AddSyntaxChild(PARAMETER_TABLE, node), function);
 	this->AddRparentChild(node);	// RPARENT
-	midcode_generator_->PrintVoidFuncDeclare(temp_function_);
+	midcode_generator_->PrintVoidFuncDeclare(function);
 	this->AddChild(node);	// LBRACE
 	this->AnalyzeCompositeSentence(this->AddSyntaxChild(COMPOSITE_SENTENCE, node), TypeSymbol::VOID);
 	midcode_generator_->PrintReturn(true, "");
 	this->AddChild(node);	// RBRACE
-	this->InsertSymbolTable(temp_function_->name(), 1);
+	function->set_reg_number(reg_count_ - temp_reg);
+	check_table_->AddFunctionVariableNumber(function->name(), reg_count_ - temp_reg);
 }
 
-void ParseAnalyser::AnalyzeHeadState(SyntaxNode* node) {
+void ParseAnalyser::AnalyzeHeadState(SyntaxNode* node, Symbol* &function) {
 	TypeSymbol type;
 	this->SetSymbolType(type);
 	this->AddChild(node);	// INTTK or CHARTK
@@ -864,26 +877,33 @@ void ParseAnalyser::AnalyzeHeadState(SyntaxNode* node) {
 		error_handing_->AddError(iter_->line_number, REDEFINITION);
 	}
 	this->InsertIdentifier(KindSymbol::FUNCTION, type, 0);
-	temp_function_ = this->FindSymbol(0);
+	function = this->FindSymbol(0);
 	this->CleanLevel(1);
 	this->AddChild(node);	// IDENFR
 }
 
 void ParseAnalyser::AnalyzeFunc(SyntaxNode* node) {
-	this->AnalyzeHeadState(this->AddSyntaxChild(HEAD_STATE, node));
+	Symbol* function = new Symbol();
+	int temp_reg = reg_count_;
+	this->AnalyzeHeadState(this->AddSyntaxChild(HEAD_STATE, node), function);
 	this->AddChild(node);	// LPARENT
-	this->AnalyzeParameterTable(this->AddSyntaxChild(PARAMETER_TABLE, node));
+	this->AnalyzeParameterTable(
+		this->AddSyntaxChild(PARAMETER_TABLE, node), function);
 	this->AddRparentChild(node);	// RPARENT
-	midcode_generator_->PrintFuncDeclare(temp_function_);
+	midcode_generator_->PrintFuncDeclare(function);
 	this->AddChild(node);	// LBRACE
 	this->AnalyzeCompositeSentence(this->AddSyntaxChild(COMPOSITE_SENTENCE, node),
-		temp_function_->type());
+		function->type());
 	this->AddChild(node);	// RBRACE
-	this->InsertSymbolTable(temp_function_->name(), 1);
+	check_table_->AddFunctionVariableNumber(function->name(), reg_count_ - temp_reg);
+	this->InsertSymbolTable(function->name(), 1);
 }
 
 void ParseAnalyser::BuildSyntaxTree(SyntaxNode* root) {
 	string flag = CONST_DECLARE;
+
+	int temp_reg = reg_count_;
+	bool first = true;
 
 	while (iter_ != iter_end_) {
 		if (this->IsThisIdentifier(CONSTTK)) {
@@ -905,6 +925,11 @@ void ParseAnalyser::BuildSyntaxTree(SyntaxNode* root) {
 				flag = RETURN_FUNCTION;
 			}
 		} else {
+			if (first) {
+				check_table_->AddFunctionVariableNumber("global", reg_count_ - temp_reg);
+				first = false;
+			}
+			
 			if (this->IsThisIdentifier(VOIDTK)) {
 				this->CountIterator(+1);
 			}
@@ -932,6 +957,10 @@ map<string, SymbolTable*> ParseAnalyser::symbol_table_map() {
 
 StringTable* ParseAnalyser::string_table() {
 	return this->string_table_;
+}
+
+CheckTable* ParseAnalyser::check_table() {
+	return check_table_;
 }
 
 void ParseAnalyser::FileClose() {
