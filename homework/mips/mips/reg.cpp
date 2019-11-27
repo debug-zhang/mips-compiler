@@ -74,8 +74,80 @@ namespace reg {
 		return "wrong";
 	}
 
-	Reg NumberToReg(int regNumber) {
-		switch (regNumber) {
+	int RegToNumber(Reg reg) {
+		switch (reg) {
+		case Reg::zero:
+			return 0;
+		case Reg::at:
+			return 1;
+		case Reg::v0:
+			return 2;
+		case Reg::v1:
+			return 3;
+		case Reg::a0:
+			return 4;
+		case Reg::a1:
+			return 5;
+		case Reg::a2:
+			return 6;
+		case Reg::a3:
+			return 7;
+		case Reg::s0:
+			return 16;
+		case Reg::s1:
+			return 17;
+		case Reg::s2:
+			return 18;
+		case Reg::s3:
+			return 19;
+		case Reg::s4:
+			return 20;
+		case Reg::s5:
+			return 21;
+		case Reg::s6:
+			return 22;
+		case Reg::s7:
+			return 23;
+		case Reg::t0:
+			return 8;
+		case Reg::t1:
+			return 9;
+		case Reg::t2:
+			return 10;
+		case Reg::t3:
+			return 11;
+		case Reg::t4:
+			return 12;
+		case Reg::t5:
+			return 13;
+		case Reg::t6:
+			return 14;
+		case Reg::t7:
+			return 15;
+		case Reg::t8:
+			return 24;
+		case Reg::t9:
+			return 25;
+		case Reg::k0:
+			return 26;
+		case Reg::k1:
+			return 27;
+		case Reg::gp:
+			return 28;
+		case Reg::sp:
+			return 29;
+		case Reg::fp:
+			return 30;
+		case Reg::ra:
+			return 31;
+		default:
+			assert(0);
+		}
+		return -1;
+	}
+
+	Reg NumberToReg(int reg_number) {
+		switch (reg_number) {
 		case 0:
 			return Reg::zero;
 		case 1:

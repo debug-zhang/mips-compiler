@@ -46,6 +46,7 @@ public:
 	void PrintVoidFuncDeclare(Symbol* function);
 	void PrintReturn(bool isVoid, string value);
 
+	void PrintLoop();
 	void PrintLabel(int label);
 	void PrintJump(int label);
 	void PrintStep(string name1, string name2, string op, int step);
@@ -54,7 +55,7 @@ public:
 	void PrintBeqOrBne(int label, string expression, string expression2, Judge judge, bool is_false_branch);
 	void PrintBgeOrBlt(int label, string expression, string expression2, Judge judge, bool is_false_branch);
 	void PrintBgtOrBle(int label, string expression, string expression2, Judge judge, bool is_false_branch);
-	
+
 	void PrintString(int string_number);
 	void PrintInteger(string number);
 	void PrintChar(string c);
@@ -67,7 +68,7 @@ public:
 
 	void PrintPushParameter(string value);
 	void PrintCallFunction(string name);
-	void PrintSave();
+	void PrintSave(string function_name);
 	void PrintAssignReturn(int temp_reg_count);
 
 	void PrintRegOpReg(int result_reg, int op_reg1, int op_reg2, string op);

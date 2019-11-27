@@ -42,6 +42,7 @@ enum class MidcodeInstr {
 
 	LABEL,
 	JUMP,
+	LOOP,
 
 	ASSIGN,
 	ASSIGN_ARRAY,

@@ -58,6 +58,10 @@ void MidcodeGenerator::PrintJump(int label) {
 	this->AddMidcode(new Midcode(MidcodeInstr::JUMP, label));
 }
 
+void MidcodeGenerator::PrintLoop() {
+	this->AddMidcode(new Midcode(MidcodeInstr::LOOP));
+}
+
 void MidcodeGenerator::PrintStep(string name1, string name2, string op, int step) {
 	midcode_ << name1 << " = " << name2 << " " + op + " " << step << endl;
 
@@ -243,10 +247,10 @@ void MidcodeGenerator::PrintCallFunction(string name) {
 	this->AddMidcode(new Midcode(MidcodeInstr::CALL, name));
 }
 
-void MidcodeGenerator::PrintSave() {
+void MidcodeGenerator::PrintSave(string function_name) {
 	midcode_ << "save" << endl;
 
-	this->AddMidcode(new Midcode(MidcodeInstr::SAVE));
+	this->AddMidcode(new Midcode(MidcodeInstr::SAVE, function_name));
 }
 
 void MidcodeGenerator::PrintAssignReturn(int temp_reg_count) {

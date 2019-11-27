@@ -51,5 +51,11 @@ public:
 	string reg1();
 	string reg2();
 	string reg_result();
+
+	string GetJumpLabel();
+	string GetLabel();
+	string GetString();
+	int GetInteger();
+	int GetChar();
 };
 

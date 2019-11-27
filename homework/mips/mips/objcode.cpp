@@ -17,7 +17,7 @@ void Objcode::Output(MipsInstr instr) {
 		mips_ << ".data" << endl;
 		break;
 	case(MipsInstr::text):
-		mips_ << ".text"  << endl;
+		mips_ << ".text" << endl;
 		break;
 	default:
 		assert(0);

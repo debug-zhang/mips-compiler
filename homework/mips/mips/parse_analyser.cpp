@@ -249,8 +249,8 @@ void ParseAnalyser::AnalyzeReturnCallSentence(SyntaxNode* node) {
 	if (this->FindSymbol(0) == NULL) {
 		error_handing_->AddError(iter_->line_number, UNDEFINED);
 	}
-	midcode_generator_->PrintSave();
 	Symbol* function = this->FindSymbol(0);
+	midcode_generator_->PrintSave(function->name());
 	this->AddChild(node);	// IDENFR
 	this->AddChild(node);	// LPARENT
 	this->AnalyzeValuePrameterTable(
@@ -529,6 +529,7 @@ void ParseAnalyser::AnalyzeWhile(SyntaxNode* node, TypeSymbol returnType) {
 	this->AddChild(node);	// WHILETK
 	int whileLabel = label_count_++;
 	midcode_generator_->PrintLabel(whileLabel);
+	midcode_generator_->PrintLoop();
 
 	this->AddChild(node);	// LPARENT
 	int endWhileLabel = label_count_++;
@@ -546,6 +547,7 @@ void ParseAnalyser::AnalyzeDoWhile(SyntaxNode* node, bool& noReturn, TypeSymbol 
 
 	int doLabel = label_count_++;
 	midcode_generator_->PrintLabel(doLabel);
+	midcode_generator_->PrintLoop();
 
 	noReturn = this->AnalyzeSentence(this->AddSyntaxChild(SENTENCE, node), returnType);
 
@@ -571,6 +573,7 @@ void ParseAnalyser::AnalyzeFor(SyntaxNode* node, TypeSymbol returnType) {
 
 	int forLabel = label_count_++;
 	midcode_generator_->PrintLabel(forLabel);
+	midcode_generator_->PrintLoop();
 
 	this->AddSemicnChild(node);	// SEMICN
 
@@ -869,7 +872,7 @@ void ParseAnalyser::AnalyzeVoidFunc(SyntaxNode* node) {
 	check_table_->AddFunctionVariableNumber(function->name(), reg_count_ - temp_reg);
 }
 
-void ParseAnalyser::AnalyzeHeadState(SyntaxNode* node, Symbol* &function) {
+void ParseAnalyser::AnalyzeHeadState(SyntaxNode* node, Symbol*& function) {
 	TypeSymbol type;
 	this->SetSymbolType(type);
 	this->AddChild(node);	// INTTK or CHARTK
@@ -929,7 +932,7 @@ void ParseAnalyser::BuildSyntaxTree(SyntaxNode* root) {
 				check_table_->AddFunctionVariableNumber("global", reg_count_ - temp_reg);
 				first = false;
 			}
-			
+
 			if (this->IsThisIdentifier(VOIDTK)) {
 				this->CountIterator(+1);
 			}

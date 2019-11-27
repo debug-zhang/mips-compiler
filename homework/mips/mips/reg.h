@@ -24,5 +24,7 @@ enum class Reg {
 namespace reg {
 	string RegToString(Reg reg);
 
-	Reg NumberToReg(int regNumber);
+	int RegToNumber(Reg reg);
+
+	Reg NumberToReg(int reg_number);
 }

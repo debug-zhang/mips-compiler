@@ -137,3 +137,23 @@ string Midcode::reg2() {
 string Midcode::reg_result() {
 	return this->reg_result_;
 }
+
+string Midcode::GetJumpLabel() {
+	return "Label_" + to_string(this->count) + ":";
+}
+
+string Midcode::GetLabel() {
+	return "Label_" + to_string(this->count);
+}
+
+string Midcode::GetString() {
+	return "str_" + to_string(this->count);
+}
+
+int Midcode::GetInteger() {
+	return stoi(this->label_);
+}
+
+int Midcode::GetChar() {
+	return (int)this->label_[1];
+}
