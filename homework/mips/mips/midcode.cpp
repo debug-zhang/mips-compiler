@@ -139,15 +139,15 @@ string Midcode::reg_result() {
 }
 
 string Midcode::GetJumpLabel() {
-	return "Label_" + to_string(this->count) + ":";
+	return "Label_" + to_string(this->count_) + ":";
 }
 
 string Midcode::GetLabel() {
-	return "Label_" + to_string(this->count);
+	return "Label_" + to_string(this->count_);
 }
 
 string Midcode::GetString() {
-	return "str_" + to_string(this->count);
+	return "str_" + to_string(this->count_);
 }
 
 int Midcode::GetInteger() {

@@ -13,7 +13,7 @@ MipsGenerator::MipsGenerator(string outputFileName,
 }
 
 void MipsGenerator::InsertTempUseRegMap(string name) {
-	this->temp_use_reg_map_.insert(pair<string, bool>(name, true));
+	this->temp_use_reg_map_.insert(pair<string, int>(name, 1));
 }
 
 void MipsGenerator::InitVariable(int level) {
@@ -381,7 +381,7 @@ int MipsGenerator::GetUnuseRegNumber() {
 	retval = this->GetUnuseRegInTable(unuse_reg, retflag, 0);
 	if (retflag) return retval;
 
-	map<string, bool>::iterator iter = temp_var_reg_map_.begin();
+	map<string, int>::iterator iter = temp_var_reg_map_.begin();
 	while (iter != temp_var_reg_map_.end()) {
 		if (iter->second > 0
 			&& temp_use_reg_map_.find(iter->first) == temp_use_reg_map_.end()) {
@@ -428,7 +428,7 @@ Reg MipsGenerator::GetUnuseReg() {
 	retval = this->GetUnuseRegInTable(unuse_reg, retflag, 0);
 	if (retflag) return this->NumberToReg(retval);
 
-	map<string, bool>::iterator iter = temp_var_reg_map_.begin();
+	map<string, int>::iterator iter = temp_var_reg_map_.begin();
 	while (iter != temp_var_reg_map_.end()) {
 		if (iter->second > 0
 			&& temp_use_reg_map_.find(iter->first) == temp_use_reg_map_.end()) {
@@ -542,9 +542,9 @@ void MipsGenerator::GenerateJudge(Midcode* midcode, MidcodeInstr judge) {
 
 	this->objcode_->Output(mips_instr, t0, t1, midcode->GetLabel());
 
-	this->ResetJudgeReg(midcode->reg1, t0);
+	this->ResetJudgeReg(midcode->reg1(), t0);
 	if (flag) {
-		this->ResetJudgeReg(midcode->reg2, t1);
+		this->ResetJudgeReg(midcode->reg2(), t1);
 	}
 }
 

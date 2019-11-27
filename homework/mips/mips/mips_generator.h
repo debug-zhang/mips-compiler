@@ -18,8 +18,8 @@ private:
 	StringTable* string_table_;
 	map<string, SymbolTable*> symbol_table_map_;
 	list<Midcode*> midcode_list_;
-	map<string, bool> temp_var_reg_map_;
-	map<string, bool> temp_use_reg_map_;
+	map<string, int> temp_var_reg_map_;
+	map<string, int> temp_use_reg_map_;
 	int reg_use_stack_[32];
 	int new_reg;
 	int dm_offset;
