@@ -2,6 +2,8 @@
 
 #include <fstream>
 #include <string>
+#include <list>
+#include "midcode.h"
 #include "symbol.h"
 #include "instr.h"
 
@@ -22,6 +24,7 @@ const string kCharType = "char";
 class MidcodeGenerator {
 private:
 	ofstream midcode_;
+	list<Midcode*> midcode_list_;
 
 	void PrintBez(int label, string expression);
 	void PrintBnz(int label, string expression);
@@ -35,6 +38,8 @@ private:
 public:
 	MidcodeGenerator();
 	void OpenMidcodeFile(string file_name);
+	list<Midcode*> midcode_list();
+	void AddMidcode(Midcode* midcode);
 	void FileClose();
 
 	void PrintFuncDeclare(Symbol* function);
@@ -42,7 +47,7 @@ public:
 	void PrintReturn(bool isVoid, string value);
 
 	void PrintLabel(int label);
-	void PrintGotoLabel(int label);
+	void PrintJump(int label);
 	void PrintStep(string name1, string name2, string op, int step);
 
 	void PrintBezOrBnz(int label, string expression, bool is_false_branch);

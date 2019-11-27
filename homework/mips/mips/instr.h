@@ -1,5 +1,8 @@
 ﻿#pragma once
 
+#include <string>
+#include <cassert>
+
 using namespace std;
 
 enum class MipsInstr {
@@ -27,37 +30,69 @@ enum class MipsInstr {
 	text,
 };
 
-namespace midcodeinstr{
-	const string FUNC_DECLARE = "FUNC_DECLARE";
-	const string VOID_FUNC_DECLARE = "VOID_FUNC_DECLARE";
-	const string PUSH = "PUSH";
-	const string CALL = "CALL";
-	const string SAVE = "SAVE";
-	const string RETURN = "RETURN";
+enum class MidcodeInstr {
 
-	const string SCANF = "SCANF";
-	const string PRINTF = "PRINTF";
-	const string PRINTF_END = "PRINTF_END";
+	SCANF_INT,
+	SCANF_CHAR,
 
-	const string LABEL = "LABEL";
-	const string GO_TO_LABEL = "GO_TO_LABEL";
+	PRINTF_INT,
+	PRINTF_CHAR,
+	PRINTF_STRING,
+	PRINTF_END,
 
-	const string ASSIGN = "ASSIGN";
-	const string ASSIGN_RETURN = "ASSIGN_RETURN";
-	const string LOAD = "LOAD";
+	LABEL,
+	JUMP,
 
+	ASSIGN,
+	ASSIGN_ARRAY,
+	ASSIGN_RETURN,
 
-	const string REG_OP_NUMBER = "REG_OP_NUMBER";
-	const string REG_OP_REG = "REG_OP_REG";
-	const string NUMBER_OP_REG = "NUMBER_OP_REG";
-	const string NUMBER_OP_NUMBER = "NUMBER_OP_NUMBER";
+	LOAD,
+	LOAD_ARRAY,
 
-	const string BEZ = "BEZ";
-	const string BNZ = "BNZ";
-	const string BEQ = "BEQ";
-	const string BNE = "BNE";
-	const string BGE = "BGE";
-	const string BLT = "BLT";
-	const string BGT = "BGT";
-	const string BLE = "BLE";
+	ADD,		// t0 = t1 + t2
+	ADDI,
+	SUB,		// t0 = t1 - t2
+	SUBI,
+	NEG,		// t0 = - t1
+	MULT,		// t0 = t1 * t2
+	DIV,		// t0 = t1 / t2
+
+	BGT,		// branch to t3 if t1 > t2
+	BGE,		// branch to t3 if t1 >= t2
+	BLT,		// branch to t3 if t1 < t2
+	BLE,		// branch to t3 if t1 <= t2
+	BEQ,		// branch to t3 if t1 == t2(nullable)
+	BNE,		// branch to t3 if t1 != t2(nullable)
+	BEZ,		// branch if t1 == zero
+	BNZ,		// branch if t1 != zero
+
+	INT_FUNC_DECLARE,
+	CHAR_FUNC_DECLARE,
+	VOID_FUNC_DECLARE,
+
+	PUSH,
+	CALL,
+	SAVE,
+	RETURN,
+	RETURN_NON,
+
+	PARA_INT,
+	PARA_CHAR,
+	CONST_INT,
+	CONST_CHAR,
+
+	VAR_INT,
+	VAR_CHAR,
+};
+
+enum class OperaMember{
+	REG_OP_NUMBER,
+	REG_OP_REG,
+	NUMBER_OP_REG,
+	NUMBER_OP_NUMBER,
+};
+
+namespace midcodeinstr {
+	MidcodeInstr GetOperatorInstr(string op);
 }

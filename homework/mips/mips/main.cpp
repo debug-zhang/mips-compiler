@@ -22,9 +22,9 @@ int main() {
 	parse_analyser->AnalyzeParse();
 	parse_analyser->FileClose();
 
-	MipsGenerator* mips_generator = new MipsGenerator(midcode, mips,
+	MipsGenerator* mips_generator = new MipsGenerator(mips,
 		parse_analyser->string_table(), parse_analyser->check_table(),
-		parse_analyser->symbol_table_map());
+		parse_analyser->symbol_table_map(),  parse_analyser->midcode_list());
 	mips_generator->GenerateMips();
 	mips_generator->FileClose();
 

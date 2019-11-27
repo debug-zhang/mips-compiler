@@ -1,16 +1,18 @@
-FUNC_DECLARE int gets1
-NUMBER_OP_NUMBER #1 = var1 + var2
-ASSIGN change1 = #1
-RETURN return change1
-VOID_FUNC_DECLARE void main
-PRINTF printf str_0
-PRINTF_END printf_end
-SAVE save
-NUMBER_OP_NUMBER #2 = 'c' + 'c'
-PUSH push #2
-PUSH push 20
-CALL call gets1
-ASSIGN_RETURN #3 = RET
-PRINTF printf int #3
-PRINTF_END printf_end
-RETURN return
+
+int gets1()
+#1 = var1 + var2
+change1 = #1
+return change1
+
+void main()
+printf str_0
+printf_end
+save
+#2 = 'c' + 'c'
+push #2
+push 20
+call gets1
+#3 = RET
+printf int #3
+printf_end
+return

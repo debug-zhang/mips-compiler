@@ -125,8 +125,10 @@
   <ItemGroup>
     <ClCompile Include="error.cpp" />
     <ClCompile Include="error_handing.cpp" />
+    <ClCompile Include="instr.cpp" />
     <ClCompile Include="lexical_analyser.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="midcode.cpp" />
     <ClCompile Include="midcode_generator.cpp" />
     <ClCompile Include="mips_generator.cpp" />
     <ClCompile Include="objcode.cpp" />
@@ -141,6 +143,7 @@
     <ClInclude Include="error_handing.h" />
     <ClInclude Include="instr.h" />
     <ClInclude Include="lexical_analyser.h" />
+    <ClInclude Include="midcode.h" />
     <ClInclude Include="midcode_generator.h" />
     <ClInclude Include="mips_generator.h" />
     <ClInclude Include="objcode.h" />

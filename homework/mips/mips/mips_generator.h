@@ -4,7 +4,8 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <sstream>
+#include <list>
+#include "midcode.h"
 #include "table.h"
 #include "objcode.h"
 
@@ -12,18 +13,16 @@ using namespace std;
 
 class MipsGenerator {
 private:
-	ifstream midcode_;
-	Objcode* objcode_;
+	Objcode* mips_file_;
 	CheckTable* check_table_;
 	StringTable* string_table_;
 	map<string, SymbolTable*> symbol_table_map_;
+	list<Midcode*> midcode_list_;
 	map<string, int> mid_var_reg_map_;
 	map<string, int> mid_use_reg_map_;
 	int reg_use_stack_[32];
 	int new_reg;
 	int dm_offset;
-
-	vector<string> Split(string s, char delimiter);
 
 	void InitVariable(int level);
 	void InitVariable(string function_name);
@@ -63,13 +62,14 @@ private:
 	int GetUnuseReg();
 	void SetSymbolUse(string name, bool isUse);
 
-	void GenerateBody(string function_name);
+	void GenerateBody(string function_name, list<Midcode*>::iterator &iter);
 
 	void GenerateFunction();
 	
 public:
-	MipsGenerator(string inputFileName, string outputFileName, StringTable* stringTable,
-		CheckTable* check_table, map<string, SymbolTable*> symbolTableMap);
+	MipsGenerator(string outputFileName, 
+		StringTable* stringTable,CheckTable* check_table, 
+		map<string, SymbolTable*> symbolTableMap, list<Midcode*> midcode_list);
 	void GenerateMips();
 	void FileClose();
 };

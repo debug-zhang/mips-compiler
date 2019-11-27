@@ -24,28 +24,3 @@ move $fp $sp
 jal main
 li $v0 10
 syscall
-addi $sp $sp 8
-jr $ra
-addi $sp $sp -80
-sw $t0 0($sp)
-sw $t1 4($sp)
-sw $t2 8($sp)
-sw $t3 12($sp)
-sw $t4 16($sp)
-sw $t5 20($sp)
-sw $t6 24($sp)
-sw $t7 28($sp)
-sw $s0 32($sp)
-sw $s1 36($sp)
-sw $s2 40($sp)
-sw $s3 44($sp)
-sw $s4 48($sp)
-sw $s5 52($sp)
-sw $s6 56($sp)
-sw $s7 60($sp)
-sw $t8 64($sp)
-sw $t9 68($sp)
-sw $fp 72($sp)
-sw $ra 72($sp)
-addi $sp $sp 8
-jr $ra

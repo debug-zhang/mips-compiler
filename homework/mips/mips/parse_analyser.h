@@ -122,6 +122,7 @@ public:
 	ParseAnalyser(string fileName, list<struct Lexeme>* lexList, ErrorHanding* errorHanding);
 	void AnalyzeParse();
 	map<string, SymbolTable*> symbol_table_map();
+	list<Midcode*> midcode_list();
 	StringTable* string_table();
 	CheckTable* check_table();
 	void FileClose();

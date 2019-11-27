@@ -507,7 +507,7 @@ bool ParseAnalyser::AnalyzeIfSentence(SyntaxNode* node, TypeSymbol returnType) {
 	noReturn = this->AnalyzeSentence(this->AddSyntaxChild(SENTENCE, node), returnType);
 
 	int endifLabel = label_count_++;
-	midcode_generator_->PrintGotoLabel(endifLabel);
+	midcode_generator_->PrintJump(endifLabel);
 	midcode_generator_->PrintLabel(elseLabel);
 
 	if (this->IsThisIdentifier(ELSETK)) {
@@ -537,7 +537,7 @@ void ParseAnalyser::AnalyzeWhile(SyntaxNode* node, TypeSymbol returnType) {
 
 	this->AnalyzeSentence(this->AddSyntaxChild(SENTENCE, node), returnType);
 
-	midcode_generator_->PrintGotoLabel(whileLabel);
+	midcode_generator_->PrintJump(whileLabel);
 	midcode_generator_->PrintLabel(endWhileLabel);
 }
 
@@ -597,7 +597,7 @@ void ParseAnalyser::AnalyzeFor(SyntaxNode* node, TypeSymbol returnType) {
 	this->AnalyzeSentence(this->AddSyntaxChild(SENTENCE, node), returnType);
 	midcode_generator_->PrintStep(name1, name2, op, step);
 
-	midcode_generator_->PrintGotoLabel(forLabel);
+	midcode_generator_->PrintJump(forLabel);
 	midcode_generator_->PrintLabel(endForLabel);
 }
 
@@ -953,6 +953,10 @@ void ParseAnalyser::AnalyzeParse() {
 
 map<string, SymbolTable*> ParseAnalyser::symbol_table_map() {
 	return this->symbol_table_map_;
+}
+
+list<Midcode*> ParseAnalyser::midcode_list() {
+	return this->midcode_generator_->midcode_list();
 }
 
 StringTable* ParseAnalyser::string_table() {

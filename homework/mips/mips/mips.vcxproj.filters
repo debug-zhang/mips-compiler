@@ -51,6 +51,12 @@
     <ClCompile Include="reg.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="midcode.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="instr.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="error.h">
@@ -87,6 +93,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="reg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="midcode.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
