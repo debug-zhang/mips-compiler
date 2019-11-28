@@ -13,6 +13,8 @@
 
 .data
 	main_space: .space 400
+	a: .space 4
+	b: .space 4
 	.align 4
 
 .text

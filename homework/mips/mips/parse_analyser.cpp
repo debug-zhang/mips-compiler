@@ -391,7 +391,7 @@ TypeSymbol ParseAnalyser::AnalyzeExpression(SyntaxNode* node) {
 				if (firstOpNumber == -1) {
 					midcode_generator_->PrintNumberOpNumber(reg_count_++,
 						to_string(firstOpNumber),
-						itemRoot->value(), "*");
+						anotherItemRoot->GetFirstChildNumericalValue(), "*");
 				} else {
 					itemRoot = anotherItemRoot;
 				}

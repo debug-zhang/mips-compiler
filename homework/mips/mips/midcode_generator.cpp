@@ -223,7 +223,8 @@ void MidcodeGenerator::PrintAssignValue(string name, string array_index, string 
 	}
 }
 
-void MidcodeGenerator::PrintLoadToTempReg(string name, string array_index, int temp_reg_count) {
+void MidcodeGenerator::PrintLoadToTempReg(string name, string array_index,
+	int temp_reg_count) {
 	if (array_index == "") {
 		midcode_ << "#" << temp_reg_count << " = " << name << endl;
 

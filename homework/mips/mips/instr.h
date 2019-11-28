@@ -56,7 +56,7 @@ enum class MidcodeInstr {
 	SUB,		// t0 = t1 - t2
 	SUBI,
 	NEG,		// t0 = - t1
-	MULT,		// t0 = t1 * t2
+	MUL,		// t0 = t1 * t2
 	DIV,		// t0 = t1 / t2
 
 	BGT,		// branch to t3 if t1 > t2

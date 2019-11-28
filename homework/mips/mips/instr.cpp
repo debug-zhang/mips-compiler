@@ -10,7 +10,7 @@ namespace midcodeinstr {
 			return MidcodeInstr::SUB;
 			break;
 		case '*':
-			return MidcodeInstr::MULT;
+			return MidcodeInstr::MUL;
 			break;
 		case '/':
 			return MidcodeInstr::DIV;

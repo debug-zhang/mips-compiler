@@ -18,13 +18,14 @@ private:
 	StringTable* string_table_;
 	map<string, SymbolTable*> symbol_table_map_;
 	list<Midcode*> midcode_list_;
-	map<string, int> temp_var_reg_map_;
+	map<string, int> temp_reg_map_;
 	map<string, int> temp_use_reg_map_;
 	int reg_use_stack_[32];
 	int new_reg;
 	int dm_offset;
 
 	void InsertTempUseRegMap(string name);
+	void DeleteTempUseRegMap(string name);
 
 	void InitVariable(int level);
 	void InitVariable(string function_name);
@@ -98,6 +99,26 @@ private:
 	void GeneratePrintfString(Midcode* midcode);
 
 	void GeneratePrintfIntChar(Midcode* midcode, int type);
+
+	void GenerateAssignReturn(Midcode* midcode);
+
+	void SetArrayIndex(int& offset, Symbol* symbol, std::string& array_index, Reg& reg_index);
+
+	void GenerateLoadArray(Midcode* midcode);
+
+	void GenerateAssignArray(Midcode* midcode);
+
+	void GenerateAssign(Midcode* midcode);
+
+	void DealRegOpReg(Midcode* midcode, MidcodeInstr op, int reg_result);
+
+	void DealRegOpNumber(Midcode* midcode, MidcodeInstr op, int reg_result);
+
+	void DealNumberOpNumber(Midcode* midcode, MidcodeInstr op, int reg_result);
+
+	void DealNumberOpReg(Midcode* midcode, MidcodeInstr op, int reg_result);
+
+	void GenerateOperate(Midcode* midcode, MidcodeInstr op);
 
 	void GenerateBody(string function_name, list<Midcode*>::iterator& iter);
 

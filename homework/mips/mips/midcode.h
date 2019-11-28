@@ -15,7 +15,6 @@ private:
 
 	int count_;
 	string label_;
-	string array_index_;
 
 	string reg1_;
 	string reg2_;
@@ -46,15 +45,19 @@ public:
 
 	int count();
 	string label();
-	string array_index();
 
 	string reg1();
 	string reg2();
 	string reg_result();
 
+	string GetTempReg1();
+	string GetTempReg2();
+	string GetTempRegResult();
+
 	string GetJumpLabel();
 	string GetLabel();
 	string GetString();
+	string GetTempReg();
 	int GetInteger();
 	int GetChar();
 };

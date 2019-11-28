@@ -95,7 +95,6 @@ void Midcode::Init() {
 
 	this->count_ = 0;
 	this->label_ = "";
-	this->array_index_ = "";
 
 	this->reg1_;
 	this->reg2_;
@@ -122,10 +121,6 @@ string Midcode::label() {
 	return this->label_;
 }
 
-string Midcode::array_index() {
-	return this->array_index_;
-}
-
 string Midcode::reg1() {
 	return this->reg1_;
 }
@@ -138,6 +133,16 @@ string Midcode::reg_result() {
 	return this->reg_result_;
 }
 
+string Midcode::GetTempReg1() {
+	return "#" + to_string(this->temp1_);
+}
+string Midcode::GetTempReg2() {
+	return "#" + to_string(this->temp1_);
+}
+string Midcode::GetTempRegResult() {
+	return "#" + to_string(this->temp1_);
+}
+
 string Midcode::GetJumpLabel() {
 	return "Label_" + to_string(this->count_) + ":";
 }
@@ -148,6 +153,10 @@ string Midcode::GetLabel() {
 
 string Midcode::GetString() {
 	return "str_" + to_string(this->count_);
+}
+
+string Midcode::GetTempReg() {
+	return "#" + to_string(this->count_);
 }
 
 int Midcode::GetInteger() {

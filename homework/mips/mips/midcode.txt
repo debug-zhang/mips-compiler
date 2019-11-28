@@ -5,6 +5,8 @@ change1 = #1
 return change1
 
 void main()
+a = 1
+b = a
 printf str_0
 printf_end
 save
