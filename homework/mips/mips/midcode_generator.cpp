@@ -188,7 +188,7 @@ void MidcodeGenerator::PrintString(int string_number) {
 void MidcodeGenerator::PrintInteger(string number) {
 	midcode_ << "printf int " + number << endl;
 
-	this->AddMidcode(new Midcode(MidcodeInstr::PRINTF_INT, "str_" + number));
+	this->AddMidcode(new Midcode(MidcodeInstr::PRINTF_INT, number));
 }
 
 void MidcodeGenerator::PrintChar(string c) {

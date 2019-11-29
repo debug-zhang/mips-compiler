@@ -69,7 +69,7 @@ void MipsGenerator::InitVariable(string function_name) {
 void MipsGenerator::InitDataSeg(string function_name) {
 	objcode_->Output(MipsInstr::data);
 	objcode_->Output(MipsInstr::data_identifier, function_name + "_space",
-		check_table_->GetFunctionVariableNumber(function_name) * 200);
+		(check_table_->GetFunctionVariableNumber(function_name) + 100) * 4);
 
 	if (function_name == "global") {
 		for (int i = 0; i < string_table_->GetStringCount(); i++) {
@@ -646,6 +646,9 @@ void MipsGenerator::GeneratePrintfIntChar(Midcode* midcode, int type) {
 		objcode_->Output(MipsInstr::li, Reg::a0, midcode->GetInteger());
 	} else if (this->IsChar(midcode->label())) {
 		objcode_->Output(MipsInstr::li, Reg::v0, midcode->GetChar());
+	} else if (this->IsTempReg(midcode->label())){
+		objcode_->Output(MipsInstr::move, Reg::a0,
+			this->LoadTempRegToReg(midcode->label()));
 	} else if (this->IsConstVariable(midcode->label())) {
 		objcode_->Output(MipsInstr::li, Reg::a0,
 			this->GetConstVariable(midcode->label()));
@@ -1244,11 +1247,13 @@ void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator&
 		case MidcodeInstr::RETURN:
 			this->GenerateReturn(midcode, true);
 			parameter_count = 1;
+			iter++;
 			return;
 			break;
 		case MidcodeInstr::RETURN_NON:
 			this->GenerateReturn(midcode, false);
 			parameter_count = 1;
+			iter++;
 			return;
 			break;
 		case MidcodeInstr::PARA_INT:
@@ -1280,9 +1285,10 @@ void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator&
 
 void MipsGenerator::GenerateFunction(Midcode* midcode, std::list<Midcode*>::iterator& iter) {
 	this->LoadTable(1, midcode->label());
+	this->objcode_->Output(MipsInstr::label, midcode->label());
 	this->InitVariable(1);
 	this->PopAllVariable();
-	this->objcode_->Output(MipsInstr::label, midcode->label());
+	iter++;
 	this->GenerateBody(midcode->label(), iter);
 }
 
@@ -1315,9 +1321,10 @@ void MipsGenerator::GenerateMips() {
 	this->InitDataSeg();
 	this->PrintText();
 	this->InitStack();
+	this->InitVariable(0);
 	this->PrintMain();
 	this->PrintEnd();
-	//this->Generate();
+	this->Generate();
 }
 
 void MipsGenerator::FileClose() {

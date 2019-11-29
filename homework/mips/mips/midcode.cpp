@@ -140,7 +140,7 @@ string Midcode::GetTempReg2() {
 	return "#" + to_string(this->temp1_);
 }
 string Midcode::GetTempRegResult() {
-	return "#" + to_string(this->temp1_);
+	return "#" + to_string(this->temp_result_);
 }
 
 string Midcode::GetJumpLabel() {
