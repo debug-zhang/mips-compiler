@@ -8,7 +8,7 @@ MipsGenerator::MipsGenerator(string outputFileName,
 	this->string_table_ = stringTable;
 	this->symbol_table_map_ = symbolTableMap;
 	this->midcode_list_ = midcode_list;
-	this->new_reg = 0;
+	this->new_reg = 8;
 	this->dm_offset = 0;
 }
 
@@ -357,19 +357,19 @@ int MipsGenerator::GetUnuseRegInTable(int& unuse_reg, bool& retflag, int level) 
 
 int MipsGenerator::GetUnuseRegNumber() {
 	int unuse_reg;
-	for (int i = 8; i < 32; i++) {
+	for (int i = 8; i < 24; i++) {
 		if (reg_use_stack_[new_reg] == 0) {
 			reg_use_stack_[new_reg] = 1;
 			unuse_reg = new_reg;
-			if (new_reg == 25) {
-				new_reg = 0;
+			if (new_reg == 24) {
+				new_reg = 8;
 			} else {
 				new_reg++;
 			}
 			return unuse_reg;
 		} else {
-			if (new_reg == 25) {
-				new_reg = 0;
+			if (new_reg == 24) {
+				new_reg = 8;
 			} else {
 				new_reg++;
 			}
@@ -404,19 +404,19 @@ int MipsGenerator::GetUnuseRegNumber() {
 
 Reg MipsGenerator::GetUnuseReg() {
 	int unuse_reg;
-	for (int i = 8; i < 32; i++) {
+	for (int i = 8; i < 24; i++) {
 		if (reg_use_stack_[new_reg] == 0) {
 			reg_use_stack_[new_reg] = 1;
 			unuse_reg = new_reg;
-			if (new_reg == 25) {
-				new_reg = 0;
+			if (new_reg == 23) {
+				new_reg = 8;
 			} else {
 				new_reg++;
 			}
 			return this->NumberToReg(unuse_reg);
 		} else {
-			if (new_reg == 25) {
-				new_reg = 0;
+			if (new_reg == 23) {
+				new_reg = 8;
 			} else {
 				new_reg++;
 			}
@@ -646,7 +646,7 @@ void MipsGenerator::GeneratePrintfIntChar(Midcode* midcode, int type) {
 		objcode_->Output(MipsInstr::li, Reg::a0, midcode->GetInteger());
 	} else if (this->IsChar(midcode->label())) {
 		objcode_->Output(MipsInstr::li, Reg::v0, midcode->GetChar());
-	} else if (this->IsTempReg(midcode->label())){
+	} else if (this->IsTempReg(midcode->label())) {
 		objcode_->Output(MipsInstr::move, Reg::a0,
 			this->LoadTempRegToReg(midcode->label()));
 	} else if (this->IsConstVariable(midcode->label())) {
@@ -796,8 +796,9 @@ void MipsGenerator::GenerateAssign(Midcode* midcode) {
 
 void MipsGenerator::DealRegOpReg(Midcode* midcode, MidcodeInstr op, int reg_result) {
 	Reg reg1 = this->LoadTempRegToReg(midcode->GetTempReg1());
-	Reg reg2 = this->LoadTempRegToReg(midcode->GetTempReg2());
 	this->InsertTempUseRegMap(midcode->GetTempReg1());
+
+	Reg reg2 = this->LoadTempRegToReg(midcode->GetTempReg2());
 
 	switch (op) {
 	case MidcodeInstr::ADD:
@@ -893,7 +894,7 @@ void MipsGenerator::DealRegOpNumber(Midcode* midcode, MidcodeInstr op, int reg_r
 
 void MipsGenerator::DealNumberOpNumber(Midcode* midcode, MidcodeInstr op, int reg_result) {
 	Reg reg1;
-	string value1 = midcode->reg2();
+	string value1 = midcode->reg1();
 	bool is_immediate1 = false;
 	int immediate1 = 0;
 	if (this->IsInteger(value1)) {
@@ -1122,7 +1123,7 @@ void MipsGenerator::GenerateOperate(Midcode* midcode, MidcodeInstr op) {
 		this->DealRegOpNumber(midcode, op, reg_result);
 		break;
 	case OperaMember::NUMBER_OP_NUMBER:
-
+		this->DealNumberOpNumber(midcode, op, reg_result);
 		break;
 	case OperaMember::NUMBER_OP_REG:
 		this->DealNumberOpReg(midcode, op, reg_result);
