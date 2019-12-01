@@ -1,23 +1,12 @@
-const int _begini = 0,_endi=+18, testfg=-6;
+const int const1 = 1, const2 = -100;
+const char const3 = '_';
+int change1;
+char change3;
+int gets1(int var1,int var2){
+    change1 = var1 + var2;
+    return (change1);
+}
 void main(){
-    int a,i;
-    printf("_begini=",_begini);
-    printf("testfg=",testfg);
-
-    scanf(i);
-    a=i;
-    printf(a);
-    a=testfg;
-    printf(a);
-    a=a+_endi+testfg;
-    printf(a);
-    printf("Let'shavefun.");
-    a=1;
-    a=(a+1700+5)*1000;
-    printf(a);
-    printf("Mystunumis:");
-    printf("17060000");
-    a=(_begini+_endi)*testfg/2;
-    printf("ais:",a);
-    printf("Congratulations");
+    printf("Hello World");
+    printf(gets1(10, 20));
 }

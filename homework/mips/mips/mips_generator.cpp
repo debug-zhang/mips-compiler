@@ -171,7 +171,7 @@ void MipsGenerator::SaveAllReg() {
 		offset += 4;
 	}
 	objcode_->Output(MipsInstr::sw, Reg::fp, Reg::sp, offset);
-	objcode_->Output(MipsInstr::sw, Reg::ra, Reg::sp, offset);
+	objcode_->Output(MipsInstr::sw, Reg::ra, Reg::sp, offset + 4);
 }
 
 void MipsGenerator::ResetAllReg() {
@@ -180,6 +180,8 @@ void MipsGenerator::ResetAllReg() {
 		objcode_->Output(MipsInstr::lw, this->NumberToReg(i), Reg::sp, offset);
 		offset += 4;
 	}
+	objcode_->Output(MipsInstr::lw, Reg::fp, Reg::sp, offset);
+	objcode_->Output(MipsInstr::lw, Reg::ra, Reg::sp, offset + 4);
 
 	objcode_->Output(MipsInstr::addi, Reg::sp, Reg::sp, 18 * 4);
 }
@@ -557,11 +559,12 @@ void MipsGenerator::GenerateSave(Midcode* midcode) {
 	int stack_length = check_table_->FindSymbol(
 		midcode->label(), 0)->GetParameterCount() * 4;
 	this->objcode_->Output(MipsInstr::move, Reg::fp, Reg::sp);
-	this->objcode_->Output(MipsInstr::subi, Reg::sp, Reg::sp, -stack_length);
+	this->objcode_->Output(MipsInstr::subi, Reg::sp, Reg::sp, stack_length);
 }
 
 void MipsGenerator::GenerateCall(Midcode* midcode) {
 	this->objcode_->Output(MipsInstr::jal, midcode->label());
+	this->ResetAllReg();
 }
 
 void MipsGenerator::GenerateScanf(Midcode* midcode, int type) {
@@ -1106,8 +1109,7 @@ void MipsGenerator::GenerateOperate(Midcode* midcode, MidcodeInstr op) {
 
 	if (this->IsTempReg(result)) {
 		reg_result = this->GetUnuseRegNumber();
-		this->temp_use_reg_map_.insert(pair<string, int>(
-			result, 1));
+		this->InsertTempUseRegMap(result);
 		this->temp_reg_map_.insert(pair<string, int>(
 			result, reg_result));
 	} else {

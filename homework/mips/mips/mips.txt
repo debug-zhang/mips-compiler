@@ -1,18 +1,18 @@
 .data
-	global_space: .space 400
-	str_0: .asciiz "_begini="
-	str_1: .asciiz "testfg="
-	str_2: .asciiz "Let'shavefun."
-	str_3: .asciiz "Mystunumis:"
-	str_4: .asciiz "17060000"
-	str_5: .asciiz "ais:"
-	str_6: .asciiz "Congratulations"
+	gets1_space: .space 404
+	var1: .space 4
+	var2: .space 4
 	.align 4
 
 .data
-	main_space: .space 432
-	a: .space 4
-	i: .space 4
+	global_space: .space 404
+	str_0: .asciiz "Hello World"
+	change1: .space 4
+	change3: .space 4
+	.align 4
+
+.data
+	main_space: .space 404
 	.align 4
 
 .text
@@ -21,107 +21,79 @@ la $k0 global_space
 move $gp $sp
 move $fp $sp
 
+subi $sp $sp 8
 jal main
 li $v0 10
 syscall
 
+gets1:
+lw $t1 -4($fp)
+lw $t2 -8($fp)
+add $t0 $t1 $t2
+lw $t3 -4($gp)
+move $t3 $t0
+move $v0 $t3
+addi $sp $sp 8
+jr $ra
+
 main:
-subi $sp $sp 8
+sw $t3 -4($gp)
 la $a0 str_0
 li $v0 4
 syscall
-li $a0 0
+li $a0 10
+li $v0 11
+syscall
+addi $sp $sp -72
+sw $t0 0($sp)
+sw $t1 4($sp)
+sw $t2 8($sp)
+sw $t3 12($sp)
+sw $t4 16($sp)
+sw $t5 20($sp)
+sw $t6 24($sp)
+sw $t7 28($sp)
+sw $s0 32($sp)
+sw $s1 36($sp)
+sw $s2 40($sp)
+sw $s3 44($sp)
+sw $s4 48($sp)
+sw $s5 52($sp)
+sw $s6 56($sp)
+sw $s7 60($sp)
+sw $fp 64($sp)
+sw $ra 68($sp)
+move $fp $sp
+subi $sp $sp 8
+li $t8 10
+sw $t8 -4($fp)
+li $t8 20
+sw $t8 -8($fp)
+jal gets1
+lw $t0 0($sp)
+lw $t1 4($sp)
+lw $t2 8($sp)
+lw $t3 12($sp)
+lw $t4 16($sp)
+lw $t5 20($sp)
+lw $t6 24($sp)
+lw $t7 28($sp)
+lw $s0 32($sp)
+lw $s1 36($sp)
+lw $s2 40($sp)
+lw $s3 44($sp)
+lw $s4 48($sp)
+lw $s5 52($sp)
+lw $s6 56($sp)
+lw $s7 60($sp)
+lw $fp 64($sp)
+lw $ra 68($sp)
+addi $sp $sp 72
+move $t4 $v0
+move $a0 $t4
 li $v0 1
 syscall
 li $a0 10
 li $v0 11
 syscall
-la $a0 str_1
-li $v0 4
-syscall
-li $a0 -6
-li $v0 1
-syscall
-li $a0 10
-li $v0 11
-syscall
-li $v0 5
-syscall
-lw $t0 -8($fp)
-move $t0 $v0
-lw $t1 -4($fp)
-move $t1 $t0
-move $a0 $t1
-li $v0 1
-syscall
-li $a0 10
-li $v0 11
-syscall
-li $t1 -6
-move $a0 $t1
-li $v0 1
-syscall
-li $a0 10
-li $v0 11
-syscall
-addi $t2 $t1 18
-addi $t3 $t2 -6
-move $t1 $t3
-move $a0 $t1
-li $v0 1
-syscall
-li $a0 10
-li $v0 11
-syscall
-la $a0 str_2
-li $v0 4
-syscall
-li $a0 10
-li $v0 11
-syscall
-li $t1 1
-addi $t4 $t1 1700
-addi $t5 $t4 5
-mul $t6 $t5 1000
-move $t1 $t6
-move $a0 $t1
-li $v0 1
-syscall
-li $a0 10
-li $v0 11
-syscall
-la $a0 str_3
-li $v0 4
-syscall
-li $a0 10
-li $v0 11
-syscall
-la $a0 str_4
-li $v0 4
-syscall
-li $a0 10
-li $v0 11
-syscall
-li $t7 0
-addi $t7 $t7 18
-mul $s0 $t7 -6
-div $s1 $s0 2
-sll $s1 $s0 2
-move $t1 $s1
-la $a0 str_5
-li $v0 4
-syscall
-move $a0 $t1
-li $v0 1
-syscall
-li $a0 10
-li $v0 11
-syscall
-la $a0 str_6
-li $v0 4
-syscall
-li $a0 10
-li $v0 11
-syscall
-addi $sp $sp 8
 jr $ra
