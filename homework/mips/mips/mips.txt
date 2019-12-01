@@ -1,18 +1,79 @@
 .data
-	gets1_space: .space 404
-	var1: .space 4
-	var2: .space 4
+	complete_flower_num_space: .space 492
+	;: .space 532
+	a: .space 4
+	b: .space 4
+	c: .space 4
+	h: .space 4
+	i: .space 4
+	j: .space 4
+	k: .space 4
+	k2: .space 4
+	leap: .space 4
+	m: .space 4
+	n: .space 4
+	s: .space 4
+	x1: .space 4
+	x2: .space 4
+	y: .space 4
 	.align 4
 
 .data
-	global_space: .space 404
-	str_0: .asciiz "Hello World"
-	change1: .space 4
-	change3: .space 4
+	factorial_space: .space 412
+	n: .space 4
+	.align 4
+
+.data
+	flower_num_space: .space 432
+	a: .space 4
+	j: .space 4
+	n: .space 4
+	.align 4
+
+.data
+	full_num_space: .space 416
+	a: .space 4
+	j: .space 4
+	n: .space 4
+	.align 4
+
+.data
+	global_space: .space 424
+	str_0: .asciiz "x = "
+	str_1: .asciiz "y = "
+	str_2: .asciiz "SWAP x = "
+	str_3: .asciiz "SWAP y = "
+	str_4: .asciiz "OVERFLOW!"
+	str_5: .asciiz "complete number: "
+	str_6: .asciiz "  "
+	str_7: .asciiz " "
+	str_8: .asciiz "---------------------------------------------------------------"
+	str_9: .asciiz "'water flower'number is:"
+	str_10: .asciiz "  "
+	str_11: .asciiz " "
+	str_12: .asciiz "---------------------------------------------------------------"
+	str_13: .asciiz " "
+	str_14: .asciiz " "
+	str_15: .asciiz "The total is "
+	str_16: .asciiz "5 != "
 	.align 4
 
 .data
 	main_space: .space 404
+	n: .space 4
+	.align 4
+
+.data
+	mod_space: .space 412
+	x: .space 4
+	y: .space 4
+	.align 4
+
+.data
+	swap_space: .space 400
+	temp: .space 4
+	x: .space 4
+	y: .space 4
 	.align 4
 
 .text
@@ -21,29 +82,22 @@ la $k0 global_space
 move $gp $sp
 move $fp $sp
 
-subi $sp $sp 8
 jal main
 li $v0 10
 syscall
 
-gets1:
-lw $t1 -4($fp)
-lw $t2 -8($fp)
-add $t0 $t1 $t2
-lw $t3 -4($gp)
-move $t3 $t0
-move $v0 $t3
-addi $sp $sp 8
+factorial:
+lw $t0 -4($fp)
+li $t1 1
+bgt $t0 $t1 Label_2
+li $v0 1
+addi $sp $sp 4
 jr $ra
+j Label_2:
 
-main:
-sw $t3 -4($gp)
-la $a0 str_0
-li $v0 4
-syscall
-li $a0 10
-li $v0 11
-syscall
+Label_1:
+
+Label_2:
 addi $sp $sp -72
 sw $t0 0($sp)
 sw $t1 4($sp)
@@ -64,12 +118,10 @@ sw $s7 60($sp)
 sw $fp 64($sp)
 sw $ra 68($sp)
 move $fp $sp
-subi $sp $sp 8
-li $t8 10
-sw $t8 -4($fp)
-li $t8 20
-sw $t8 -8($fp)
-jal gets1
+subi $sp $sp 4
+subi $t2 $t0 1
+sw $t2 -4($fp)
+jal factorial
 lw $t0 0($sp)
 lw $t1 4($sp)
 lw $t2 8($sp)
@@ -89,11 +141,89 @@ lw $s7 60($sp)
 lw $fp 64($sp)
 lw $ra 68($sp)
 addi $sp $sp 72
-move $t4 $v0
-move $a0 $t4
+move $t3 $v0
+mul $t4 $t0 $t3
+move $v0 $t4
+addi $sp $sp 4
+jr $ra
+
+mod:
+lw $t6 -4($fp)
+lw $t7 -8($fp)
+div $t5 $t6 $t7
+mul $s0 $t5 $t7
+sub $s1 $t6 $s0
+move $t6 $s1
+move $v0 $t6
+addi $sp $sp 8
+jr $ra
+
+swap:
+subi $sp $sp 4
+la $a0 str_0
+li $v0 4
+syscall
+lw $s2 -8($fp)
+move $a0 $s2
 li $v0 1
 syscall
 li $a0 10
 li $v0 11
 syscall
+la $a0 str_1
+li $v0 4
+syscall
+lw $s3 -12($fp)
+move $a0 $s3
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+lw $s4 -4($fp)
+move $s4 $s2
+move $s2 $s3
+move $s3 $s4
+la $a0 str_2
+li $v0 4
+syscall
+move $a0 $s2
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+la $a0 str_3
+li $v0 4
+syscall
+move $a0 $s3
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+addi $sp $sp 12
 jr $ra
+
+full_num:
+lw $s6 -12($fp)
+mul $s5 $s6 100
+lw $t8 -8($fp)
+mul $s7 $t8 10
+add $t1 $s7 $s7
+lw $t3 -4($fp)
+add $t2 $t1 $t3
+move $v0 $t2
+addi $sp $sp 12
+jr $ra
+
+flower_num:
+lw $s0 -12($fp)
+mul $t5 $s0 $s0
+mul $s7 $t5 $s0
+lw $t5 -8($fp)
+mul $t1 $t5 $t5
+sw $t5 -8($gp)
+sw $s0 -12($gp)
+lw $s0 -8($fp)
+mul $t5 $t1 $s0

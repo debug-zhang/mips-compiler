@@ -22,6 +22,8 @@ enum class MipsInstr {
 
 	syscall,
 
+	nop,
+
 	label,
 	data,
 	data_identifier,
@@ -75,6 +77,7 @@ enum class MidcodeInstr {
 	PUSH,
 	CALL,
 	SAVE,
+	FUNCTION_END,
 	RETURN,
 	RETURN_NON,
 
@@ -87,7 +90,7 @@ enum class MidcodeInstr {
 	VAR_CHAR,
 };
 
-enum class OperaMember{
+enum class OperaMember {
 	REG_OP_NUMBER,
 	REG_OP_REG,
 	NUMBER_OP_REG,

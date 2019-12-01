@@ -248,6 +248,12 @@ void MidcodeGenerator::PrintCallFunction(string name) {
 	this->AddMidcode(new Midcode(MidcodeInstr::CALL, name));
 }
 
+void MidcodeGenerator::PrintFuncEnd() {
+	midcode_ << "function end" << endl;
+
+	this->AddMidcode(new Midcode(MidcodeInstr::FUNCTION_END));
+}
+
 void MidcodeGenerator::PrintSave(string function_name) {
 	midcode_ << "save" << endl;
 

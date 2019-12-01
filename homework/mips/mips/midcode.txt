@@ -1,17 +1,252 @@
 
-int gets1()
-#1 = var1 + var2
-change1 = #1
-return change1
-
-void main()
-printf str_0
-printf_end
+int factorial()
+bgt n 1 Label_2
+return 1
+jump Label_2:
+Label_1:
+Label_2:
 save
-push 10
-push 20
-call gets1
+#1 = n - 1
+push #1
+call factorial
 #2 = RET
-printf int #2
+#3 = n * #2
+return #3
+function end
+
+int mod()
+#4 = x / y
+#5 = #4 * y
+#6 = x - #5
+x = #6
+return x
+function end
+
+void swap()
+printf str_0
+printf int x
+printf_end
+printf str_1
+printf int y
+printf_end
+temp = x
+x = y
+y = temp
+printf str_2
+printf int x
+printf_end
+printf str_3
+printf int y
 printf_end
 return
+function end
+
+int full_num()
+#7 = n * 100
+#8 = j * 10
+#9 = #8 + #8
+#10 = #9 + a
+return #10
+function end
+
+int flower_num()
+#11 = n * n
+#12 = #11 * n
+#13 = j * j
+#14 = #13 * j
+#15 = #13 + #14
+#16 = a * a
+#17 = #16 * a
+#18 = #16 + #17
+return #18
+function end
+
+void complete_flower_num()
+j = 2
+Label_3:
+bge j MAX_NUM Label_5
+#19 = -1 * 1
+n = #19
+s = j
+i = 1
+Label_5:
+bge i j Label_7
+#20 = j / i
+#21 = #20 * i
+x1 = #21
+save
+push j
+push i
+call mod
+#22 = RET
+bne #22 0 Label_8
+#23 = n + 1
+n = #23
+#24 = s - i
+s = #24
+blt n 128 Label_9
+printf str_4
+printf_end
+jump Label_9:
+Label_8:
+k[n] = i
+Label_9:
+jump Label_10:
+Label_7:
+Label_10:
+i = i + 1
+jump Label_5:
+Label_6:
+bne s 0 Label_12
+printf str_5
+printf int j
+printf_end
+i = 0
+Label_12:
+bgt i n Label_14
+printf str_6
+#25 = k[i]
+printf int #25
+printf_end
+i = i + 1
+jump Label_12:
+Label_13:
+printf str_7
+printf_end
+jump Label_14:
+Label_11:
+Label_14:
+j = j + 1
+jump Label_3:
+Label_4:
+printf str_8
+printf_end
+printf str_9
+printf_end
+y = 0
+i = 100
+Label_15:
+#26 = 100 + MAX_NUM
+bge i #26 Label_17
+#27 = i / 100
+n = #27
+save
+#28 = i / 10
+push #28
+push 10
+call mod
+#29 = RET
+j = #29
+save
+push i
+push 10
+call mod
+#30 = RET
+a = #30
+save
+push n
+push j
+push a
+call full_num
+#31 = RET
+save
+push n
+push j
+push a
+call flower_num
+#32 = RET
+bne #31 #32 Label_18
+k[y] = i
+#33 = y + 1
+y = #33
+jump Label_18:
+Label_17:
+Label_18:
+i = i + 1
+jump Label_15:
+Label_16:
+i = 0
+Label_19:
+bge i y Label_21
+printf str_10
+#34 = k[i]
+printf int #34
+printf_end
+i = i + 1
+jump Label_19:
+Label_20:
+printf str_11
+printf_end
+printf str_12
+printf_end
+h = 0
+leap = 1
+m = 2
+Label_21:
+bgt m MAX_NUM Label_23
+#35 = m / 2
+k2 = #35
+i = 2
+Label_23:
+bgt i k2 Label_25
+#36 = m / i
+#37 = #36 * i
+x2 = #37
+save
+push m
+push i
+call mod
+#38 = RET
+bne #38 0 Label_26
+leap = 0
+jump Label_26:
+Label_25:
+Label_26:
+i = i + 1
+jump Label_23:
+Label_24:
+bne leap 1 Label_28
+printf str_13
+printf int m
+printf_end
+#39 = h + 1
+h = #39
+#40 = h / 10
+#41 = #40 * 10
+x2 = #41
+bne x2 h Label_29
+printf str_14
+printf_end
+jump Label_29:
+Label_28:
+Label_29:
+jump Label_30:
+Label_27:
+Label_30:
+leap = 1
+m = m + 1
+jump Label_21:
+Label_22:
+printf str_15
+printf int h
+printf_end
+return
+function end
+
+void main()
+save
+push 5
+call factorial
+#42 = RET
+n = #42
+printf str_16
+printf int n
+printf_end
+save
+push 5
+push 10
+call swap
+save
+call complete_flower_num
+return
+function end

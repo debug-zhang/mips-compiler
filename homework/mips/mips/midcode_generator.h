@@ -68,6 +68,7 @@ public:
 
 	void PrintPushParameter(string value);
 	void PrintCallFunction(string name);
+	void PrintFuncEnd();
 	void PrintSave(string function_name);
 	void PrintAssignReturn(int temp_reg_count);
 

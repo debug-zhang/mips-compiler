@@ -827,6 +827,8 @@ void ParseAnalyser::AnalyzeMain(SyntaxNode* node) {
 	this->AnalyzeCompositeSentence(this->AddSyntaxChild(COMPOSITE_SENTENCE, node), TypeSymbol::VOID);
 	midcode_generator_->PrintReturn(true, "");
 	this->AddChild(node);	// RBRACE
+
+	midcode_generator_->PrintFuncEnd();
 	check_table_->AddFunctionVariableNumber(function->name(), reg_count_ - temp_reg);
 	this->InsertSymbolTable(function->name(), 1);
 }
@@ -867,8 +869,10 @@ void ParseAnalyser::AnalyzeVoidFunc(SyntaxNode* node) {
 	this->AnalyzeCompositeSentence(this->AddSyntaxChild(COMPOSITE_SENTENCE, node), TypeSymbol::VOID);
 	midcode_generator_->PrintReturn(true, "");
 	this->AddChild(node);	// RBRACE
-	function->set_reg_number(reg_count_ - temp_reg);
+
+	midcode_generator_->PrintFuncEnd();
 	check_table_->AddFunctionVariableNumber(function->name(), reg_count_ - temp_reg);
+	this->InsertSymbolTable(function->name(), 1);
 }
 
 void ParseAnalyser::AnalyzeHeadState(SyntaxNode* node, Symbol*& function) {
@@ -897,6 +901,8 @@ void ParseAnalyser::AnalyzeFunc(SyntaxNode* node) {
 	this->AnalyzeCompositeSentence(this->AddSyntaxChild(COMPOSITE_SENTENCE, node),
 		function->type());
 	this->AddChild(node);	// RBRACE
+
+	midcode_generator_->PrintFuncEnd();
 	check_table_->AddFunctionVariableNumber(function->name(), reg_count_ - temp_reg);
 	this->InsertSymbolTable(function->name(), 1);
 }

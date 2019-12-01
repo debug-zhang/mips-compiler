@@ -13,6 +13,9 @@ void Objcode::Output(MipsInstr instr) {
 	case(MipsInstr::syscall):
 		mips_ << "syscall" << endl;
 		break;
+	case(MipsInstr::nop):
+		mips_ << "nop" << endl;
+		break;
 	case(MipsInstr::data):
 		mips_ << ".data" << endl;
 		break;

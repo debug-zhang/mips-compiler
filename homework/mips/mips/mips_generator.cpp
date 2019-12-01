@@ -100,6 +100,10 @@ void MipsGenerator::InitStack() {
 	objcode_->Output();
 }
 
+void MipsGenerator::PrintNop() {
+	objcode_->Output(MipsInstr::nop);
+}
+
 void MipsGenerator::PrintText() {
 	objcode_->Output(MipsInstr::text);
 	objcode_->Output();
@@ -463,10 +467,10 @@ Reg MipsGenerator::SetJudgeReg(Midcode* midcode, string name) {
 	Reg reg;
 	if (this->IsInteger(name)) {
 		reg = this->GetUnuseReg();
-		this->objcode_->Output(MipsInstr::li, reg, midcode->GetInteger());
+		this->objcode_->Output(MipsInstr::li, reg, stoi(name));
 	} else if (this->IsChar(name)) {
 		reg = this->GetUnuseReg();
-		this->objcode_->Output(MipsInstr::li, reg, midcode->GetChar());
+		this->objcode_->Output(MipsInstr::li, reg, (int)name[1]);
 	} else if (this->IsConstVariable(name)) {
 		reg = this->GetUnuseReg();
 		this->objcode_->Output(MipsInstr::li, reg, this->GetConstVariable(name));
@@ -1142,6 +1146,12 @@ void MipsGenerator::GenerateOperate(Midcode* midcode, MidcodeInstr op) {
 	}
 }
 
+void MipsGenerator::GenerateFuncEnd(int& parameter_count, std::list<Midcode*>::iterator& iter) {
+	parameter_count = 1;
+	iter++;
+	return;
+}
+
 void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator& iter) {
 	static int parameter_count = 1;
 	Midcode* midcode;
@@ -1247,17 +1257,14 @@ void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator&
 		case MidcodeInstr::SAVE:
 			this->GenerateSave(midcode);
 			break;
+		case MidcodeInstr::FUNCTION_END:
+			return this->GenerateFuncEnd(parameter_count, iter);
+			break;
 		case MidcodeInstr::RETURN:
 			this->GenerateReturn(midcode, true);
-			parameter_count = 1;
-			iter++;
-			return;
 			break;
 		case MidcodeInstr::RETURN_NON:
 			this->GenerateReturn(midcode, false);
-			parameter_count = 1;
-			iter++;
-			return;
 			break;
 		case MidcodeInstr::PARA_INT:
 			assert(0);

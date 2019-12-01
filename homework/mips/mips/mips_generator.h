@@ -34,6 +34,7 @@ private:
 	void InitStack();
 
 	void PrintText();
+	void PrintNop();
 	void PrintMain();
 	void PrintEnd();
 
@@ -119,6 +120,8 @@ private:
 	void DealNumberOpReg(Midcode* midcode, MidcodeInstr op, int reg_result);
 
 	void GenerateOperate(Midcode* midcode, MidcodeInstr op);
+
+	void GenerateFuncEnd(int& parameter_count, std::list<Midcode*>::iterator& iter);
 
 	void GenerateBody(string function_name, list<Midcode*>::iterator& iter);
 
