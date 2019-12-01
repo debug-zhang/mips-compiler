@@ -44,7 +44,7 @@ function end
 int full_num()
 #7 = n * 100
 #8 = j * 10
-#9 = #8 + #8
+#9 = #7 + #8
 #10 = #9 + a
 return #10
 function end
@@ -54,10 +54,10 @@ int flower_num()
 #12 = #11 * n
 #13 = j * j
 #14 = #13 * j
-#15 = #13 + #14
+#15 = #12 + #14
 #16 = a * a
 #17 = #16 * a
-#18 = #16 + #17
+#18 = #15 + #17
 return #18
 function end
 

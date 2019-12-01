@@ -23,6 +23,10 @@ KindSymbol Symbol::kind() {
 	return this->kind_;
 }
 
+void Symbol::set_kind(KindSymbol kind) {
+	this->kind_ = kind;
+}
+
 TypeSymbol Symbol::type() {
 	return this->type_;
 }

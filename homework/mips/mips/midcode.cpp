@@ -146,7 +146,7 @@ string Midcode::GetTempRegResult() {
 }
 
 string Midcode::GetJumpLabel() {
-	return "Label_" + to_string(this->count_) + ":";
+	return "Label_" + to_string(this->count_);
 }
 
 string Midcode::GetLabel() {

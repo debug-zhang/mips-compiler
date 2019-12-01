@@ -55,12 +55,17 @@ void MipsGenerator::InitVariable(string function_name) {
 	map<string, Symbol*>::iterator iter = table.begin();
 	while (iter != table.end()) {
 		if (iter->second->kind() == KindSymbol::ARRAY) {
-			objcode_->Output(MipsInstr::data_identifier, iter->second->name(),
+			objcode_->Output(MipsInstr::data_identifier,
+				iter->second->name() + "_" + function_name,
 				4 * (iter->second->array_length() + 5));
 		} else if (iter->second->kind() == KindSymbol::VARIABLE) {
-			objcode_->Output(MipsInstr::data_identifier, iter->second->name(), 4);
+			objcode_->Output(MipsInstr::data_identifier,
+				iter->second->name() + "_" + function_name,
+				4);
 		} else if (iter->second->kind() == KindSymbol::PARAMETER) {
-			objcode_->Output(MipsInstr::data_identifier, iter->second->name(), 4);
+			objcode_->Output(MipsInstr::data_identifier,
+				iter->second->name() + "_" + function_name,
+				4);
 		}
 		iter++;
 	}
@@ -252,6 +257,31 @@ void MipsGenerator::PopStack() {
 			this->SetStackRegUnuse(symbol->reg_number());
 			symbol->set_reg_number(0);
 		}
+		switch (symbol->kind()) {
+		case KindSymbol::VARIABLE:
+		case KindSymbol::PARAMETER:
+			count++;
+			break;
+		case KindSymbol::ARRAY:
+			count += symbol->array_length();
+			break;
+		default:
+			break;
+		}
+		iter++;
+	}
+}
+
+void MipsGenerator::PopStackLength() {
+	int count = 0;
+	Symbol* symbol;
+	map<string, Symbol*> symbol_map;
+	map<string, Symbol*>::iterator iter;
+
+	symbol_map = check_table_->GetSymbolMap(1);
+	iter = symbol_map.begin();
+	while (iter != symbol_map.end()) {
+		symbol = iter->second;
 		switch (symbol->kind()) {
 		case KindSymbol::VARIABLE:
 		case KindSymbol::PARAMETER:
@@ -601,7 +631,16 @@ void MipsGenerator::GenerateReturn(Midcode* midcode, bool is_return_value) {
 		}
 	}
 
+	this->PopStackLength();
 	this->objcode_->Output(MipsInstr::jr, Reg::ra);
+}
+
+void MipsGenerator::GenerateFuncEnd(int& parameter_count, std::list<Midcode*>::iterator& iter) {
+	this->PopStack();
+
+	parameter_count = 1;
+	iter++;
+	return;
 }
 
 void MipsGenerator::GenerateLoop() {
@@ -1140,14 +1179,6 @@ void MipsGenerator::GenerateOperate(Midcode* midcode, MidcodeInstr op) {
 	} else {
 		this->SetSymbolUse(result, false);
 	}
-}
-
-void MipsGenerator::GenerateFuncEnd(int& parameter_count, std::list<Midcode*>::iterator& iter) {
-	this->PopStack();
-
-	parameter_count = 1;
-	iter++;
-	return;
 }
 
 void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator& iter) {

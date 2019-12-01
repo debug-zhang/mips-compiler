@@ -59,6 +59,7 @@ private:
 	void SetStackRegUse(int number);
 	void SetStackRegUnuse(int number);
 	void PopStack();
+	void PopStackLength();
 	void PopSymbolMapVar(int level);
 	void PopAllVariable();
 
@@ -91,6 +92,8 @@ private:
 
 	void GenerateReturn(Midcode* midcode, bool is_return_value);
 
+	void GenerateFuncEnd(int& parameter_count, std::list<Midcode*>::iterator& iter);
+
 	void GenerateLoop();
 
 	void GeneratePush(Midcode* midcode, int parameter_count);
@@ -120,8 +123,6 @@ private:
 	void DealNumberOpReg(Midcode* midcode, MidcodeInstr op, int reg_result);
 
 	void GenerateOperate(Midcode* midcode, MidcodeInstr op);
-
-	void GenerateFuncEnd(int& parameter_count, std::list<Midcode*>::iterator& iter);
 
 	void GenerateBody(string function_name, list<Midcode*>::iterator& iter);
 

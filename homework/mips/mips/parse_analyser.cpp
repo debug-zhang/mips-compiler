@@ -192,7 +192,7 @@ void ParseAnalyser::AnalyzeVariableDefine(SyntaxNode* node, int level) {
 		if (this->FindSymbol(level)) {
 			error_handing_->AddError(iter_->line_number, REDEFINITION);
 		}
-		this->InsertIdentifier(KindSymbol::VARIABLE, type, level);
+		Symbol* symbol = this->InsertIdentifier(KindSymbol::VARIABLE, type, level);
 		this->AddChild(node);	// IDENFR
 
 		if (this->IsThisIdentifier(LBRACK)) {
@@ -200,7 +200,8 @@ void ParseAnalyser::AnalyzeVariableDefine(SyntaxNode* node, int level) {
 			int arrayLength = stoi(iter_->value);
 			this->AddChild(this->AddSyntaxChild(UNSIGNINT, node));	// INTCON
 			this->AddRbrackChild(node);
-			Symbol* symbol = this->InsertIdentifier(KindSymbol::ARRAY, type, level);
+
+			symbol->set_kind(KindSymbol::ARRAY);
 			symbol->set_array_length(arrayLength);
 		}
 		this->AddCommaChild(node);	// COMMA
@@ -348,7 +349,7 @@ TypeSymbol ParseAnalyser::AnalyzeItem(SyntaxNode* node) {
 					factorRoot->value(), reg_count_ - 1, op);
 				reg_count_++;
 			} else if (factorCount != 1) {
-				midcode_generator_->PrintRegOpReg(reg_count_, regNumber, reg_count_ - 1, op);
+				midcode_generator_->PrintRegOpReg(reg_count_, regNumber - 1, reg_count_ - 1, op);
 				reg_count_++;
 			}
 		}
@@ -396,7 +397,7 @@ TypeSymbol ParseAnalyser::AnalyzeExpression(SyntaxNode* node) {
 				}
 			} else if (itemCount == 2) {
 				if (itemRoot == NULL) {
-					midcode_generator_->PrintRegOpNumber(reg_count_, reg_count_ - 1,
+					midcode_generator_->PrintRegOpNumber(reg_count_, regNumber - 1,
 						anotherItemRoot->GetFirstChildNumericalValue(), op);
 					reg_count_++;
 				} else {
@@ -405,7 +406,7 @@ TypeSymbol ParseAnalyser::AnalyzeExpression(SyntaxNode* node) {
 						anotherItemRoot->GetFirstChildNumericalValue(), op);
 				}
 			} else {
-				midcode_generator_->PrintRegOpNumber(reg_count_, reg_count_ - 1,
+				midcode_generator_->PrintRegOpNumber(reg_count_, regNumber - 1,
 					anotherItemRoot->GetFirstChildNumericalValue(), op);
 				reg_count_++;
 			}
@@ -415,7 +416,7 @@ TypeSymbol ParseAnalyser::AnalyzeExpression(SyntaxNode* node) {
 					itemRoot->GetFirstChildNumericalValue(), reg_count_ - 1, op);
 				reg_count_++;
 			} else if (itemCount != 1) {
-				midcode_generator_->PrintRegOpReg(reg_count_, regNumber, reg_count_ - 1, op);
+				midcode_generator_->PrintRegOpReg(reg_count_, regNumber - 1, reg_count_ - 1, op);
 				reg_count_++;
 			} else {
 				if (firstOpNumber == -1) {

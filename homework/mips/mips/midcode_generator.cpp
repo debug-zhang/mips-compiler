@@ -66,7 +66,7 @@ void MidcodeGenerator::PrintStep(string name1, string name2, string op, int step
 	midcode_ << name1 << " = " << name2 << " " + op + " " << step << endl;
 
 	this->AddMidcode(new Midcode(midcodeinstr::GetOperatorInstr(op),
-		OperaMember::REG_OP_NUMBER, name1, name2, to_string(step)));
+		OperaMember::NUMBER_OP_NUMBER, name1, name2, to_string(step)));
 }
 
 void MidcodeGenerator::PrintBez(int label, string expression) {
@@ -232,7 +232,7 @@ void MidcodeGenerator::PrintLoadToTempReg(string name, string array_index,
 	} else {
 		midcode_ << "#" << temp_reg_count << " = " << name + "[" + array_index + "]" << endl;
 
-		this->AddMidcode(new Midcode(MidcodeInstr::LOAD, name, array_index, temp_reg_count));
+		this->AddMidcode(new Midcode(MidcodeInstr::LOAD_ARRAY, name, array_index, temp_reg_count));
 	}
 }
 

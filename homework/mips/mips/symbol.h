@@ -37,8 +37,12 @@ public:
 	Symbol();
 
 	void SetProperty(string name, KindSymbol kind, TypeSymbol type);
+
 	string name();
+
 	KindSymbol kind();
+	void set_kind(KindSymbol kind);
+
 	TypeSymbol type();
 
 	void AddParameter(char c);
