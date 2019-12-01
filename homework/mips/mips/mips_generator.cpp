@@ -783,7 +783,7 @@ void MipsGenerator::GenerateAssign(Midcode* midcode) {
 		this->objcode_->Output(MipsInstr::li,
 			this->NumberToReg(reg_result), this->GetConstVariable(value));
 	} else {
-		this->objcode_->Output(MipsInstr::li,
+		this->objcode_->Output(MipsInstr::move,
 			this->NumberToReg(reg_result), this->LoadVariableToReg(value));
 	}
 

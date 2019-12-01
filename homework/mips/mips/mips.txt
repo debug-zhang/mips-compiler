@@ -1,23 +1,18 @@
 .data
 	global_space: .space 400
-	str_0: .asciiz "a: "
-	str_1: .asciiz "b: "
-	str_2: .asciiz "c: "
-	str_3: .asciiz "d: "
-	str_4: .asciiz "a+1: "
-	str_5: .asciiz "b+1: "
-	str_6: .asciiz "c+1: "
-	str_7: .asciiz "d+1: "
-	str_8: .asciiz "a+c: "
-	str_9: .asciiz "b+d: "
+	str_0: .asciiz "_begini="
+	str_1: .asciiz "testfg="
+	str_2: .asciiz "Let'shavefun."
+	str_3: .asciiz "Mystunumis:"
+	str_4: .asciiz "17060000"
+	str_5: .asciiz "ais:"
+	str_6: .asciiz "Congratulations"
 	.align 4
 
 .data
-	main_space: .space 424
+	main_space: .space 432
 	a: .space 4
-	b: .space 4
-	c: .space 4
-	d: .space 4
+	i: .space 4
 	.align 4
 
 .text
@@ -31,27 +26,11 @@ li $v0 10
 syscall
 
 main:
-subi $sp $sp 16
-li $v0 5
-syscall
-lw $t0 -4($fp)
-move $t0 $v0
-li $v0 12
-syscall
-lw $t1 -8($fp)
-move $t1 $v0
-li $v0 5
-syscall
-lw $t2 -12($fp)
-move $t2 $v0
-li $v0 12
-syscall
-lw $t3 -16($fp)
-move $t3 $v0
+subi $sp $sp 8
 la $a0 str_0
 li $v0 4
 syscall
-move $a0 $t0
+li $a0 0
 li $v0 1
 syscall
 li $a0 10
@@ -60,8 +39,36 @@ syscall
 la $a0 str_1
 li $v0 4
 syscall
-move $a0 $t1
+li $a0 -6
+li $v0 1
+syscall
+li $a0 10
 li $v0 11
+syscall
+li $v0 5
+syscall
+lw $t0 -8($fp)
+move $t0 $v0
+lw $t1 -4($fp)
+move $t1 $t0
+move $a0 $t1
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+li $t1 -6
+move $a0 $t1
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+addi $t2 $t1 18
+addi $t3 $t2 -6
+move $t1 $t3
+move $a0 $t1
+li $v0 1
 syscall
 li $a0 10
 li $v0 11
@@ -69,7 +76,15 @@ syscall
 la $a0 str_2
 li $v0 4
 syscall
-move $a0 $t2
+li $a0 10
+li $v0 11
+syscall
+li $t1 1
+addi $t4 $t1 1700
+addi $t5 $t4 5
+mul $t6 $t5 1000
+move $t1 $t6
+move $a0 $t1
 li $v0 1
 syscall
 li $a0 10
@@ -78,27 +93,25 @@ syscall
 la $a0 str_3
 li $v0 4
 syscall
-move $a0 $t3
-li $v0 11
-syscall
 li $a0 10
 li $v0 11
 syscall
 la $a0 str_4
 li $v0 4
 syscall
-addi $t4 $t0 1
-move $a0 $t4
-li $v0 1
-syscall
 li $a0 10
 li $v0 11
 syscall
+li $t7 0
+addi $t7 $t7 18
+mul $s0 $t7 -6
+div $s1 $s0 2
+sll $s1 $s0 2
+move $t1 $s1
 la $a0 str_5
 li $v0 4
 syscall
-addi $t5 $t1 1
-move $a0 $t5
+move $a0 $t1
 li $v0 1
 syscall
 li $a0 10
@@ -107,42 +120,8 @@ syscall
 la $a0 str_6
 li $v0 4
 syscall
-addi $t6 $t2 1
-move $a0 $t6
-li $v0 1
-syscall
 li $a0 10
 li $v0 11
 syscall
-la $a0 str_7
-li $v0 4
-syscall
-addi $t7 $t3 1
-move $a0 $t7
-li $v0 1
-syscall
-li $a0 10
-li $v0 11
-syscall
-la $a0 str_8
-li $v0 4
-syscall
-add $s0 $t0 $t2
-move $a0 $s0
-li $v0 1
-syscall
-li $a0 10
-li $v0 11
-syscall
-la $a0 str_9
-li $v0 4
-syscall
-add $s1 $t1 $t3
-move $a0 $s1
-li $v0 1
-syscall
-li $a0 10
-li $v0 11
-syscall
-addi $sp $sp 16
+addi $sp $sp 8
 jr $ra

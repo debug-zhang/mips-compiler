@@ -308,7 +308,6 @@ TypeSymbol ParseAnalyser::AnalyzeFactor(SyntaxNode* node) {
 		type = TypeSymbol::INT;
 		int integer = this->AnalyzeInteger(this->AddSyntaxChild(INTEGER, node));
 		node->set_value(to_string(integer));
-		this->AddChild(node);
 	}
 	return type;
 }
@@ -430,7 +429,7 @@ TypeSymbol ParseAnalyser::AnalyzeExpression(SyntaxNode* node) {
 		if (this->IsPlusOrMinu()) {
 			op = iter_->value;
 			itemCount++;
-			AddChild(node);
+			this->AddChild(node);
 		} else {
 			break;
 		}

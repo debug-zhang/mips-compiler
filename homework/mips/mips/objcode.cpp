@@ -136,6 +136,13 @@ void Objcode::Output(MipsInstr instr, Reg t0, Reg t1, int value) {
 		mips_ << "subi " << reg::RegToString(t0) << " " << reg::RegToString(t1)
 			<< " " << value << endl;
 		break;
+	case(MipsInstr::mul):
+		mips_ << "mul " << reg::RegToString(t0) << " " << reg::RegToString(t1)
+			<< " " << value << endl;
+		break;
+	case(MipsInstr::div):
+		mips_ << "div " << reg::RegToString(t0) << " " << reg::RegToString(t1)
+			<< " " << value << endl;
 	case(MipsInstr::sll):
 		mips_ << "sll " << reg::RegToString(t0) << " " << reg::RegToString(t1)
 			<< " " << value << endl;
