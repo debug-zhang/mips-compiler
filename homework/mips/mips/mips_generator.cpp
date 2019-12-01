@@ -601,7 +601,6 @@ void MipsGenerator::GenerateReturn(Midcode* midcode, bool is_return_value) {
 		}
 	}
 
-	this->PopStack();
 	this->objcode_->Output(MipsInstr::jr, Reg::ra);
 }
 
@@ -829,8 +828,6 @@ void MipsGenerator::DealRegOpReg(Midcode* midcode, MidcodeInstr op, int reg_resu
 		break;
 	}
 
-	this->PoptempReg(midcode->GetTempReg1());
-	this->PoptempReg(midcode->GetTempReg2());
 }
 
 void MipsGenerator::DealRegOpNumber(Midcode* midcode, MidcodeInstr op, int reg_result) {
@@ -895,7 +892,6 @@ void MipsGenerator::DealRegOpNumber(Midcode* midcode, MidcodeInstr op, int reg_r
 		break;
 	}
 
-	this->PoptempReg(midcode->GetTempReg1());
 	this->PoptempReg(value);
 }
 
@@ -1147,6 +1143,8 @@ void MipsGenerator::GenerateOperate(Midcode* midcode, MidcodeInstr op) {
 }
 
 void MipsGenerator::GenerateFuncEnd(int& parameter_count, std::list<Midcode*>::iterator& iter) {
+	this->PopStack();
+
 	parameter_count = 1;
 	iter++;
 	return;

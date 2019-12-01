@@ -91,7 +91,6 @@ lw $t0 -4($fp)
 li $t1 1
 bgt $t0 $t1 Label_2
 li $v0 1
-addi $sp $sp 4
 jr $ra
 j Label_2:
 
@@ -144,8 +143,8 @@ addi $sp $sp 72
 move $t3 $v0
 mul $t4 $t0 $t3
 move $v0 $t4
-addi $sp $sp 4
 jr $ra
+addi $sp $sp 4
 
 mod:
 lw $t6 -4($fp)
@@ -155,8 +154,8 @@ mul $s0 $t5 $t7
 sub $s1 $t6 $s0
 move $t6 $s1
 move $v0 $t6
-addi $sp $sp 8
 jr $ra
+addi $sp $sp 8
 
 swap:
 subi $sp $sp 4
@@ -202,8 +201,8 @@ syscall
 li $a0 10
 li $v0 11
 syscall
-addi $sp $sp 12
 jr $ra
+addi $sp $sp 12
 
 full_num:
 lw $s6 -12($fp)
@@ -214,16 +213,175 @@ add $t1 $s7 $s7
 lw $t3 -4($fp)
 add $t2 $t1 $t3
 move $v0 $t2
-addi $sp $sp 12
 jr $ra
+addi $sp $sp 12
 
 flower_num:
+sw $t2 4($k0)
+lw $t2 -12($fp)
+mul $s0 $t2 $t2
+sw $t2 -12($gp)
+sw $s0 8($k0)
 lw $s0 -12($fp)
-mul $t5 $s0 $s0
-mul $s7 $t5 $s0
-lw $t5 -8($fp)
-mul $t1 $t5 $t5
-sw $t5 -8($gp)
+mul $t2 $s0 $s0
 sw $s0 -12($gp)
+sw $t2 12($k0)
+lw $t2 -8($fp)
+mul $s0 $t2 $t2
+sw $t2 -8($gp)
+sw $s0 16($k0)
 lw $s0 -8($fp)
-mul $t5 $t1 $s0
+mul $t2 $s0 $s0
+sw $s0 -8($gp)
+sw $t2 20($k0)
+lw $t2 16($k0)
+add $s0 $t2 $t2
+sw $s0 24($k0)
+sw $t4 28($k0)
+lw $t4 -4($fp)
+mul $s0 $t4 $t4
+sw $t4 -4($gp)
+sw $s0 32($k0)
+lw $s0 -4($fp)
+mul $t4 $s0 $s0
+sw $s0 -4($gp)
+sw $t4 36($k0)
+lw $t4 32($k0)
+add $s0 $t4 $t4
+move $v0 $s0
+jr $ra
+addi $sp $sp 12
+
+complete_flower_num:
+subi $sp $sp 572
+sw $s0 40($k0)
+lw $s0 -536($fp)
+li $s0 2
+
+Label_3:
+sw $s0 -536($gp)
+lw $s0 -536($fp)
+sw $t5 44($k0)
+li $t5 128
+bge $s0 $t5 Label_5
+li $t5 -1
+mul $t5 $t5 1
+sw $s0 -536($gp)
+lw $s0 -556($fp)
+move $s0 $t5
+sw $s0 -556($gp)
+lw $s0 -560($fp)
+sw $t5 48($k0)
+lw $t5 -536($fp)
+move $s0 $t5
+sw $t5 -536($gp)
+lw $t5 -532($fp)
+li $t5 1
+
+Label_5:
+sw $t5 -532($gp)
+sw $s0 -560($gp)
+lw $t5 -532($fp)
+lw $s0 -536($fp)
+bge $t5 $s0 Label_7
+sw $t5 -532($gp)
+sw $s0 -536($gp)
+lw $s0 -532($fp)
+div $t5 $s0 $s0
+sw $s0 -532($gp)
+sw $t5 52($k0)
+lw $t5 -532($fp)
+mul $s0 $t5 $t5
+sw $t5 -532($gp)
+lw $t5 -564($fp)
+move $t5 $s0
+addi $sp $sp -72
+sw $t0 0($sp)
+sw $t1 4($sp)
+sw $t2 8($sp)
+sw $t3 12($sp)
+sw $t4 16($sp)
+sw $t5 20($sp)
+sw $t6 24($sp)
+sw $t7 28($sp)
+sw $s0 32($sp)
+sw $s1 36($sp)
+sw $s2 40($sp)
+sw $s3 44($sp)
+sw $s4 48($sp)
+sw $s5 52($sp)
+sw $s6 56($sp)
+sw $s7 60($sp)
+sw $fp 64($sp)
+sw $ra 68($sp)
+move $fp $sp
+subi $sp $sp 8
+sw $t5 -564($gp)
+lw $t5 -536($fp)
+sw $t5 -4($fp)
+sw $t5 -536($gp)
+lw $t5 -532($fp)
+sw $t5 -8($fp)
+jal mod
+lw $t0 0($sp)
+lw $t1 4($sp)
+lw $t2 8($sp)
+lw $t3 12($sp)
+lw $t4 16($sp)
+lw $t5 20($sp)
+lw $t6 24($sp)
+lw $t7 28($sp)
+lw $s0 32($sp)
+lw $s1 36($sp)
+lw $s2 40($sp)
+lw $s3 44($sp)
+lw $s4 48($sp)
+lw $s5 52($sp)
+lw $s6 56($sp)
+lw $s7 60($sp)
+lw $fp 64($sp)
+lw $ra 68($sp)
+addi $sp $sp 72
+sw $t5 -532($gp)
+move $t5 $v0
+sw $s0 56($k0)
+li $s0 0
+bne $t5 $s0 Label_8
+lw $s0 -556($fp)
+addi $t5 $s0 1
+move $s0 $t5
+sw $s0 -556($gp)
+sw $t5 60($k0)
+lw $t5 -560($fp)
+sw $t5 -560($gp)
+lw $t5 -532($fp)
+sub $s0 $t5 $t5
+sw $t5 -532($gp)
+lw $t5 -560($fp)
+move $t5 $s0
+sw $t5 -560($gp)
+lw $t5 -556($fp)
+sw $s0 64($k0)
+li $s0 128
+blt $t5 $s0 Label_9
+la $a0 str_4
+li $v0 4
+syscall
+li $a0 10
+li $v0 11
+syscall
+j Label_9:
+
+Label_8:
+sll $t9 $t5 2
+add $t9 $t9 $fp
+lw $s0 -532($fp)
+sw $s0 -540($t9)
+
+Label_9:
+j Label_10:
+
+Label_7:
+
+Label_10:
+sw $s0 -532($gp)
