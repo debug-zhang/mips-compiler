@@ -1,0 +1,148 @@
+.data
+	global_space: .space 400
+	str_0: .asciiz "a: "
+	str_1: .asciiz "b: "
+	str_2: .asciiz "c: "
+	str_3: .asciiz "d: "
+	str_4: .asciiz "a+1: "
+	str_5: .asciiz "b+1: "
+	str_6: .asciiz "c+1: "
+	str_7: .asciiz "d+1: "
+	str_8: .asciiz "a+c: "
+	str_9: .asciiz "b+d: "
+	.align 4
+
+.data
+	main_space: .space 424
+	a_main: .space 4
+	b_main: .space 4
+	c_main: .space 4
+	d_main: .space 4
+	.align 4
+
+.text
+
+la $k0 global_space
+move $gp $sp
+move $fp $sp
+
+jal main
+li $v0 10
+syscall
+
+main:
+subi $sp $sp 16
+li $v0 5
+syscall
+lw $t0 -4($fp)
+move $t0 $v0
+li $v0 12
+syscall
+lw $t1 -8($fp)
+move $t1 $v0
+li $v0 5
+syscall
+lw $t2 -12($fp)
+move $t2 $v0
+li $v0 12
+syscall
+lw $t3 -16($fp)
+move $t3 $v0
+la $a0 str_0
+li $v0 4
+syscall
+move $a0 $t0
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+la $a0 str_1
+li $v0 4
+syscall
+move $a0 $t1
+li $v0 11
+syscall
+li $a0 10
+li $v0 11
+syscall
+la $a0 str_2
+li $v0 4
+syscall
+move $a0 $t2
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+la $a0 str_3
+li $v0 4
+syscall
+move $a0 $t3
+li $v0 11
+syscall
+li $a0 10
+li $v0 11
+syscall
+la $a0 str_4
+li $v0 4
+syscall
+addi $t4 $t0 1
+move $a0 $t4
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+la $a0 str_5
+li $v0 4
+syscall
+addi $t5 $t1 1
+move $a0 $t5
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+la $a0 str_6
+li $v0 4
+syscall
+addi $t6 $t2 1
+move $a0 $t6
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+la $a0 str_7
+li $v0 4
+syscall
+addi $t7 $t3 1
+move $a0 $t7
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+la $a0 str_8
+li $v0 4
+syscall
+add $s0 $t0 $t2
+move $a0 $s0
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+la $a0 str_9
+li $v0 4
+syscall
+add $s1 $t1 $t3
+move $a0 $s1
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+addi $sp $sp 16
+jr $ra

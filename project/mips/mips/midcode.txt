@@ -1,0 +1,44 @@
+
+void main()
+scanf int a
+scanf char b
+scanf int c
+scanf char d
+printf str_0
+printf int a
+printf_end
+printf str_1
+printf char b
+printf_end
+printf str_2
+printf int c
+printf_end
+printf str_3
+printf char d
+printf_end
+printf str_4
+#1 = a + 1
+printf int #1
+printf_end
+printf str_5
+#2 = b + 1
+printf int #2
+printf_end
+printf str_6
+#3 = c + 1
+printf int #3
+printf_end
+printf str_7
+#4 = d + 1
+printf int #4
+printf_end
+printf str_8
+#5 = a + c
+printf int #5
+printf_end
+printf str_9
+#6 = b + d
+printf int #6
+printf_end
+return
+function end

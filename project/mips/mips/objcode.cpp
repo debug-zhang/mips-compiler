@@ -111,8 +111,8 @@ void Objcode::Output(MipsInstr instr, Reg t0, Reg t1, Reg t2) {
 			<< " " << reg::RegToString(t2) << endl;
 		break;
 	case(MipsInstr::div):
-		mips_ << "div " << reg::RegToString(t0) << " " << reg::RegToString(t1)
-			<< " " << reg::RegToString(t2) << endl;
+		mips_ << "div " << reg::RegToString(t1) << " " << reg::RegToString(t2) << endl;
+		mips_ << "mflo " << reg::RegToString(t0) << endl;
 		break;
 	default:
 		assert(0);
