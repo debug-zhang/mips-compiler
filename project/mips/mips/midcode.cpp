@@ -138,7 +138,7 @@ string Midcode::GetTempReg1() {
 }
 
 string Midcode::GetTempReg2() {
-	return "#" + to_string(this->temp1_);
+	return "#" + to_string(this->temp2_);
 }
 
 string Midcode::GetTempRegResult() {

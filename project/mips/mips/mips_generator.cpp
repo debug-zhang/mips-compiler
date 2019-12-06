@@ -305,12 +305,13 @@ void MipsGenerator::PopSymbolMapVar(int level) {
 	Symbol* symbol;
 	map<string, Symbol*> symbol_map = check_table_->GetSymbolMap(level);
 	map<string, Symbol*>::iterator iter = symbol_map.begin();
+	Reg point = level == 1 ? Reg::fp : Reg::gp;
 
 	while (iter != symbol_map.end()) {
 		symbol = iter->second;
 		if (symbol->reg_number() != 0 && !symbol->is_use()) {
 			objcode_->Output(MipsInstr::sw, this->NumberToReg(symbol->reg_number()),
-				Reg::gp, symbol->sp_offer());
+				point, symbol->sp_offer());
 			reg_use_stack_[symbol->reg_number()] = 0;
 			symbol->set_reg_number(0);
 		}
@@ -374,6 +375,7 @@ int MipsGenerator::GetUnuseRegInTable(int& unuse_reg, bool& retflag, int level) 
 	Symbol* symbol;
 	map<string, Symbol*> symbol_map = check_table_->GetSymbolMap(level);
 	map<string, Symbol*>::iterator iter = symbol_map.begin();
+	Reg point = level == 1 ? Reg::fp : Reg::gp;
 
 	retflag = true;
 	while (iter != symbol_map.end()) {
@@ -381,7 +383,7 @@ int MipsGenerator::GetUnuseRegInTable(int& unuse_reg, bool& retflag, int level) 
 		if (symbol->reg_number() != 0 && !symbol->is_use()) {
 			unuse_reg = symbol->reg_number();
 			objcode_->Output(MipsInstr::sw, this->NumberToReg(unuse_reg),
-				Reg::gp, symbol->sp_offer());
+				point, symbol->sp_offer());
 			symbol->set_reg_number(0);
 			return unuse_reg;
 		}
@@ -524,7 +526,7 @@ void MipsGenerator::ResetJudgeReg(string name, Reg t0) {
 	} else if (this->IsTempReg(name)) {
 		this->PoptempReg(name);
 	} else {
-		this->SetSymbolUse(name, false);
+		// this->SetSymbolUse(name, false);
 	}
 }
 
@@ -720,7 +722,7 @@ void MipsGenerator::GenerateAssignReturn(Midcode* midcode) {
 }
 
 void MipsGenerator::SetArrayIndex(int& offset, Symbol* symbol,
-	std::string& array_index, Reg& reg_index) {
+	string& array_index, Reg& reg_index) {
 	int is_use_t9 = false;
 	offset = symbol->sp_offer();
 
@@ -762,7 +764,7 @@ void MipsGenerator::GenerateLoadArray(Midcode* midcode) {
 	Symbol* symbol = this->check_table_->FindSymbol(midcode->reg1());
 	string array_index = midcode->reg2();
 
-	SetArrayIndex(offset, symbol, array_index, reg_index);
+	this->SetArrayIndex(offset, symbol, array_index, reg_index);
 
 	objcode_->Output(MipsInstr::lw, this->NumberToReg(reg), reg_index, offset);
 
@@ -776,7 +778,7 @@ void MipsGenerator::GenerateAssignArray(Midcode* midcode) {
 	Symbol* symbol = this->check_table_->FindSymbol(midcode->reg_result());
 	string array_index = midcode->reg1();
 
-	SetArrayIndex(offset, symbol, array_index, reg_index);
+	this->SetArrayIndex(offset, symbol, array_index, reg_index);
 
 	Reg reg_value;
 	string value = midcode->reg2();
@@ -1142,9 +1144,8 @@ void MipsGenerator::DealNumberOpReg(Midcode* midcode, MidcodeInstr op, int reg_r
 	this->PoptempReg(value);
 }
 
-void MipsGenerator::GenerateOperate(Midcode* midcode, MidcodeInstr op) {
+void MipsGenerator::GenerateOperate(Midcode* midcode, MidcodeInstr op, string result) {
 	int reg_result = 0;
-	string result = midcode->GetTempRegResult();
 
 	if (this->IsTempReg(result)) {
 		reg_result = this->GetUnuseRegNumber();
@@ -1181,6 +1182,11 @@ void MipsGenerator::GenerateOperate(Midcode* midcode, MidcodeInstr op) {
 	}
 }
 
+void MipsGenerator::GenerateStep(std::list<Midcode*>::iterator& iter, Midcode*& midcode) {
+	midcode = *(++iter);
+	this->GenerateOperate(midcode, midcode->instr(), midcode->reg_result());
+}
+
 void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator& iter) {
 	static int parameter_count = 1;
 	Midcode* midcode;
@@ -1208,7 +1214,10 @@ void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator&
 			this->GeneratePrintfEnd();
 			break;
 		case MidcodeInstr::LOOP:
-			this->GenerateLoop();
+			// this->GenerateLoop();
+			break;
+		case MidcodeInstr::STEP:
+			this->GenerateStep(iter, midcode);
 			break;
 		case MidcodeInstr::LABEL:
 			this->GenerateLabel(midcode);
@@ -1232,13 +1241,13 @@ void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator&
 			this->GenerateLoadArray(midcode);
 			break;
 		case MidcodeInstr::ADD:
-			this->GenerateOperate(midcode, MidcodeInstr::ADD);
+			this->GenerateOperate(midcode, MidcodeInstr::ADD, midcode->GetTempRegResult());
 			break;
 		case MidcodeInstr::ADDI:
 			assert(0);
 			break;
 		case MidcodeInstr::SUB:
-			this->GenerateOperate(midcode, MidcodeInstr::SUB);
+			this->GenerateOperate(midcode, MidcodeInstr::SUB, midcode->GetTempRegResult());
 			break;
 		case MidcodeInstr::SUBI:
 			assert(0);
@@ -1247,10 +1256,10 @@ void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator&
 			assert(0);
 			break;
 		case MidcodeInstr::MUL:
-			this->GenerateOperate(midcode, MidcodeInstr::MUL);
+			this->GenerateOperate(midcode, MidcodeInstr::MUL, midcode->GetTempRegResult());
 			break;
 		case MidcodeInstr::DIV:
-			this->GenerateOperate(midcode, MidcodeInstr::DIV);
+			this->GenerateOperate(midcode, MidcodeInstr::DIV, midcode->GetTempRegResult());
 			break;
 		case MidcodeInstr::BGT:
 			this->GenerateJudge(midcode, MidcodeInstr::BGT);

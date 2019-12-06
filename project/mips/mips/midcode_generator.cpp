@@ -65,6 +65,7 @@ void MidcodeGenerator::PrintLoop() {
 void MidcodeGenerator::PrintStep(string name1, string name2, string op, int step) {
 	midcode_ << name1 << " = " << name2 << " " + op + " " << step << endl;
 
+	this->AddMidcode(new Midcode(MidcodeInstr::STEP));
 	this->AddMidcode(new Midcode(midcodeinstr::GetOperatorInstr(op),
 		OperaMember::NUMBER_OP_NUMBER, name1, name2, to_string(step)));
 }

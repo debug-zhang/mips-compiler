@@ -1,23 +1,56 @@
 .data
-	global_space: .space 400
-	str_0: .asciiz "a: "
-	str_1: .asciiz "b: "
-	str_2: .asciiz "c: "
-	str_3: .asciiz "d: "
-	str_4: .asciiz "a+1: "
-	str_5: .asciiz "b+1: "
-	str_6: .asciiz "c+1: "
-	str_7: .asciiz "d+1: "
-	str_8: .asciiz "a+c: "
-	str_9: .asciiz "b+d: "
+	gets1_space: .space 424
+	i_gets1: .space 4
+	var1_gets1: .space 4
+	var2_gets1: .space 4
 	.align 4
 
 .data
-	main_space: .space 424
-	a_main: .space 4
-	b_main: .space 4
-	c_main: .space 4
-	d_main: .space 4
+	gets2_space: .space 412
+	i_gets2: .space 4
+	var1_gets2: .space 4
+	var2_gets2: .space 4
+	.align 4
+
+.data
+	gets3_space: .space 412
+	i_gets3: .space 4
+	var1_gets3: .space 4
+	var2_gets3: .space 4
+	.align 4
+
+.data
+	gets4_space: .space 408
+	var1_gets4: .space 4
+	var2_gets4: .space 4
+	.align 4
+
+.data
+	global_space: .space 456
+	str_0: .asciiz "constcalculatetest:"
+	str_1: .asciiz "+-*/ThisvarIis"
+	str_2: .asciiz "testnum: "
+	str_3: .asciiz "arraytest:testnum[9]="
+	str_4: .asciiz "arraytest:testnum[0]="
+	str_5: .asciiz "Let'sstarttest!"
+	str_6: .asciiz "AnswerNo.4is:"
+	str_7: .asciiz "AnswerNo.3is:"
+	str_8: .asciiz "AnswerNo.2is:"
+	str_9: .asciiz "AnswerNo.1is:"
+	str_10: .asciiz "Congratulations"
+	str_11: .asciiz "Error1"
+	str_12: .asciiz "Error2"
+	str_13: .asciiz "Error3"
+	change1_global: .space 4
+	change2_global: .space 4
+	change3_global: .space 4
+	.align 4
+
+.data
+	main_space: .space 512
+	i_main: .space 4
+	k_main: .space 4
+	testnum_main: .space 60
 	.align 4
 
 .text
@@ -26,60 +59,200 @@ la $k0 global_space
 move $gp $sp
 move $fp $sp
 
+subi $sp $sp 12
 jal main
 li $v0 10
 syscall
 
-main:
-subi $sp $sp 16
-li $v0 5
-syscall
+gets1:
+subi $sp $sp 4
 lw $t0 -4($fp)
-move $t0 $v0
-li $v0 12
-syscall
-lw $t1 -8($fp)
-move $t1 $v0
-li $v0 5
-syscall
-lw $t2 -12($fp)
-move $t2 $v0
-li $v0 12
-syscall
-lw $t3 -16($fp)
-move $t3 $v0
+li $t0 0
+
+Label_1:
+addi $t1 $t0 1
+move $t0 $t1
+lw $t3 -12($fp)
+lw $t4 -8($fp)
+add $t2 $t3 $t4
+move $t4 $t2
+blt $t0 $t3 Label_1
+lw $t5 -4($gp)
+move $t5 $t4
+mul $t6 $t5 $t3
+addi $t7 $t3 1
+subi $s0 $t7 1
+div $t6 $s0
+mflo $s1
+move $v0 $s1
+addi $sp $sp 12
+jr $ra
+
+gets2:
+subi $sp $sp 4
+sw $t5 -4($gp)
+lw $s2 -4($fp)
+li $s2 0
+
+Label_2:
+lw $s3 -12($fp)
+bge $s2 $s3 Label_3
+lw $s5 -8($fp)
+add $s4 $s3 $s5
+move $s5 $s4
+addi $s2 $s2 1
+j Label_2
+
+Label_3:
+lw $s6 -8($gp)
+move $s6 $s5
+add $s7 $s5 $s5
+sub $t8 $s7 $s5
+move $v0 $t8
+addi $sp $sp 12
+jr $ra
+
+gets3:
+subi $sp $sp 4
+sw $s6 -8($gp)
+lw $t0 -4($fp)
+li $t0 0
+
+Label_4:
+lw $t3 -12($fp)
+bge $t0 $t3 Label_5
+addi $t5 $t0 1
+move $t0 $t5
+lw $s6 -8($fp)
+add $s3 $t3 $s6
+move $s6 $s3
+j Label_4
+
+Label_5:
+sw $t0 -4($fp)
+lw $t0 -12($gp)
+move $t0 $s6
+sw $s6 -8($fp)
+addi $s6 $t0 0
+move $v0 $s6
+addi $sp $sp 12
+jr $ra
+
+gets4:
+sw $t0 -12($gp)
+lw $t3 -8($fp)
+mul $t0 $t3 $t3
+sw $t3 -8($fp)
+sw $t1 4($k0)
+lw $t1 -4($fp)
+add $t3 $t1 $t0
+move $v0 $t3
+addi $sp $sp 8
+jr $ra
+
+main:
+subi $sp $sp 48
 la $a0 str_0
 li $v0 4
 syscall
+li $t0 -10
+div $t0 $t0 10
+sw $t5 8($k0)
+addi $t5 $t0 1
+sw $s3 12($k0)
+mul $s3 $t5 10
+sw $s6 16($k0)
+li $s6 10
+subi $s6 $s6 0
+sw $t3 20($k0)
+li $t3 10
+div $t3 $s6
+mflo $t3
+add $s6 $s3 $t3
+move $a0 $s6
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+li $v0 5
+syscall
+sw $t0 24($k0)
+lw $t0 -4($fp)
+move $t0 $v0
+li $v0 5
+syscall
+sw $t0 -4($fp)
+lw $t0 -8($fp)
+move $t0 $v0
+la $a0 str_1
+li $v0 4
+syscall
+sw $t0 -8($fp)
+lw $t0 -4($fp)
 move $a0 $t0
 li $v0 1
 syscall
 li $a0 10
 li $v0 11
 syscall
-la $a0 str_1
+sw $t0 -4($fp)
+li $t0 -10
+addi $t0 $t0 10
+sw $t5 28($k0)
+lw $t5 -4($fp)
+move $t5 $t0
+
+Label_6:
+sw $t3 32($k0)
+li $t3 10
+bge $t5 $t3 Label_7
+addi $t3 $t5 17060000
+sll $t9 $t5 2
+add $t9 $t9 $fp
+sw $t3 -48($t9)
+la $a0 str_2
 li $v0 4
 syscall
-move $a0 $t1
-li $v0 11
+move $a0 $t5
+li $v0 1
 syscall
 li $a0 10
 li $v0 11
 syscall
-la $a0 str_2
-li $v0 4
-syscall
+sw $t2 36($k0)
+sll $t9 $t5 2
+add $t9 $t9 $fp
+lw $t2 -48($t9)
 move $a0 $t2
 li $v0 1
 syscall
 li $a0 10
 li $v0 11
 syscall
+addi $t5 $t5 1
+j Label_6
+
+Label_7:
 la $a0 str_3
 li $v0 4
 syscall
-move $a0 $t3
-li $v0 11
+sw $t5 -4($fp)
+li $t5 -1
+mul $t5 $t5 1
+sw $s6 40($k0)
+li $s6 -10
+div $s6 $s6 10
+sw $t0 44($k0)
+mul $t0 $s6 10
+sw $t3 48($k0)
+sub $t3 $t5 $t0
+sw $t2 52($k0)
+sll $t9 $t3 2
+add $t9 $t9 $fp
+lw $t2 -48($t9)
+move $a0 $t2
+li $v0 1
 syscall
 li $a0 10
 li $v0 11
@@ -87,8 +260,19 @@ syscall
 la $a0 str_4
 li $v0 4
 syscall
-addi $t4 $t0 1
-move $a0 $t4
+sw $s6 56($k0)
+li $s6 -1
+mul $s6 $s6 1
+sw $t0 60($k0)
+li $t0 -10
+div $t0 $t0 10
+sw $t3 64($k0)
+sub $t3 $s6 $t0
+sw $t2 68($k0)
+sll $t9 $t3 2
+add $t9 $t9 $fp
+lw $t2 -48($t9)
+move $a0 $t2
 li $v0 1
 syscall
 li $a0 10
@@ -97,18 +281,61 @@ syscall
 la $a0 str_5
 li $v0 4
 syscall
-addi $t5 $t1 1
-move $a0 $t5
-li $v0 1
-syscall
 li $a0 10
 li $v0 11
 syscall
 la $a0 str_6
 li $v0 4
 syscall
-addi $t6 $t2 1
-move $a0 $t6
+addi $sp $sp -72
+sw $t0 0($sp)
+sw $t1 4($sp)
+sw $t2 8($sp)
+sw $t3 12($sp)
+sw $t4 16($sp)
+sw $t5 20($sp)
+sw $t6 24($sp)
+sw $t7 28($sp)
+sw $s0 32($sp)
+sw $s1 36($sp)
+sw $s2 40($sp)
+sw $s3 44($sp)
+sw $s4 48($sp)
+sw $s5 52($sp)
+sw $s6 56($sp)
+sw $s7 60($sp)
+sw $fp 64($sp)
+sw $ra 68($sp)
+subi $sp $sp 8
+li $t8 -10
+sw $t8 -4($fp)
+sw $t0 72($k0)
+lw $t0 -8($fp)
+sw $t0 -8($fp)
+move $fp $sp
+jal gets4
+lw $t0 0($sp)
+lw $t1 4($sp)
+lw $t2 8($sp)
+lw $t3 12($sp)
+lw $t4 16($sp)
+lw $t5 20($sp)
+lw $t6 24($sp)
+lw $t7 28($sp)
+lw $s0 32($sp)
+lw $s1 36($sp)
+lw $s2 40($sp)
+lw $s3 44($sp)
+lw $s4 48($sp)
+lw $s5 52($sp)
+lw $s6 56($sp)
+lw $s7 60($sp)
+lw $fp 64($sp)
+lw $ra 68($sp)
+addi $sp $sp 72
+sw $t0 -8($fp)
+move $t0 $v0
+move $a0 $t0
 li $v0 1
 syscall
 li $a0 10
@@ -117,8 +344,55 @@ syscall
 la $a0 str_7
 li $v0 4
 syscall
-addi $t7 $t3 1
-move $a0 $t7
+addi $sp $sp -72
+sw $t0 0($sp)
+sw $t1 4($sp)
+sw $t2 8($sp)
+sw $t3 12($sp)
+sw $t4 16($sp)
+sw $t5 20($sp)
+sw $t6 24($sp)
+sw $t7 28($sp)
+sw $s0 32($sp)
+sw $s1 36($sp)
+sw $s2 40($sp)
+sw $s3 44($sp)
+sw $s4 48($sp)
+sw $s5 52($sp)
+sw $s6 56($sp)
+sw $s7 60($sp)
+sw $fp 64($sp)
+sw $ra 68($sp)
+subi $sp $sp 8
+li $t8 -10
+sw $t8 -12($fp)
+sw $t3 76($k0)
+lw $t3 -8($fp)
+sw $t3 -16($fp)
+move $fp $sp
+jal gets3
+lw $t0 0($sp)
+lw $t1 4($sp)
+lw $t2 8($sp)
+lw $t3 12($sp)
+lw $t4 16($sp)
+lw $t5 20($sp)
+lw $t6 24($sp)
+lw $t7 28($sp)
+lw $s0 32($sp)
+lw $s1 36($sp)
+lw $s2 40($sp)
+lw $s3 44($sp)
+lw $s4 48($sp)
+lw $s5 52($sp)
+lw $s6 56($sp)
+lw $s7 60($sp)
+lw $fp 64($sp)
+lw $ra 68($sp)
+addi $sp $sp 72
+sw $t3 -8($fp)
+move $t3 $v0
+move $a0 $t3
 li $v0 1
 syscall
 li $a0 10
@@ -127,8 +401,55 @@ syscall
 la $a0 str_8
 li $v0 4
 syscall
-add $s0 $t0 $t2
-move $a0 $s0
+addi $sp $sp -72
+sw $t0 0($sp)
+sw $t1 4($sp)
+sw $t2 8($sp)
+sw $t3 12($sp)
+sw $t4 16($sp)
+sw $t5 20($sp)
+sw $t6 24($sp)
+sw $t7 28($sp)
+sw $s0 32($sp)
+sw $s1 36($sp)
+sw $s2 40($sp)
+sw $s3 44($sp)
+sw $s4 48($sp)
+sw $s5 52($sp)
+sw $s6 56($sp)
+sw $s7 60($sp)
+sw $fp 64($sp)
+sw $ra 68($sp)
+subi $sp $sp 8
+li $t8 -10
+sw $t8 -20($fp)
+sw $t2 80($k0)
+lw $t2 -8($fp)
+sw $t2 -24($fp)
+move $fp $sp
+jal gets2
+lw $t0 0($sp)
+lw $t1 4($sp)
+lw $t2 8($sp)
+lw $t3 12($sp)
+lw $t4 16($sp)
+lw $t5 20($sp)
+lw $t6 24($sp)
+lw $t7 28($sp)
+lw $s0 32($sp)
+lw $s1 36($sp)
+lw $s2 40($sp)
+lw $s3 44($sp)
+lw $s4 48($sp)
+lw $s5 52($sp)
+lw $s6 56($sp)
+lw $s7 60($sp)
+lw $fp 64($sp)
+lw $ra 68($sp)
+addi $sp $sp 72
+sw $t2 -8($fp)
+move $t2 $v0
+move $a0 $t2
 li $v0 1
 syscall
 li $a0 10
@@ -137,12 +458,381 @@ syscall
 la $a0 str_9
 li $v0 4
 syscall
-add $s1 $t1 $t3
-move $a0 $s1
+addi $sp $sp -72
+sw $t0 0($sp)
+sw $t1 4($sp)
+sw $t2 8($sp)
+sw $t3 12($sp)
+sw $t4 16($sp)
+sw $t5 20($sp)
+sw $t6 24($sp)
+sw $t7 28($sp)
+sw $s0 32($sp)
+sw $s1 36($sp)
+sw $s2 40($sp)
+sw $s3 44($sp)
+sw $s4 48($sp)
+sw $s5 52($sp)
+sw $s6 56($sp)
+sw $s7 60($sp)
+sw $fp 64($sp)
+sw $ra 68($sp)
+subi $sp $sp 8
+li $t8 -10
+sw $t8 -28($fp)
+sw $t0 84($k0)
+lw $t0 -8($fp)
+sw $t0 -32($fp)
+move $fp $sp
+jal gets1
+lw $t0 0($sp)
+lw $t1 4($sp)
+lw $t2 8($sp)
+lw $t3 12($sp)
+lw $t4 16($sp)
+lw $t5 20($sp)
+lw $t6 24($sp)
+lw $t7 28($sp)
+lw $s0 32($sp)
+lw $s1 36($sp)
+lw $s2 40($sp)
+lw $s3 44($sp)
+lw $s4 48($sp)
+lw $s5 52($sp)
+lw $s6 56($sp)
+lw $s7 60($sp)
+lw $fp 64($sp)
+lw $ra 68($sp)
+addi $sp $sp 72
+sw $t0 -8($fp)
+move $t0 $v0
+move $a0 $t0
 li $v0 1
 syscall
 li $a0 10
 li $v0 11
 syscall
-addi $sp $sp 16
+addi $sp $sp -72
+sw $t0 0($sp)
+sw $t1 4($sp)
+sw $t2 8($sp)
+sw $t3 12($sp)
+sw $t4 16($sp)
+sw $t5 20($sp)
+sw $t6 24($sp)
+sw $t7 28($sp)
+sw $s0 32($sp)
+sw $s1 36($sp)
+sw $s2 40($sp)
+sw $s3 44($sp)
+sw $s4 48($sp)
+sw $s5 52($sp)
+sw $s6 56($sp)
+sw $s7 60($sp)
+sw $fp 64($sp)
+sw $ra 68($sp)
+subi $sp $sp 8
+li $t8 -10
+sw $t8 -36($fp)
+sw $t3 88($k0)
+lw $t3 -8($fp)
+sw $t3 -40($fp)
+move $fp $sp
+jal gets1
+lw $t0 0($sp)
+lw $t1 4($sp)
+lw $t2 8($sp)
+lw $t3 12($sp)
+lw $t4 16($sp)
+lw $t5 20($sp)
+lw $t6 24($sp)
+lw $t7 28($sp)
+lw $s0 32($sp)
+lw $s1 36($sp)
+lw $s2 40($sp)
+lw $s3 44($sp)
+lw $s4 48($sp)
+lw $s5 52($sp)
+lw $s6 56($sp)
+lw $s7 60($sp)
+lw $fp 64($sp)
+lw $ra 68($sp)
+addi $sp $sp 72
+sw $t3 -8($fp)
+move $t3 $v0
+addi $sp $sp -72
+sw $t0 0($sp)
+sw $t1 4($sp)
+sw $t2 8($sp)
+sw $t3 12($sp)
+sw $t4 16($sp)
+sw $t5 20($sp)
+sw $t6 24($sp)
+sw $t7 28($sp)
+sw $s0 32($sp)
+sw $s1 36($sp)
+sw $s2 40($sp)
+sw $s3 44($sp)
+sw $s4 48($sp)
+sw $s5 52($sp)
+sw $s6 56($sp)
+sw $s7 60($sp)
+sw $fp 64($sp)
+sw $ra 68($sp)
+subi $sp $sp 8
+li $t8 -10
+sw $t8 -44($fp)
+sw $t2 92($k0)
+lw $t2 -8($fp)
+sw $t2 -48($fp)
+move $fp $sp
+jal gets2
+lw $t0 0($sp)
+lw $t1 4($sp)
+lw $t2 8($sp)
+lw $t3 12($sp)
+lw $t4 16($sp)
+lw $t5 20($sp)
+lw $t6 24($sp)
+lw $t7 28($sp)
+lw $s0 32($sp)
+lw $s1 36($sp)
+lw $s2 40($sp)
+lw $s3 44($sp)
+lw $s4 48($sp)
+lw $s5 52($sp)
+lw $s6 56($sp)
+lw $s7 60($sp)
+lw $fp 64($sp)
+lw $ra 68($sp)
+addi $sp $sp 72
+sw $t2 -8($fp)
+move $t2 $v0
+bne $t3 $t2 Label_8
+addi $sp $sp -72
+sw $t0 0($sp)
+sw $t1 4($sp)
+sw $t2 8($sp)
+sw $t3 12($sp)
+sw $t4 16($sp)
+sw $t5 20($sp)
+sw $t6 24($sp)
+sw $t7 28($sp)
+sw $s0 32($sp)
+sw $s1 36($sp)
+sw $s2 40($sp)
+sw $s3 44($sp)
+sw $s4 48($sp)
+sw $s5 52($sp)
+sw $s6 56($sp)
+sw $s7 60($sp)
+sw $fp 64($sp)
+sw $ra 68($sp)
+subi $sp $sp 8
+li $t8 -10
+sw $t8 -52($fp)
+lw $t2 -8($fp)
+sw $t2 -56($fp)
+move $fp $sp
+jal gets1
+lw $t0 0($sp)
+lw $t1 4($sp)
+lw $t2 8($sp)
+lw $t3 12($sp)
+lw $t4 16($sp)
+lw $t5 20($sp)
+lw $t6 24($sp)
+lw $t7 28($sp)
+lw $s0 32($sp)
+lw $s1 36($sp)
+lw $s2 40($sp)
+lw $s3 44($sp)
+lw $s4 48($sp)
+lw $s5 52($sp)
+lw $s6 56($sp)
+lw $s7 60($sp)
+lw $fp 64($sp)
+lw $ra 68($sp)
+addi $sp $sp 72
+move $t3 $v0
+addi $sp $sp -72
+sw $t0 0($sp)
+sw $t1 4($sp)
+sw $t2 8($sp)
+sw $t3 12($sp)
+sw $t4 16($sp)
+sw $t5 20($sp)
+sw $t6 24($sp)
+sw $t7 28($sp)
+sw $s0 32($sp)
+sw $s1 36($sp)
+sw $s2 40($sp)
+sw $s3 44($sp)
+sw $s4 48($sp)
+sw $s5 52($sp)
+sw $s6 56($sp)
+sw $s7 60($sp)
+sw $fp 64($sp)
+sw $ra 68($sp)
+subi $sp $sp 8
+li $t8 -10
+sw $t8 -60($fp)
+sw $t2 -64($fp)
+move $fp $sp
+jal gets3
+lw $t0 0($sp)
+lw $t1 4($sp)
+lw $t2 8($sp)
+lw $t3 12($sp)
+lw $t4 16($sp)
+lw $t5 20($sp)
+lw $t6 24($sp)
+lw $t7 28($sp)
+lw $s0 32($sp)
+lw $s1 36($sp)
+lw $s2 40($sp)
+lw $s3 44($sp)
+lw $s4 48($sp)
+lw $s5 52($sp)
+lw $s6 56($sp)
+lw $s7 60($sp)
+lw $fp 64($sp)
+lw $ra 68($sp)
+addi $sp $sp 72
+sw $t2 -8($fp)
+move $t2 $v0
+bne $t3 $t2 Label_9
+addi $sp $sp -72
+sw $t0 0($sp)
+sw $t1 4($sp)
+sw $t2 8($sp)
+sw $t3 12($sp)
+sw $t4 16($sp)
+sw $t5 20($sp)
+sw $t6 24($sp)
+sw $t7 28($sp)
+sw $s0 32($sp)
+sw $s1 36($sp)
+sw $s2 40($sp)
+sw $s3 44($sp)
+sw $s4 48($sp)
+sw $s5 52($sp)
+sw $s6 56($sp)
+sw $s7 60($sp)
+sw $fp 64($sp)
+sw $ra 68($sp)
+subi $sp $sp 8
+li $t8 -10
+sw $t8 -68($fp)
+lw $t3 -8($fp)
+sw $t3 -72($fp)
+move $fp $sp
+jal gets1
+lw $t0 0($sp)
+lw $t1 4($sp)
+lw $t2 8($sp)
+lw $t3 12($sp)
+lw $t4 16($sp)
+lw $t5 20($sp)
+lw $t6 24($sp)
+lw $t7 28($sp)
+lw $s0 32($sp)
+lw $s1 36($sp)
+lw $s2 40($sp)
+lw $s3 44($sp)
+lw $s4 48($sp)
+lw $s5 52($sp)
+lw $s6 56($sp)
+lw $s7 60($sp)
+lw $fp 64($sp)
+lw $ra 68($sp)
+addi $sp $sp 72
+move $t2 $v0
+addi $sp $sp -72
+sw $t0 0($sp)
+sw $t1 4($sp)
+sw $t2 8($sp)
+sw $t3 12($sp)
+sw $t4 16($sp)
+sw $t5 20($sp)
+sw $t6 24($sp)
+sw $t7 28($sp)
+sw $s0 32($sp)
+sw $s1 36($sp)
+sw $s2 40($sp)
+sw $s3 44($sp)
+sw $s4 48($sp)
+sw $s5 52($sp)
+sw $s6 56($sp)
+sw $s7 60($sp)
+sw $fp 64($sp)
+sw $ra 68($sp)
+subi $sp $sp 8
+li $t8 -10
+sw $t8 -76($fp)
+sw $t3 -80($fp)
+move $fp $sp
+jal gets4
+lw $t0 0($sp)
+lw $t1 4($sp)
+lw $t2 8($sp)
+lw $t3 12($sp)
+lw $t4 16($sp)
+lw $t5 20($sp)
+lw $t6 24($sp)
+lw $t7 28($sp)
+lw $s0 32($sp)
+lw $s1 36($sp)
+lw $s2 40($sp)
+lw $s3 44($sp)
+lw $s4 48($sp)
+lw $s5 52($sp)
+lw $s6 56($sp)
+lw $s7 60($sp)
+lw $fp 64($sp)
+lw $ra 68($sp)
+addi $sp $sp 72
+sw $t3 -8($fp)
+move $t3 $v0
+bne $t2 $t3 Label_10
+la $a0 str_10
+li $v0 4
+syscall
+li $a0 10
+li $v0 11
+syscall
+j Label_11
+
+Label_10:
+la $a0 str_11
+li $v0 4
+syscall
+li $a0 10
+li $v0 11
+syscall
+
+Label_11:
+j Label_12
+
+Label_9:
+la $a0 str_12
+li $v0 4
+syscall
+li $a0 10
+li $v0 11
+syscall
+
+Label_12:
+j Label_13
+
+Label_8:
+la $a0 str_13
+li $v0 4
+syscall
+li $a0 10
+li $v0 11
+syscall
+
+Label_13:
+addi $sp $sp 48
 jr $ra

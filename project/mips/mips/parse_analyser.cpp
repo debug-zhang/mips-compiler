@@ -5,7 +5,7 @@ ParseAnalyser::ParseAnalyser(string fileName, list<struct Lexeme>* lexList, Erro
 	this->string_table_ = new StringTable();
 	this->midcode_generator_ = new MidcodeGenerator();
 
-	this->label_count_ = 1;
+	this->label_count_ = 0;
 	this->reg_count_ = 1;
 	this->midcode_generator_->OpenMidcodeFile(fileName);
 	this->iter_ = lexList->begin();
@@ -499,14 +499,14 @@ bool ParseAnalyser::AnalyzeIfSentence(SyntaxNode* node, TypeSymbol returnType) {
 	bool noReturn = true;
 
 	this->AddChild(node);	// IFTK
-	int elseLabel = label_count_++;
+	int elseLabel = ++label_count_;
 
 	this->AddChild(node);	// LPARENT
 	this->AnalyzeCondition(this->AddSyntaxChild(CONDITION, node), true);
 	this->AddRparentChild(node);	// RPARENT
 	noReturn = this->AnalyzeSentence(this->AddSyntaxChild(SENTENCE, node), returnType);
 
-	int endifLabel = label_count_++;
+	int endifLabel = ++label_count_;
 	midcode_generator_->PrintJump(endifLabel);
 	midcode_generator_->PrintLabel(elseLabel);
 
@@ -527,12 +527,12 @@ int ParseAnalyser::AnalyzeStep(SyntaxNode* node) {
 
 void ParseAnalyser::AnalyzeWhile(SyntaxNode* node, TypeSymbol returnType) {
 	this->AddChild(node);	// WHILETK
-	int whileLabel = label_count_++;
+	int whileLabel = ++label_count_;
 	midcode_generator_->PrintLabel(whileLabel);
 	midcode_generator_->PrintLoop();
 
 	this->AddChild(node);	// LPARENT
-	int endWhileLabel = label_count_++;
+	int endWhileLabel = ++label_count_;
 	this->AnalyzeCondition(this->AddSyntaxChild(CONDITION, node), true);
 	this->AddRparentChild(node);	// RPARENT
 
@@ -545,7 +545,7 @@ void ParseAnalyser::AnalyzeWhile(SyntaxNode* node, TypeSymbol returnType) {
 void ParseAnalyser::AnalyzeDoWhile(SyntaxNode* node, bool& noReturn, TypeSymbol returnType) {
 	this->AddChild(node);	// DOTK
 
-	int doLabel = label_count_++;
+	int doLabel = ++label_count_;
 	midcode_generator_->PrintLabel(doLabel);
 	midcode_generator_->PrintLoop();
 
@@ -571,13 +571,13 @@ void ParseAnalyser::AnalyzeFor(SyntaxNode* node, TypeSymbol returnType) {
 	this->AnalyzeExpression(expressionNode);
 	midcode_generator_->PrintAssignValue(name, "", expressionNode->value());
 
-	int forLabel = label_count_++;
+	int forLabel = ++label_count_;
 	midcode_generator_->PrintLabel(forLabel);
 	midcode_generator_->PrintLoop();
 
 	this->AddSemicnChild(node);	// SEMICN
 
-	int endForLabel = label_count_++;
+	int endForLabel = ++label_count_;
 	this->AnalyzeCondition(this->AddSyntaxChild(CONDITION, node), true);
 
 	this->AddSemicnChild(node);	// SEMICN

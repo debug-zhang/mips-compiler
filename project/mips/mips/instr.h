@@ -45,6 +45,7 @@ enum class MidcodeInstr {
 	LABEL,
 	JUMP,
 	LOOP,
+	STEP,
 
 	ASSIGN,
 	ASSIGN_ARRAY,
@@ -94,7 +95,7 @@ enum class OperaMember {
 	REG_OP_NUMBER,
 	REG_OP_REG,
 	NUMBER_OP_REG,
-	NUMBER_OP_NUMBER,
+	NUMBER_OP_NUMBER
 };
 
 namespace midcodeinstr {

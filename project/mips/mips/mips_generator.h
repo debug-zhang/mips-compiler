@@ -106,7 +106,7 @@ private:
 
 	void GenerateAssignReturn(Midcode* midcode);
 
-	void SetArrayIndex(int& offset, Symbol* symbol, std::string& array_index, Reg& reg_index);
+	void SetArrayIndex(int& offset, Symbol* symbol, string& array_index, Reg& reg_index);
 
 	void GenerateLoadArray(Midcode* midcode);
 
@@ -122,7 +122,9 @@ private:
 
 	void DealNumberOpReg(Midcode* midcode, MidcodeInstr op, int reg_result);
 
-	void GenerateOperate(Midcode* midcode, MidcodeInstr op);
+	void GenerateOperate(Midcode* midcode, MidcodeInstr op, string result);
+
+	void GenerateStep(std::list<Midcode*>::iterator& iter, Midcode*& midcode);
 
 	void GenerateBody(string function_name, list<Midcode*>::iterator& iter);
 
