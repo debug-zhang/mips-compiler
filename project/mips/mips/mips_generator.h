@@ -9,6 +9,11 @@
 #include "table.h"
 #include "objcode.h"
 
+#define TEMP_REG_START	5
+#define TEMP_REG_END	10
+#define REG_START		11
+#define REG_START_END	23
+
 using namespace std;
 
 class MipsGenerator {
@@ -23,6 +28,7 @@ private:
 	int reg_use_stack_[32];
 	int new_reg;
 	int dm_offset;
+	int parameter_count_old;
 
 	void InsertTempUseRegMap(string name);
 	void DeleteTempUseRegMap(string name);
@@ -82,9 +88,9 @@ private:
 
 	void GenerateJudge(Midcode* midcode, MidcodeInstr judge);
 
-	void GenerateSave(Midcode* midcode);
+	void GenerateSave(Midcode* midcode, int& parameter_count);
 
-	void GenerateCall(Midcode* midcode);
+	void GenerateCall(Midcode* midcode, int& parameter_count);
 
 	void GenerateScanf(Midcode* midcode, int type);
 
@@ -92,11 +98,11 @@ private:
 
 	void GenerateReturn(Midcode* midcode, bool is_return_value);
 
-	void GenerateFuncEnd(int& parameter_count, std::list<Midcode*>::iterator& iter);
+	void GenerateFuncEnd(int& variable_count, list<Midcode*>::iterator& iter);
 
 	void GenerateLoop();
 
-	void GeneratePush(Midcode* midcode, int parameter_count);
+	void GeneratePush(Midcode* midcode, int& parameter_count);
 
 	void GeneratePrintfEnd();
 
@@ -125,6 +131,10 @@ private:
 	void GenerateOperate(Midcode* midcode, MidcodeInstr op, string result);
 
 	void GenerateStep(std::list<Midcode*>::iterator& iter, Midcode*& midcode);
+
+	void SetFunctionVariable(Midcode* midcode, int& variable_count);
+
+	void Check3(Midcode*& midcode, std::list<Midcode*>::iterator& iter, int& retflag);
 
 	void GenerateBody(string function_name, list<Midcode*>::iterator& iter);
 

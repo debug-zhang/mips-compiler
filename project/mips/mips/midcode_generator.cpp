@@ -28,6 +28,15 @@ void MidcodeGenerator::PrintParameter(TypeSymbol type, string name) {
 	this->AddMidcode(new Midcode(midcode_instr, name));
 }
 
+void MidcodeGenerator::PrintVariable(TypeSymbol type, string name) {
+	string variable_type = type == TypeSymbol::INT ? kIntType : kCharType;
+	this->midcode_ << "variable " + variable_type + " " + name << endl;
+
+	MidcodeInstr midcode_instr = type == TypeSymbol::INT
+		? MidcodeInstr::VAR_INT : MidcodeInstr::VAR_CHAR;
+	this->AddMidcode(new Midcode(midcode_instr, name));
+}
+
 void MidcodeGenerator::PrintFuncDeclare(Symbol* function) {
 	string type = function->type() == TypeSymbol::INT ? kIntType : kCharType;
 	this->midcode_ << endl << type + " " + function->name() + "()" << endl;

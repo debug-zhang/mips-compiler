@@ -43,6 +43,7 @@ public:
 	void FileClose();
 
 	void PrintParameter(TypeSymbol type, string name);
+	void PrintVariable(TypeSymbol type, string name);
 	void PrintFuncDeclare(Symbol* function);
 	void PrintVoidFuncDeclare(Symbol* function);
 	void PrintReturn(bool isVoid, string value);

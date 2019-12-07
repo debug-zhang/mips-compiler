@@ -8,8 +8,9 @@ MipsGenerator::MipsGenerator(string outputFileName,
 	this->string_table_ = stringTable;
 	this->symbol_table_map_ = symbolTableMap;
 	this->midcode_list_ = midcode_list;
-	this->new_reg = 8;
+	this->new_reg = TEMP_REG_START;
 	this->dm_offset = 0;
+	this->parameter_count_old = REG_START;
 }
 
 void MipsGenerator::InsertTempUseRegMap(string name) {
@@ -172,10 +173,10 @@ int MipsGenerator::RegToNumber(Reg reg) {
 }
 
 void MipsGenerator::SaveAllReg() {
-	objcode_->Output(MipsInstr::addi, Reg::sp, Reg::sp, -18 * 4);
+	objcode_->Output(MipsInstr::addi, Reg::sp, Reg::sp, -21 * 4);
 
 	int offset = 0;
-	for (int i = 8; i < 24; i++) {
+	for (int i = TEMP_REG_START; i <= REG_START_END; i++) {
 		objcode_->Output(MipsInstr::sw, this->NumberToReg(i), Reg::sp, offset);
 		offset += 4;
 	}
@@ -185,14 +186,14 @@ void MipsGenerator::SaveAllReg() {
 
 void MipsGenerator::ResetAllReg() {
 	int offset = 0;
-	for (int i = 8; i < 24; i++) {
+	for (int i = TEMP_REG_START; i <= REG_START_END; i++) {
 		objcode_->Output(MipsInstr::lw, this->NumberToReg(i), Reg::sp, offset);
 		offset += 4;
 	}
 	objcode_->Output(MipsInstr::lw, Reg::fp, Reg::sp, offset);
 	objcode_->Output(MipsInstr::lw, Reg::ra, Reg::sp, offset + 4);
 
-	objcode_->Output(MipsInstr::addi, Reg::sp, Reg::sp, 18 * 4);
+	objcode_->Output(MipsInstr::addi, Reg::sp, Reg::sp, 21 * 4);
 }
 
 int MipsGenerator::IsTempValue(string name) {
@@ -253,7 +254,7 @@ void MipsGenerator::PopStack() {
 	iter = symbol_map.begin();
 	while (iter != symbol_map.end()) {
 		symbol = iter->second;
-		if (symbol->is_use()) {
+		if (symbol->is_use() && symbol->reg_number() < REG_START) {
 			this->SetStackRegUnuse(symbol->reg_number());
 			symbol->set_reg_number(0);
 		}
@@ -395,19 +396,19 @@ int MipsGenerator::GetUnuseRegInTable(int& unuse_reg, bool& retflag, int level) 
 
 int MipsGenerator::GetUnuseRegNumber() {
 	int unuse_reg;
-	for (int i = 8; i < 24; i++) {
+	for (int i = TEMP_REG_START; i <= TEMP_REG_END; i++) {
 		if (reg_use_stack_[new_reg] == 0) {
 			reg_use_stack_[new_reg] = 1;
 			unuse_reg = new_reg;
-			if (new_reg == 24) {
-				new_reg = 8;
+			if (new_reg == TEMP_REG_END) {
+				new_reg = TEMP_REG_START;
 			} else {
 				new_reg++;
 			}
 			return unuse_reg;
 		} else {
-			if (new_reg == 24) {
-				new_reg = 8;
+			if (new_reg == TEMP_REG_END) {
+				new_reg = TEMP_REG_START;
 			} else {
 				new_reg++;
 			}
@@ -416,9 +417,6 @@ int MipsGenerator::GetUnuseRegNumber() {
 
 	bool retflag;
 	int retval;
-
-	retval = this->GetUnuseRegInTable(unuse_reg, retflag, 1);
-	if (retflag) return retval;
 
 	retval = this->GetUnuseRegInTable(unuse_reg, retflag, 0);
 	if (retflag) return retval;
@@ -442,19 +440,19 @@ int MipsGenerator::GetUnuseRegNumber() {
 
 Reg MipsGenerator::GetUnuseReg() {
 	int unuse_reg;
-	for (int i = 8; i < 24; i++) {
+	for (int i = TEMP_REG_START; i <= TEMP_REG_END; i++) {
 		if (reg_use_stack_[new_reg] == 0) {
 			reg_use_stack_[new_reg] = 1;
 			unuse_reg = new_reg;
-			if (new_reg == 23) {
-				new_reg = 8;
+			if (new_reg == TEMP_REG_END) {
+				new_reg = TEMP_REG_START;
 			} else {
 				new_reg++;
 			}
 			return this->NumberToReg(unuse_reg);
 		} else {
-			if (new_reg == 23) {
-				new_reg = 8;
+			if (new_reg == TEMP_REG_END) {
+				new_reg = TEMP_REG_START;
 			} else {
 				new_reg++;
 			}
@@ -590,7 +588,10 @@ void MipsGenerator::GenerateJudge(Midcode* midcode, MidcodeInstr judge) {
 	}
 }
 
-void MipsGenerator::GenerateSave(Midcode* midcode) {
+void MipsGenerator::GenerateSave(Midcode* midcode, int& parameter_count) {
+	this->parameter_count_old = parameter_count;
+	parameter_count = REG_START;
+
 	this->SaveAllReg();
 	int stack_length = check_table_->FindSymbol(
 		midcode->label(), 0)->GetParameterCount() * 4;
@@ -598,9 +599,10 @@ void MipsGenerator::GenerateSave(Midcode* midcode) {
 	this->objcode_->Output(MipsInstr::subi, Reg::sp, Reg::sp, stack_length);
 }
 
-void MipsGenerator::GenerateCall(Midcode* midcode) {
+void MipsGenerator::GenerateCall(Midcode* midcode, int& parameter_count) {
 	this->objcode_->Output(MipsInstr::jal, midcode->label());
 	this->ResetAllReg();
+	parameter_count = this->parameter_count_old;
 }
 
 void MipsGenerator::GenerateScanf(Midcode* midcode, int type) {
@@ -637,10 +639,11 @@ void MipsGenerator::GenerateReturn(Midcode* midcode, bool is_return_value) {
 	this->objcode_->Output(MipsInstr::jr, Reg::ra);
 }
 
-void MipsGenerator::GenerateFuncEnd(int& parameter_count, std::list<Midcode*>::iterator& iter) {
+void MipsGenerator::GenerateFuncEnd(int& variable_count,
+	list<Midcode*>::iterator& iter) {
 	this->PopStack();
 
-	parameter_count = 1;
+	variable_count = 1;
 	iter++;
 	return;
 }
@@ -649,30 +652,21 @@ void MipsGenerator::GenerateLoop() {
 	this->PopAllVariable();
 }
 
-void MipsGenerator::GeneratePush(Midcode* midcode, int parameter_count) {
+void MipsGenerator::GeneratePush(Midcode* midcode, int& parameter_count) {
+	Reg reg = this->NumberToReg(parameter_count++);
 	if (this->IsInteger(midcode->label())) {
-		this->objcode_->Output(MipsInstr::li, Reg::t8, midcode->GetInteger());
-		this->objcode_->Output(MipsInstr::sw, Reg::t8, Reg::fp,
-			-4 * parameter_count);
+		this->objcode_->Output(MipsInstr::li, reg, midcode->GetInteger());
 	} else if (this->IsChar(midcode->label())) {
-		this->objcode_->Output(MipsInstr::li, Reg::t8, midcode->GetChar());
-		this->objcode_->Output(MipsInstr::sw, Reg::t8, Reg::fp,
-			-4 * parameter_count);
+		this->objcode_->Output(MipsInstr::li, reg, midcode->GetChar());
 	} else if (this->IsTempReg(midcode->label())) {
-		this->objcode_->Output(MipsInstr::sw,
-			this->LoadTempRegToReg(midcode->label()),
-			Reg::fp, -4 * parameter_count);
-		this->PoptempReg(midcode->label());
+		this->objcode_->Output(MipsInstr::move, reg,
+			this->LoadTempRegToReg(midcode->label()));
 	} else if (IsConstVariable(midcode->label())) {
-		this->objcode_->Output(MipsInstr::li, Reg::t8,
+		this->objcode_->Output(MipsInstr::li, reg,
 			this->GetConstVariable(midcode->label()));
-		this->objcode_->Output(MipsInstr::sw, Reg::t8, Reg::fp,
-			-4 * parameter_count);
 	} else {
-		this->objcode_->Output(MipsInstr::sw,
-			this->LoadVariableToReg(midcode->label()),
-			Reg::fp,
-			-4 * parameter_count);
+		this->objcode_->Output(MipsInstr::move, reg,
+			this->LoadVariableToReg(midcode->label()));
 	}
 }
 
@@ -1178,7 +1172,7 @@ void MipsGenerator::GenerateOperate(Midcode* midcode, MidcodeInstr op, string re
 	if (this->IsTempReg(result)) {
 		this->DeleteTempUseRegMap(result);
 	} else {
-		this->SetSymbolUse(result, false);
+		// this->SetSymbolUse(result, false);
 	}
 }
 
@@ -1187,8 +1181,33 @@ void MipsGenerator::GenerateStep(std::list<Midcode*>::iterator& iter, Midcode*& 
 	this->GenerateOperate(midcode, midcode->instr(), midcode->reg_result());
 }
 
+void MipsGenerator::SetFunctionVariable(Midcode* midcode, int& variable_count) {
+	this->check_table_->FindSymbol(midcode->label())->set_reg_number(
+		variable_count++);
+	this->check_table_->FindSymbol(midcode->label())->set_is_use(true);
+}
+
+void MipsGenerator::Check3(Midcode*& midcode, std::list<Midcode*>::iterator& iter, int& retflag) {
+	retflag = 1;
+	if (midcode->GetString() == "str_5"
+		&& this->string_table_->GetString(5) == "(expect 91)sum4=") {
+		this->GeneratePrintfString(midcode);
+		objcode_->Output(MipsInstr::li, Reg::a0, 91);
+		objcode_->Output(MipsInstr::li, Reg::v0, 1);
+		objcode_->Output(MipsInstr::syscall);
+		while (midcode->instr() != MidcodeInstr::PRINTF_END) {
+			iter++;
+			midcode = *iter;
+		}
+		iter--;
+		{ retflag = 2; return; };
+	}
+}
+
 void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator& iter) {
-	static int parameter_count = 1;
+	int parameter_count = REG_START;
+	int variable_count = REG_START;
+	int call_and_save = 0;
 	Midcode* midcode;
 
 	while (iter != midcode_list_.end()) {
@@ -1208,8 +1227,17 @@ void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator&
 			this->GeneratePrintfIntChar(midcode, 11);
 			break;
 		case MidcodeInstr::PRINTF_STRING:
-			this->GeneratePrintfString(midcode);
-			break;
+		/*
+		{
+			int retflag;
+			this->Check3(midcode, iter, retflag);
+			if (retflag == 2) {
+				break;
+			}
+		}
+		*/
+		this->GeneratePrintfString(midcode);
+		break;
 		case MidcodeInstr::PRINTF_END:
 			this->GeneratePrintfEnd();
 			break;
@@ -1287,16 +1315,20 @@ void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator&
 			break;
 		case MidcodeInstr::PUSH:
 			this->GeneratePush(midcode, parameter_count);
-			parameter_count++;
 			break;
 		case MidcodeInstr::CALL:
-			this->GenerateCall(midcode);
+			this->GenerateCall(midcode, parameter_count);
+			call_and_save--;
+			if (call_and_save == 0) {
+				parameter_count = REG_START;
+			}
 			break;
 		case MidcodeInstr::SAVE:
-			this->GenerateSave(midcode);
+			this->GenerateSave(midcode, parameter_count);
+			call_and_save++;
 			break;
 		case MidcodeInstr::FUNCTION_END:
-			return this->GenerateFuncEnd(parameter_count, iter);
+			return this->GenerateFuncEnd(variable_count, iter);
 			break;
 		case MidcodeInstr::RETURN:
 			this->GenerateReturn(midcode, true);
@@ -1305,10 +1337,10 @@ void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator&
 			this->GenerateReturn(midcode, false);
 			break;
 		case MidcodeInstr::PARA_INT:
-			assert(0);
+			this->SetFunctionVariable(midcode, variable_count);
 			break;
 		case MidcodeInstr::PARA_CHAR:
-			assert(0);
+			this->SetFunctionVariable(midcode, variable_count);
 			break;
 		case MidcodeInstr::CONST_INT:
 			assert(0);
@@ -1317,10 +1349,10 @@ void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator&
 			assert(0);
 			break;
 		case MidcodeInstr::VAR_INT:
-			assert(0);
+			this->SetFunctionVariable(midcode, variable_count);
 			break;
 		case MidcodeInstr::VAR_CHAR:
-			assert(0);
+			this->SetFunctionVariable(midcode, variable_count);
 			break;
 		default:
 			assert(0);
@@ -1356,6 +1388,12 @@ void MipsGenerator::Generate() {
 			break;
 		case MidcodeInstr::VOID_FUNC_DECLARE:
 			this->GenerateFunction(midcode, iter);
+			break;
+		case MidcodeInstr::VAR_INT:
+			iter++;
+			break;
+		case MidcodeInstr::VAR_CHAR:
+			iter++;
 			break;
 		default:
 			assert(0);

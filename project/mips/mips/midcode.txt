@@ -1,184 +1,169 @@
+variable int random_name1
+variable int random_name2
 
-int gets1()
-i = 0
+int fibic()
+parameter int a
+ble a return1 Label_1
+save
+#1 = a - 1
+push #1
+call fibic
+#2 = RET
+save
+#3 = a - 2
+push #3
+call fibic
+#4 = RET
+#5 = #2 + #4
+return #5
+jump Label_2:
 Label_1:
-#1 = i + 1
-i = #1
-#2 = var2 + var1
-var1 = #2
-blt i var2 Label_1
-change1 = var1
-#3 = change1 * var2
-#4 = var2 + 1
-#5 = #4 - 1
-#6 = #3 / #5
-return #6
+return 1
+Label_2:
 function end
 
-int gets2()
-i = 0
-Label_2:
-bge i var2 Label_3
-#7 = var2 + var1
-var1 = #7
-i = i + 1
-jump Label_2:
+int abs()
+parameter int kk
+bge kk 0 Label_3
+#6 = -1 * kk
+return #6
+jump Label_4:
 Label_3:
-change2 = var1
-#8 = var1 + var1
-#9 = #8 - var1
+Label_4:
+return kk
+function end
+
+char plus()
+variable char plussy
+plussy = '+'
+return plussy
+function end
+
+int sum4()
+parameter int a
+parameter int b
+parameter int c
+parameter int d
+#7 = a + b
+#8 = #7 + c
+#9 = #8 + d
 return #9
 function end
 
-int gets3()
-i = 0
-Label_4:
-bge i var2 Label_5
-#10 = i + 1
-i = #10
-#11 = var2 + var1
-var1 = #11
-jump Label_4:
-Label_5:
-change3 = var1
-#12 = change3 + 0
-return #12
-function end
-
-int gets4()
-#13 = var2 * var2
-#14 = var1 + #13
-return #14
-function end
-
 void main()
+variable int cal
+variable int toPrinti
+variable char outch
+variable char underline
+scanf int toPrinti
+scanf char outch
+scanf int cal
 printf str_0
-#15 = const1 / 10
-#16 = #15 + 1
-#17 = #16 * const2
-#18 = const2 - 0
-#19 = const2 / #18
-#20 = #17 + #19
-printf int #20
+printf int toPrinti
 printf_end
-scanf int i
-scanf int k
+bez cal Label_:5
 printf str_1
-printf int i
+save
+push cal
+call abs
+#10 = RET
+printf int #10
 printf_end
-#21 = const1 + const2
-i = #21
-Label_6:
-bge i const2 Label_7
-#22 = i + 17060000
-testnum[i] = #22
-printf str_2
-printf int i
-printf_end
-#23 = testnum[i]
-printf int #23
-printf_end
-i = i + 1
 jump Label_6:
+Label_5:
+Label_6:
+#11 = maxFibic + 1
+blt cal #11 Label_7
+cal = maxFibic
+jump Label_8:
 Label_7:
+Label_8:
+underline = '_'
+printf char outch
+printf_end
+save
+call plus
+#12 = RET
+printf char #12
+printf_end
+printf str_2
+printf char underline
+printf_end
+save
+push cal
+call abs
+#13 = RET
+cal = #13
 printf str_3
-#24 = -1 * 1
-#25 = const1 / const2
-#26 = #25 * const2
-#27 = #24 - #26
-#28 = testnum[#27]
-printf int #28
+save
+#14 = -1 * 7
+push #14
+call abs
+#15 = RET
+printf int #15
 printf_end
 printf str_4
-#29 = -1 * 1
-#30 = const1 / const2
-#31 = #29 - #30
-#32 = testnum[#31]
-printf int #32
+save
+push cal
+call fibic
+#16 = RET
+printf int #16
 printf_end
 printf str_5
+save
+push 1
+save
+push 2
+save
+push 3
+push 4
+push 5
+push 6
+call sum4
+#17 = RET
+push #17
+push 7
+push 8
+call sum4
+#18 = RET
+push #18
+push 9
+save
+push 10
+push 11
+push 12
+push 13
+call sum4
+#19 = RET
+push #19
+call sum4
+#20 = RET
+printf int #20
 printf_end
+save
+push 1
+push 2
+push 3
+push 4
+call sum4
+#21 = RET
+beq #21 10 Label_9
 printf str_6
-save
-push const1
-push k
-call gets4
-#33 = RET
-printf int #33
 printf_end
-printf str_7
-save
-push const1
-push k
-call gets3
-#34 = RET
-printf int #34
-printf_end
-printf str_8
-save
-push const1
-push k
-call gets2
-#35 = RET
-printf int #35
-printf_end
-printf str_9
-save
-push const1
-push k
-call gets1
-#36 = RET
-printf int #36
-printf_end
-save
-push const1
-push k
-call gets1
-#37 = RET
-save
-push const1
-push k
-call gets2
-#38 = RET
-bne #37 #38 Label_8
-save
-push const1
-push k
-call gets1
-#39 = RET
-save
-push const1
-push k
-call gets3
-#40 = RET
-bne #39 #40 Label_9
-save
-push const1
-push k
-call gets1
-#41 = RET
-save
-push const1
-push k
-call gets4
-#42 = RET
-bne #41 #42 Label_10
-printf str_10
-printf_end
-jump Label_11:
-Label_10:
-printf str_11
-printf_end
-Label_11:
-jump Label_12:
+jump Label_10:
 Label_9:
-printf str_12
+printf str_7
+printf_end
+Label_10:
+#22 = lowerz - lowera
+#23 = capitalZ - 'A'
+bne #22 #23 Label_11
+printf str_8
+printf_end
+jump Label_12:
+Label_11:
+printf str_9
 printf_end
 Label_12:
-jump Label_13:
-Label_8:
-printf str_13
-printf_end
-Label_13:
 return
 function end

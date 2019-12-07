@@ -193,6 +193,7 @@ void ParseAnalyser::AnalyzeVariableDefine(SyntaxNode* node, int level) {
 			error_handing_->AddError(iter_->line_number, REDEFINITION);
 		}
 		Symbol* symbol = this->InsertIdentifier(KindSymbol::VARIABLE, type, level);
+		this->midcode_generator_->PrintVariable(type, iter_->value);
 		this->AddChild(node);	// IDENFR
 
 		if (this->IsThisIdentifier(LBRACK)) {
