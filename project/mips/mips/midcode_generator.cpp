@@ -19,6 +19,15 @@ void MidcodeGenerator::FileClose() {
 	this->midcode_.close();
 }
 
+void MidcodeGenerator::PrintParameter(TypeSymbol type, string name) {
+	string parameter_type = type == TypeSymbol::INT ? kIntType : kCharType;
+	this->midcode_ << "parameter " + parameter_type + " " + name << endl;
+
+	MidcodeInstr midcode_instr = type == TypeSymbol::INT
+		? MidcodeInstr::PARA_INT : MidcodeInstr::PARA_CHAR;
+	this->AddMidcode(new Midcode(midcode_instr, name));
+}
+
 void MidcodeGenerator::PrintFuncDeclare(Symbol* function) {
 	string type = function->type() == TypeSymbol::INT ? kIntType : kCharType;
 	this->midcode_ << endl << type + " " + function->name() + "()" << endl;

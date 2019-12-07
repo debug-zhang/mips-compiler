@@ -846,6 +846,7 @@ void ParseAnalyser::AnalyzeParameterTable(SyntaxNode* node, Symbol* function) {
 		}
 		function->AddParameter(type == TypeSymbol::INT ? '0' : '1');
 		this->InsertIdentifier(KindSymbol::PARAMETER, type, 1);
+		this->midcode_generator_->PrintParameter(type, iter_->value);
 		this->AddChild(node);	// IDENTFR
 		this->AddCommaChild(node);
 	}
@@ -861,18 +862,18 @@ void ParseAnalyser::AnalyzeVoidFunc(SyntaxNode* node) {
 	Symbol* function = FindSymbol(0);
 	this->CleanLevel(1);
 	this->AddChild(node);	// IDENFR
+	this->midcode_generator_->PrintVoidFuncDeclare(function);
 	this->AddChild(node);	// LPARENT
 	this->AnalyzeParameterTable(
 		this->AddSyntaxChild(PARAMETER_TABLE, node), function);
 	this->AddRparentChild(node);	// RPARENT
-	midcode_generator_->PrintVoidFuncDeclare(function);
 	this->AddChild(node);	// LBRACE
 	this->AnalyzeCompositeSentence(this->AddSyntaxChild(COMPOSITE_SENTENCE, node), TypeSymbol::VOID);
-	midcode_generator_->PrintReturn(true, "");
+	this->midcode_generator_->PrintReturn(true, "");
 	this->AddChild(node);	// RBRACE
 
-	midcode_generator_->PrintFuncEnd();
-	check_table_->AddFunctionVariableNumber(function->name(), reg_count_ - temp_reg);
+	this->midcode_generator_->PrintFuncEnd();
+	this->check_table_->AddFunctionVariableNumber(function->name(), reg_count_ - temp_reg);
 	this->InsertSymbolTable(function->name(), 1);
 }
 
@@ -893,11 +894,11 @@ void ParseAnalyser::AnalyzeFunc(SyntaxNode* node) {
 	Symbol* function = new Symbol();
 	int temp_reg = reg_count_;
 	this->AnalyzeHeadState(this->AddSyntaxChild(HEAD_STATE, node), function);
+	this->midcode_generator_->PrintFuncDeclare(function);
 	this->AddChild(node);	// LPARENT
 	this->AnalyzeParameterTable(
 		this->AddSyntaxChild(PARAMETER_TABLE, node), function);
 	this->AddRparentChild(node);	// RPARENT
-	midcode_generator_->PrintFuncDeclare(function);
 	this->AddChild(node);	// LBRACE
 	this->AnalyzeCompositeSentence(this->AddSyntaxChild(COMPOSITE_SENTENCE, node),
 		function->type());
