@@ -202,6 +202,9 @@ bool LexicalAnalyser::AnalyzeQuote(char& c) {
 				error_handing_->AddError(line_number_, ILLEGAL_SYMBOL_OR_LEXICAL_INCONFORMITY);
 			}
 			temp_lexeme_->value.push_back(c);
+			if (c == '\\') {
+				temp_lexeme_->value.push_back(c);
+			}
 		}
 		this->AddList(*temp_lexeme_, STRCON);
 		return true;
