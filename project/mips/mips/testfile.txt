@@ -1,61 +1,90 @@
-const int _begini = 0, _endi = +18, testfg = -6; 
-const char lowera = 'a', lowerz = 'z', capitalZ = 'Z';
-int random_name1, random_name2;
-int fibic(int a){    
-    const int return1 = 2;     
-    if(a > return1){         
-        return (fibic(a-1) + fibic(a-2));    
-    } else{         
-        return (1);     
-    } 
+int g_list[20];
+int testnum[10];
+int abs(int a){
+  g_list[0] = g_list[0] + 1;
+  if(a < 0){
+    return (-a ++ 0);     
+  }     
+  return (a +-0); 
 }  
 
-int abs(int kk){     
-    if(kk < 0){         
-        return (-kk);     
+void init(){     
+  int i;     
+  i = 0;     
+  while(i < 10){         
+    g_list[i] = 0;         
+    i = i + + 1;     
+  }    
+  g_list[1] = g_list[1] + 1; 
+}
+
+void show(){     
+  int i;     
+  g_list[3] = 1;     
+  i = 0;     
+  while(i < 4){         
+    printf(g_list[i]);         
+    i =i+1;    
+  } 
+}  
+
+int times(int a, int b){
+  g_list[2] = 1;     
+  return (a * b); 
+}  
+
+int sum4(int a, int b, int c, int d){ 
+  g_list[3] = 1 + g_list[3];     
+  return (a + b + c + d); 
+}  
+
+void fi(int i){
+  if(i){
+    testnum[i] = testnum[i++1] + testnum[i--2];
+    fi(i - 1); 
+  }  else{
+    testnum[i] = testnum[i++1] + testnum[i--2];  
+    return ;  
+  } 
+}   
+
+void main(){ 
+  int a;     
+  int theSum, i;    
+  char f;     
+  scanf(f, a);     
+  init();       
+  printf(sum4(abs(times(2, -2)), abs(-1), abs(-3), abs(22) ));   
+  testnum[9] = 1; 
+  testnum[7+'b' - 'a'] = 2;  
+  fi(7);    
+  printf("testnum[2] = ", testnum[testnum[8]]);  
+  printf("testnum[1] = ", testnum[1]); 
+  printf("testnum[3] = ", testnum[testnum[testnum[5]]+testnum[9]]);  
+  printf("testnum[0] = ", testnum[0]);       
+  theSum= 0;     
+  if( a > 10 ){         
+    i = 0;         
+    do{             
+      theSum = theSum + i;             
+      i = i + 1;         
+    }while(i < a);     
+  } else{         
+    if(f+0=='+'+0){             
+      i = 0;             
+      while(i < a+3){                 
+        theSum = theSum + i;                
+        i = i + 3;            
+      };         
+    } else{ 
+      i = 0;            
+      while(i < a+3){    
+        theSum = theSum - i;  
+        i = i + 3;             
+      };         
     }     
-    return (kk); 
-}  
-
-char plus(){     
-    char plussy;     
-    plussy = '+';     
-    return (plussy); 
-}  
-
-int sum4(int a, int b, int c, int d){    
-    return (a + b + c + d); 
-}  
-
-void main() {     
-    const int maxFibic = 13;     
-    const char chartimes = '*';     
-    int cal, toPrinti;     
-    char outch, underline;         
-    scanf(toPrinti, outch, cal);  
-    printf("\n", toPrinti);     
-    if(cal){         
-        printf("input cal != 0, abs(cal) = ", abs(cal));    
-    }       
-    if(cal >= maxFibic + 1){         
-        cal = maxFibic;     
-    }  
-    underline = '_';     
-    printf(outch);     
-    printf(plus());     
-    printf("+-*/", underline);      
-    cal = abs(cal);     
-    printf("abs(-7) = ", abs(-7));     
-    printf("fibic val = ",fibic(cal));      
-    printf("(expect 91)sum4=", sum4(1, sum4(2, sum4(3, 4, 5, 6), 7, 8), 9, sum4(10, 11, 12, 13)));     
-    if(sum4(1, 2, 3, 4)!=10){         
-        printf("1 + 2 + 3 + 4 != 10");     
-    } else{         
-        printf("1 + 2 + 3 + 4 == 10");     
-    }     
-    if(lowerz - lowera == capitalZ - 'A'){  
-        printf("Congratulations!");  
-    }  else{  
-        printf("Wrong");  
-    }
+  }          
+  show();  
+  printf(theSum);      
+  return; 
 }

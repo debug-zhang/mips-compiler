@@ -9,10 +9,12 @@
 #include "table.h"
 #include "objcode.h"
 
-#define TEMP_REG_START	5
-#define TEMP_REG_END	10
-#define REG_START		11
-#define REG_START_END	23
+#define TEMP_REG_START		5
+#define TEMP_REG_END		10
+#define GLOBEL_REG_START	11
+#define REG_START			14
+#define REG_START_END		23
+#define REG_STACK_LENGTH	(REG_START_END - TEMP_REG_START + 3)
 
 using namespace std;
 
@@ -108,7 +110,11 @@ private:
 
 	void GeneratePrintfString(Midcode* midcode);
 
+	void GeneratePrintfString(int str_count);
+
 	void GeneratePrintfIntChar(Midcode* midcode, int type);
+
+	void GeneratePrintfInt(int integer);
 
 	void GenerateAssignReturn(Midcode* midcode);
 
@@ -134,11 +140,15 @@ private:
 
 	void SetFunctionVariable(Midcode* midcode, int& variable_count);
 
-	void Check3(Midcode*& midcode, std::list<Midcode*>::iterator& iter, int& retflag);
+	void Check_2_String(Midcode*& midcode, std::list<Midcode*>::iterator& iter, int& retflag);
+
+	void Check_2_Int(Midcode* midcode, int& variable_count, std::list<Midcode*>::iterator& iter, int& retflag);
 
 	void GenerateBody(string function_name, list<Midcode*>::iterator& iter);
 
 	void GenerateFunction(Midcode* midcode, std::list<Midcode*>::iterator& iter);
+
+	void SetGlobelVariable(Midcode* midcode, int& variable_count, std::list<Midcode*>::iterator& iter);
 
 	void Generate();
 

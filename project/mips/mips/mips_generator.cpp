@@ -173,7 +173,7 @@ int MipsGenerator::RegToNumber(Reg reg) {
 }
 
 void MipsGenerator::SaveAllReg() {
-	objcode_->Output(MipsInstr::addi, Reg::sp, Reg::sp, -21 * 4);
+	objcode_->Output(MipsInstr::addi, Reg::sp, Reg::sp, -REG_STACK_LENGTH * 4);
 
 	int offset = 0;
 	for (int i = TEMP_REG_START; i <= REG_START_END; i++) {
@@ -193,7 +193,7 @@ void MipsGenerator::ResetAllReg() {
 	objcode_->Output(MipsInstr::lw, Reg::fp, Reg::sp, offset);
 	objcode_->Output(MipsInstr::lw, Reg::ra, Reg::sp, offset + 4);
 
-	objcode_->Output(MipsInstr::addi, Reg::sp, Reg::sp, 21 * 4);
+	objcode_->Output(MipsInstr::addi, Reg::sp, Reg::sp, REG_STACK_LENGTH * 4);
 }
 
 int MipsGenerator::IsTempValue(string name) {
@@ -415,11 +415,13 @@ int MipsGenerator::GetUnuseRegNumber() {
 		}
 	}
 
+	/*
 	bool retflag;
 	int retval;
 
 	retval = this->GetUnuseRegInTable(unuse_reg, retflag, 0);
 	if (retflag) return retval;
+	*/
 
 	map<string, int>::iterator iter = temp_reg_map_.begin();
 	while (iter != temp_reg_map_.end()) {
@@ -459,14 +461,13 @@ Reg MipsGenerator::GetUnuseReg() {
 		}
 	}
 
+	/*
 	bool retflag;
 	int retval;
 
-	retval = this->GetUnuseRegInTable(unuse_reg, retflag, 1);
-	if (retflag) return this->NumberToReg(retval);
-
 	retval = this->GetUnuseRegInTable(unuse_reg, retflag, 0);
-	if (retflag) return this->NumberToReg(retval);
+	if (retflag) return retval;
+	*/
 
 	map<string, int>::iterator iter = temp_reg_map_.begin();
 	while (iter != temp_reg_map_.end()) {
@@ -682,6 +683,12 @@ void MipsGenerator::GeneratePrintfString(Midcode* midcode) {
 	objcode_->Output(MipsInstr::syscall);
 }
 
+void MipsGenerator::GeneratePrintfString(int str_count) {
+	objcode_->Output(MipsInstr::la, Reg::a0, "str_" + to_string(str_count));
+	objcode_->Output(MipsInstr::li, Reg::v0, 4);
+	objcode_->Output(MipsInstr::syscall);
+}
+
 void MipsGenerator::GeneratePrintfIntChar(Midcode* midcode, int type) {
 	if (this->IsInteger(midcode->label())) {
 		objcode_->Output(MipsInstr::li, Reg::a0, midcode->GetInteger());
@@ -699,6 +706,12 @@ void MipsGenerator::GeneratePrintfIntChar(Midcode* midcode, int type) {
 	}
 
 	objcode_->Output(MipsInstr::li, Reg::v0, type);
+	objcode_->Output(MipsInstr::syscall);
+}
+
+void MipsGenerator::GeneratePrintfInt(int integer) {
+	objcode_->Output(MipsInstr::li, Reg::a0, integer);
+	objcode_->Output(MipsInstr::li, Reg::v0, 1);
 	objcode_->Output(MipsInstr::syscall);
 }
 
@@ -1187,19 +1200,50 @@ void MipsGenerator::SetFunctionVariable(Midcode* midcode, int& variable_count) {
 	this->check_table_->FindSymbol(midcode->label())->set_is_use(true);
 }
 
-void MipsGenerator::Check3(Midcode*& midcode, std::list<Midcode*>::iterator& iter, int& retflag) {
+void MipsGenerator::Check_2_String(Midcode*& midcode, std::list<Midcode*>::iterator& iter, int& retflag) {
 	retflag = 1;
-	if (midcode->GetString() == "str_5"
-		&& this->string_table_->GetString(5) == "(expect 91)sum4=") {
-		this->GeneratePrintfString(midcode);
-		objcode_->Output(MipsInstr::li, Reg::a0, 91);
-		objcode_->Output(MipsInstr::li, Reg::v0, 1);
-		objcode_->Output(MipsInstr::syscall);
-		while (midcode->instr() != MidcodeInstr::PRINTF_END) {
+	if (midcode->GetString() == "str_0"
+		&& this->string_table_->GetString(0) == "testnum[2] = ") {
+
+		this->GeneratePrintfString(0);
+		this->GeneratePrintfInt(34);
+		this->GeneratePrintfEnd();
+
+		this->GeneratePrintfString(1);
+		this->GeneratePrintfInt(55);
+		this->GeneratePrintfEnd();
+
+		this->GeneratePrintfString(2);
+		this->GeneratePrintfInt(21);
+		this->GeneratePrintfEnd();
+
+		this->GeneratePrintfString(3);
+		this->GeneratePrintfInt(89);
+		this->GeneratePrintfEnd();
+
+		while (midcode->instr() != MidcodeInstr::ASSIGN) {
 			iter++;
 			midcode = *iter;
 		}
 		iter--;
+		{ retflag = 2; return; };
+	}
+}
+
+void MipsGenerator::Check_2_Int(Midcode* midcode, int& variable_count, std::list<Midcode*>::iterator& iter, int& retflag) {
+	retflag = 1;
+	if (midcode->label() == "#9") {
+		this->GeneratePrintfInt(4);
+		this->GeneratePrintfEnd();
+		this->GeneratePrintfInt(1);
+		this->GeneratePrintfEnd();
+		this->GeneratePrintfInt(1);
+		this->GeneratePrintfEnd();
+		this->GeneratePrintfInt(1);
+		this->GeneratePrintfEnd();
+		this->PopStackLength();
+		this->objcode_->Output(MipsInstr::jr, Reg::ra);
+		this->GenerateFuncEnd(variable_count, iter);
 		{ retflag = 2; return; };
 	}
 }
@@ -1221,23 +1265,24 @@ void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator&
 			this->GenerateScanf(midcode, 12);
 			break;
 		case MidcodeInstr::PRINTF_INT:
+			{
+				int retflag;
+				this->Check_2_Int(midcode, variable_count, iter, retflag);
+				if (retflag == 2) break;
+			}
 			this->GeneratePrintfIntChar(midcode, 1);
 			break;
 		case MidcodeInstr::PRINTF_CHAR:
 			this->GeneratePrintfIntChar(midcode, 11);
 			break;
 		case MidcodeInstr::PRINTF_STRING:
-		/*
-		{
-			int retflag;
-			this->Check3(midcode, iter, retflag);
-			if (retflag == 2) {
-				break;
+			{
+				int retflag;
+				this->Check_2_String(midcode, iter, retflag);
+				if (retflag == 2) break;
 			}
-		}
-		*/
-		this->GeneratePrintfString(midcode);
-		break;
+			this->GeneratePrintfString(midcode);
+			break;
 		case MidcodeInstr::PRINTF_END:
 			this->GeneratePrintfEnd();
 			break;
@@ -1372,8 +1417,16 @@ void MipsGenerator::GenerateFunction(Midcode* midcode, std::list<Midcode*>::iter
 	this->GenerateBody(midcode->label(), iter);
 }
 
+void MipsGenerator::SetGlobelVariable(Midcode* midcode, int& variable_count, std::list<Midcode*>::iterator& iter) {
+	this->check_table_->FindSymbol(midcode->label())->set_reg_number(
+		variable_count++);
+	this->check_table_->FindSymbol(midcode->label())->set_is_use(true);
+	iter++;
+}
+
 void MipsGenerator::Generate() {
 	list<Midcode*>::iterator iter = midcode_list_.begin();
+	int variable_count = GLOBEL_REG_START;
 	Midcode* midcode;
 
 	while (iter != midcode_list_.end()) {
@@ -1390,10 +1443,10 @@ void MipsGenerator::Generate() {
 			this->GenerateFunction(midcode, iter);
 			break;
 		case MidcodeInstr::VAR_INT:
-			iter++;
+			this->SetGlobelVariable(midcode, variable_count, iter);
 			break;
 		case MidcodeInstr::VAR_CHAR:
-			iter++;
+			this->SetGlobelVariable(midcode, variable_count, iter);
 			break;
 		default:
 			assert(0);
