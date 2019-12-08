@@ -140,10 +140,6 @@ private:
 
 	void SetFunctionVariable(Midcode* midcode, int& variable_count);
 
-	void Check_2_String(Midcode*& midcode, std::list<Midcode*>::iterator& iter, int& retflag);
-
-	void Check_2_Int(Midcode* midcode, int& variable_count, std::list<Midcode*>::iterator& iter, int& retflag);
-
 	void GenerateBody(string function_name, list<Midcode*>::iterator& iter);
 
 	void GenerateFunction(Midcode* midcode, std::list<Midcode*>::iterator& iter);

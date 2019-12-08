@@ -733,6 +733,8 @@ void MipsGenerator::SetArrayIndex(int& offset, Symbol* symbol,
 	int is_use_t9 = false;
 	offset = symbol->sp_offer();
 
+	objcode_->Output(MipsInstr::move, Reg::fp, Reg::k1);
+
 	if (this->IsInteger(array_index)) {
 		offset += 4 * stoi(array_index);
 	} else if (this->IsChar(array_index)) {
@@ -1200,54 +1202,6 @@ void MipsGenerator::SetFunctionVariable(Midcode* midcode, int& variable_count) {
 	this->check_table_->FindSymbol(midcode->label())->set_is_use(true);
 }
 
-void MipsGenerator::Check_2_String(Midcode*& midcode, std::list<Midcode*>::iterator& iter, int& retflag) {
-	retflag = 1;
-	if (midcode->GetString() == "str_0"
-		&& this->string_table_->GetString(0) == "testnum[2] = ") {
-
-		this->GeneratePrintfString(0);
-		this->GeneratePrintfInt(34);
-		this->GeneratePrintfEnd();
-
-		this->GeneratePrintfString(1);
-		this->GeneratePrintfInt(55);
-		this->GeneratePrintfEnd();
-
-		this->GeneratePrintfString(2);
-		this->GeneratePrintfInt(21);
-		this->GeneratePrintfEnd();
-
-		this->GeneratePrintfString(3);
-		this->GeneratePrintfInt(89);
-		this->GeneratePrintfEnd();
-
-		while (midcode->instr() != MidcodeInstr::ASSIGN) {
-			iter++;
-			midcode = *iter;
-		}
-		iter--;
-		{ retflag = 2; return; };
-	}
-}
-
-void MipsGenerator::Check_2_Int(Midcode* midcode, int& variable_count, std::list<Midcode*>::iterator& iter, int& retflag) {
-	retflag = 1;
-	if (midcode->label() == "#9") {
-		this->GeneratePrintfInt(4);
-		this->GeneratePrintfEnd();
-		this->GeneratePrintfInt(1);
-		this->GeneratePrintfEnd();
-		this->GeneratePrintfInt(1);
-		this->GeneratePrintfEnd();
-		this->GeneratePrintfInt(1);
-		this->GeneratePrintfEnd();
-		this->PopStackLength();
-		this->objcode_->Output(MipsInstr::jr, Reg::ra);
-		this->GenerateFuncEnd(variable_count, iter);
-		{ retflag = 2; return; };
-	}
-}
-
 void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator& iter) {
 	int parameter_count = REG_START;
 	int variable_count = REG_START;
@@ -1265,22 +1219,12 @@ void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator&
 			this->GenerateScanf(midcode, 12);
 			break;
 		case MidcodeInstr::PRINTF_INT:
-			{
-				int retflag;
-				this->Check_2_Int(midcode, variable_count, iter, retflag);
-				if (retflag == 2) break;
-			}
 			this->GeneratePrintfIntChar(midcode, 1);
 			break;
 		case MidcodeInstr::PRINTF_CHAR:
 			this->GeneratePrintfIntChar(midcode, 11);
 			break;
 		case MidcodeInstr::PRINTF_STRING:
-			{
-				int retflag;
-				this->Check_2_String(midcode, iter, retflag);
-				if (retflag == 2) break;
-			}
 			this->GeneratePrintfString(midcode);
 			break;
 		case MidcodeInstr::PRINTF_END:
@@ -1429,6 +1373,7 @@ void MipsGenerator::Generate() {
 	int variable_count = GLOBEL_REG_START;
 	Midcode* midcode;
 
+	objcode_->Output(MipsInstr::move, Reg::k1, Reg::fp);
 	while (iter != midcode_list_.end()) {
 		midcode = *iter;
 
