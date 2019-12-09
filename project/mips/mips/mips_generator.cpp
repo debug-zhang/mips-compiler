@@ -1359,16 +1359,8 @@ void MipsGenerator::GenerateFunction(Midcode* midcode, std::list<Midcode*>::iter
 	this->GenerateBody(midcode->label(), iter);
 }
 
-void MipsGenerator::SetGlobelVariable(Midcode* midcode, int& variable_count, std::list<Midcode*>::iterator& iter) {
-	this->check_table_->FindSymbol(midcode->label())->set_reg_number(
-		variable_count++);
-	this->check_table_->FindSymbol(midcode->label())->set_is_use(true);
-	iter++;
-}
-
 void MipsGenerator::Generate() {
 	list<Midcode*>::iterator iter = midcode_list_.begin();
-	int variable_count = GLOBEL_REG_START;
 	Midcode* midcode;
 
 	while (iter != midcode_list_.end()) {
@@ -1385,10 +1377,10 @@ void MipsGenerator::Generate() {
 			this->GenerateFunction(midcode, iter);
 			break;
 		case MidcodeInstr::VAR_INT:
-			this->SetGlobelVariable(midcode, variable_count, iter);
+			iter++;
 			break;
 		case MidcodeInstr::VAR_CHAR:
-			this->SetGlobelVariable(midcode, variable_count, iter);
+			iter++;
 			break;
 		default:
 			assert(0);

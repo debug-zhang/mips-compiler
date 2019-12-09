@@ -11,9 +11,8 @@
 
 #define TEMP_REG_START		5
 #define TEMP_REG_END		10
-#define GLOBEL_REG_START	11
-#define REG_START			14
-#define REG_START_END		23
+#define REG_START			11
+#define REG_START_END		27
 #define REG_STACK_LENGTH	(REG_START_END - TEMP_REG_START + 3)
 
 using namespace std;
