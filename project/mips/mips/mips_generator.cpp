@@ -589,7 +589,18 @@ void MipsGenerator::GenerateJudge(Midcode* midcode, MidcodeInstr judge) {
 	}
 }
 
-void MipsGenerator::GenerateSave(Midcode* midcode, int& parameter_count) {
+void MipsGenerator::GenerateCall(Midcode* midcode, int& parameter_count, int& call_and_save) {
+	this->objcode_->Output(MipsInstr::jal, midcode->label());
+	this->ResetAllReg();
+	parameter_count = this->parameter_count_old;
+
+	call_and_save--;
+	if (call_and_save == 0) {
+		parameter_count = REG_START;
+	}
+}
+
+void MipsGenerator::GenerateSave(Midcode* midcode, int& parameter_count, int& call_and_save) {
 	this->parameter_count_old = parameter_count;
 	parameter_count = REG_START;
 
@@ -598,12 +609,8 @@ void MipsGenerator::GenerateSave(Midcode* midcode, int& parameter_count) {
 		midcode->label(), 0)->GetParameterCount() * 4;
 	this->objcode_->Output(MipsInstr::move, Reg::fp, Reg::sp);
 	this->objcode_->Output(MipsInstr::subi, Reg::sp, Reg::sp, stack_length);
-}
 
-void MipsGenerator::GenerateCall(Midcode* midcode, int& parameter_count) {
-	this->objcode_->Output(MipsInstr::jal, midcode->label());
-	this->ResetAllReg();
-	parameter_count = this->parameter_count_old;
+	call_and_save++;
 }
 
 void MipsGenerator::GenerateScanf(Midcode* midcode, int type) {
@@ -1304,15 +1311,10 @@ void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator&
 			this->GeneratePush(midcode, parameter_count);
 			break;
 		case MidcodeInstr::CALL:
-			this->GenerateCall(midcode, parameter_count);
-			call_and_save--;
-			if (call_and_save == 0) {
-				parameter_count = REG_START;
-			}
+			this->GenerateCall(midcode, parameter_count, call_and_save);
 			break;
 		case MidcodeInstr::SAVE:
-			this->GenerateSave(midcode, parameter_count);
-			call_and_save++;
+			this->GenerateSave(midcode, parameter_count, call_and_save);
 			break;
 		case MidcodeInstr::FUNCTION_END:
 			return this->GenerateFuncEnd(variable_count, iter);

@@ -89,9 +89,9 @@ private:
 
 	void GenerateJudge(Midcode* midcode, MidcodeInstr judge);
 
-	void GenerateSave(Midcode* midcode, int& parameter_count);
+	void GenerateCall(Midcode* midcode, int& parameter_count, int& call_and_save);
 
-	void GenerateCall(Midcode* midcode, int& parameter_count);
+	void GenerateSave(Midcode* midcode, int& parameter_count, int& call_and_save);
 
 	void GenerateScanf(Midcode* midcode, int type);
 
