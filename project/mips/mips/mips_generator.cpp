@@ -100,7 +100,7 @@ void MipsGenerator::InitDataSeg() {
 }
 
 void MipsGenerator::InitStack() {
-	objcode_->Output(MipsInstr::la, Reg::k0, "global_space");
+	objcode_->Output(MipsInstr::la, Reg::v1, "global_space");
 	objcode_->Output(MipsInstr::move, Reg::gp, Reg::sp);
 	objcode_->Output(MipsInstr::move, Reg::fp, Reg::sp);
 	objcode_->Output();
@@ -350,7 +350,7 @@ int MipsGenerator::LoadTempRegToNumber(string name) {
 	} else {
 		int unuse_reg = this->GetUnuseRegNumber();
 		objcode_->Output(MipsInstr::lw, this->NumberToReg(unuse_reg),
-			Reg::k0, -temp_reg_map_.at(name));
+			Reg::v1, -temp_reg_map_.at(name));
 		temp_reg_map_.at(name) = unuse_reg;
 		return unuse_reg;
 	}
@@ -431,7 +431,7 @@ int MipsGenerator::GetUnuseRegNumber() {
 			dm_offset += 4;
 			iter->second = -dm_offset;
 			objcode_->Output(MipsInstr::sw, this->NumberToReg(unuse_reg),
-				Reg::k0, dm_offset);
+				Reg::v1, dm_offset);
 			return unuse_reg;
 		}
 		iter++;
@@ -477,7 +477,7 @@ Reg MipsGenerator::GetUnuseReg() {
 			dm_offset += 4;
 			iter->second = -dm_offset;
 			objcode_->Output(MipsInstr::sw, this->NumberToReg(unuse_reg),
-				Reg::k0, dm_offset);
+				Reg::v1, dm_offset);
 			return this->NumberToReg(unuse_reg);
 		}
 		iter++;
@@ -733,8 +733,6 @@ void MipsGenerator::SetArrayIndex(int& offset, Symbol* symbol,
 	int is_use_t9 = false;
 	offset = symbol->sp_offer();
 
-	objcode_->Output(MipsInstr::move, Reg::fp, Reg::k1);
-
 	if (this->IsInteger(array_index)) {
 		offset += 4 * stoi(array_index);
 	} else if (this->IsChar(array_index)) {
@@ -742,21 +740,21 @@ void MipsGenerator::SetArrayIndex(int& offset, Symbol* symbol,
 	} else if (this->IsTempReg(array_index)) {
 		objcode_->Output(MipsInstr::sll, Reg::t9,
 			this->LoadTempRegToReg(array_index), 2);
-		objcode_->Output(MipsInstr::add, Reg::t9, Reg::t9, Reg::fp);
+		objcode_->Output(MipsInstr::add, Reg::t9, Reg::t9, Reg::v1);
 		is_use_t9 = true;
 	} else if (this->IsConstVariable(array_index)) {
 		objcode_->Output(MipsInstr::li, Reg::t9, this->GetConstVariable(array_index));
 		objcode_->Output(MipsInstr::sll, Reg::t9, Reg::t9, 2);
-		objcode_->Output(MipsInstr::add, Reg::t9, Reg::t9, Reg::fp);
+		objcode_->Output(MipsInstr::add, Reg::t9, Reg::t9, Reg::v1);
 		is_use_t9 = true;
 	} else {
 		objcode_->Output(MipsInstr::sll, Reg::t9,
 			this->LoadVariableToReg(array_index), 2);
-		objcode_->Output(MipsInstr::add, Reg::t9, Reg::t9, Reg::fp);
+		objcode_->Output(MipsInstr::add, Reg::t9, Reg::t9, Reg::v1);
 		is_use_t9 = true;
 	}
 
-	reg_index = is_use_t9 ? Reg::t9 : Reg::fp;
+	reg_index = is_use_t9 ? Reg::t9 : Reg::v1;
 }
 
 void MipsGenerator::GenerateLoadArray(Midcode* midcode) {
@@ -1373,7 +1371,6 @@ void MipsGenerator::Generate() {
 	int variable_count = GLOBEL_REG_START;
 	Midcode* midcode;
 
-	objcode_->Output(MipsInstr::move, Reg::k1, Reg::fp);
 	while (iter != midcode_list_.end()) {
 		midcode = *iter;
 
