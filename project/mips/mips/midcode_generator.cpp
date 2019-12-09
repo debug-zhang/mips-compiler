@@ -274,7 +274,7 @@ void MidcodeGenerator::PrintFuncEnd() {
 }
 
 void MidcodeGenerator::PrintSave(string function_name) {
-	midcode_ << "save" << endl;
+	midcode_ << "save " + function_name << endl;
 
 	this->AddMidcode(new Midcode(MidcodeInstr::SAVE, function_name));
 }

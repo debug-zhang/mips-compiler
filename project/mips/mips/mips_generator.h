@@ -12,8 +12,8 @@
 #define TEMP_REG_START		5
 #define TEMP_REG_END		10
 #define REG_START			11
-#define REG_START_END		27
-#define REG_STACK_LENGTH	(REG_START_END - TEMP_REG_START + 3)
+#define REG_END				27
+#define REG_STACK_LENGTH	(REG_END - TEMP_REG_START + 3)
 
 using namespace std;
 
@@ -56,7 +56,9 @@ private:
 	int RegToNumber(Reg reg);
 
 	void SaveAllReg();
+	void SaveAllReg(string function_name);
 	void ResetAllReg();
+	void ResetAllReg(string function_name);
 
 	int IsTempValue(string name);
 	void LoadValue(string symbol, string function, Reg reg);
