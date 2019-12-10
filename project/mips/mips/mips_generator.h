@@ -145,8 +145,6 @@ private:
 
 	void GenerateFunction(Midcode* midcode, std::list<Midcode*>::iterator& iter);
 
-	void SetGlobelVariable(Midcode* midcode, int& variable_count, std::list<Midcode*>::iterator& iter);
-
 	void Generate();
 
 public:
