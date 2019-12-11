@@ -403,6 +403,14 @@ void MipsGenerator::PoptempReg(string name) {
 	temp_use_reg_map_.erase(name);
 }
 
+void MipsGenerator::PoptempReg(Reg reg) {
+	reg_use_stack_[this->RegToNumber(reg)] = 0;
+}
+
+void MipsGenerator::PoptempReg(int number) {
+	reg_use_stack_[number] = 0;
+}
+
 int MipsGenerator::GetUnuseRegInTable(int& unuse_reg, bool& retflag, int level) {
 	Symbol* symbol;
 	map<string, Symbol*> symbol_map = check_table_->GetSymbolMap(level);
@@ -814,6 +822,7 @@ void MipsGenerator::GenerateLoadArray(Midcode* midcode) {
 	objcode_->Output(MipsInstr::lw, this->NumberToReg(reg), reg_index, offset);
 
 	this->DeleteTempUseRegMap(midcode->GetTempReg());
+	this->PoptempReg(reg_index);
 }
 
 void MipsGenerator::GenerateAssignArray(Midcode* midcode) {
@@ -844,6 +853,7 @@ void MipsGenerator::GenerateAssignArray(Midcode* midcode) {
 	}
 
 	objcode_->Output(MipsInstr::sw, reg_value, reg_index, offset);
+	this->PoptempReg(reg_index);
 }
 
 void MipsGenerator::GenerateAssign(Midcode* midcode) {
@@ -871,6 +881,7 @@ void MipsGenerator::GenerateAssign(Midcode* midcode) {
 	} else if (this->IsTempReg(value)) {
 		this->objcode_->Output(MipsInstr::move,
 			this->NumberToReg(reg_result), this->LoadTempRegToReg(value));
+		this->PoptempReg(value);
 	} else if (IsConstVariable(value)) {
 		this->objcode_->Output(MipsInstr::li,
 			this->NumberToReg(reg_result), this->GetConstVariable(value));
@@ -893,7 +904,7 @@ void MipsGenerator::GenerateNeg(Midcode* midcode, string temp_reg_result) {
 	this->InsertTempUseRegMap(temp_reg_result);
 	this->temp_reg_map_.insert(pair<string, int>(temp_reg_result, reg_result));
 
-	Reg reg1;
+	Reg reg1 = Reg::zero;
 	string value1 = midcode->reg1();
 	bool is_immediate = false;
 	int immediate = 0;
@@ -916,6 +927,7 @@ void MipsGenerator::GenerateNeg(Midcode* midcode, string temp_reg_result) {
 	} else {
 		objcode_->Output(MipsInstr::sub,
 			this->NumberToReg(reg_result), Reg::zero, reg1);
+		this->PoptempReg(reg1);
 	}
 
 	this->DeleteTempUseRegMap(temp_reg_result);
@@ -948,13 +960,14 @@ void MipsGenerator::DealRegOpReg(Midcode* midcode, MidcodeInstr op, int reg_resu
 		assert(0);
 		break;
 	}
-
+	this->PoptempReg(reg1);
+	this->PoptempReg(reg2);
 }
 
 void MipsGenerator::DealRegOpNumber(Midcode* midcode, MidcodeInstr op, int reg_result) {
 	Reg reg1 = this->LoadTempRegToReg(midcode->GetTempReg1());
 
-	Reg reg2;
+	Reg reg2 = Reg::zero;
 	string value = midcode->reg2();
 	bool is_immediate = false;
 	int immediate = 0;
@@ -1014,10 +1027,12 @@ void MipsGenerator::DealRegOpNumber(Midcode* midcode, MidcodeInstr op, int reg_r
 	}
 
 	this->PoptempReg(value);
+	this->PoptempReg(reg1);
+	this->PoptempReg(reg2);
 }
 
 void MipsGenerator::DealNumberOpNumber(Midcode* midcode, MidcodeInstr op, int reg_result) {
-	Reg reg1;
+	Reg reg1 = Reg::zero;
 	string value1 = midcode->reg1();
 	bool is_immediate1 = false;
 	int immediate1 = 0;
@@ -1034,7 +1049,7 @@ void MipsGenerator::DealNumberOpNumber(Midcode* midcode, MidcodeInstr op, int re
 		reg1 = this->LoadVariableToReg(value1);
 	}
 
-	Reg reg2;
+	Reg reg2 = Reg::zero;
 	string value2 = midcode->reg2();
 	bool is_immediate2 = false;
 	int immediate2 = 0;
@@ -1172,10 +1187,12 @@ void MipsGenerator::DealNumberOpNumber(Midcode* midcode, MidcodeInstr op, int re
 
 	this->PoptempReg(value1);
 	this->PoptempReg(value2);
+	this->PoptempReg(reg1);
+	this->PoptempReg(reg2);
 }
 
 void MipsGenerator::DealNumberOpReg(Midcode* midcode, MidcodeInstr op, int reg_result) {
-	Reg reg1;
+	Reg reg1 = Reg::zero;
 	string value = midcode->reg2();
 	bool is_immediate = false;
 	int immediate = 0;
@@ -1244,6 +1261,8 @@ void MipsGenerator::DealNumberOpReg(Midcode* midcode, MidcodeInstr op, int reg_r
 
 	this->PoptempReg(midcode->GetTempReg1());
 	this->PoptempReg(value);
+	this->PoptempReg(reg1);
+	this->PoptempReg(reg2);
 }
 
 void MipsGenerator::GenerateOperate(Midcode* midcode, MidcodeInstr op, string result) {
@@ -1294,100 +1313,6 @@ void MipsGenerator::SetFunctionVariable(Midcode* midcode, int& variable_count) {
 		variable_count++);
 	this->check_table_->FindSymbol(midcode->label())->set_is_use(true);
 }
-
-void MipsGenerator::GenerateLoopJudge(list<Midcode*>::iterator& iter) {
-	Midcode* midcode = *(++iter);
-	MidcodeInstr judge = midcode->instr();
-	MipsInstr mips_instr = MipsInstr::bgt;
-	Reg t0 = Reg::zero;
-	Reg t1 = Reg::zero;
-	bool flag = true;
-
-	switch (judge) {
-	case MidcodeInstr::BGT:
-		mips_instr = MipsInstr::bgt;
-		this->judge_instr_list_.push_back(MipsInstr::ble);
-
-		t0 = SetJudgeReg(midcode, midcode->reg1());
-		t1 = SetJudgeReg(midcode, midcode->reg2());
-		break;
-	case MidcodeInstr::BGE:
-		mips_instr = MipsInstr::bge;
-		this->judge_instr_list_.push_back(MipsInstr::blt);
-
-		t0 = SetJudgeReg(midcode, midcode->reg1());
-		t1 = SetJudgeReg(midcode, midcode->reg2());
-		break;
-	case MidcodeInstr::BLT:
-		mips_instr = MipsInstr::blt;
-		this->judge_instr_list_.push_back(MipsInstr::bge);
-
-		t0 = SetJudgeReg(midcode, midcode->reg1());
-		t1 = SetJudgeReg(midcode, midcode->reg2());
-		break;
-	case MidcodeInstr::BLE:
-		mips_instr = MipsInstr::ble;
-		this->judge_instr_list_.push_back(MipsInstr::bgt);
-
-		t0 = SetJudgeReg(midcode, midcode->reg1());
-		t1 = SetJudgeReg(midcode, midcode->reg2());
-		break;
-	case MidcodeInstr::BEQ:
-		mips_instr = MipsInstr::beq;
-		this->judge_instr_list_.push_back(MipsInstr::bne);
-
-		t0 = SetJudgeReg(midcode, midcode->reg1());
-		t1 = SetJudgeReg(midcode, midcode->reg2());
-		break;
-	case MidcodeInstr::BNE:
-		mips_instr = MipsInstr::bne;
-		this->judge_instr_list_.push_back(MipsInstr::beq);
-
-		t0 = SetJudgeReg(midcode, midcode->reg1());
-		t1 = SetJudgeReg(midcode, midcode->reg2());
-		break;
-	case MidcodeInstr::BEZ:
-		mips_instr = MipsInstr::beq;
-		this->judge_instr_list_.push_back(MipsInstr::bne);
-
-		t0 = SetJudgeReg(midcode, midcode->reg1());
-		flag = false;
-		break;
-	case MidcodeInstr::BNZ:
-		mips_instr = MipsInstr::bne;
-		this->judge_instr_list_.push_back(MipsInstr::beq);
-
-		t0 = SetJudgeReg(midcode, midcode->reg1());
-		flag = false;
-		break;
-	default:
-		assert(0);
-		break;
-	}
-
-	this->objcode_->Output(mips_instr, t0, t1, midcode->GetLabel());
-	
-	this->judge_reg_list_.push_back(t1);
-	this->judge_reg_list_.push_back(t0);
-	this->judeg_reg1 = midcode->reg1();
-	this->judeg_reg2 = midcode->reg2();
-}
-
-void MipsGenerator::GenerateLoopJudgeEnd(Midcode* midcode, string lable) {
-	MipsInstr mips_instr = this->judge_instr_list_.back();
-	this->judge_instr_list_.pop_back();
-
-	Reg t0 = this->judge_reg_list_.back();
-	this->judge_reg_list_.pop_back();
-	Reg t1 = this->judge_reg_list_.back();
-	this->judge_reg_list_.pop_back();
-
-	this->objcode_->Output(mips_instr, t0, t1, lable);
-
-	this->ResetJudgeReg(this->judeg_reg1, t0);
-	this->ResetJudgeReg(this->judeg_reg2, t1);
-}
-
 
 void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator& iter) {
 	int parameter_count = REG_START;
@@ -1464,12 +1389,6 @@ void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator&
 			break;
 		case MidcodeInstr::DIV:
 			this->GenerateOperate(midcode, MidcodeInstr::DIV, midcode->GetTempRegResult());
-			break;
-		case MidcodeInstr::LOOP_JUDGE:
-			this->GenerateLoopJudge(iter);
-			break;
-		case MidcodeInstr::LOOP_JUDGE_END:
-			this->GenerateLoopJudgeEnd(midcode, midcode->GetLabel());
 			break;
 		case MidcodeInstr::BGT:
 			this->GenerateJudge(midcode, MidcodeInstr::BGT);

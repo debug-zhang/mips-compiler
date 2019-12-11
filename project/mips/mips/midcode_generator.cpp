@@ -318,11 +318,3 @@ void MidcodeGenerator::PrintNeg(int result_reg, string number) {
 
 	this->AddMidcode(new Midcode(MidcodeInstr::NEG, result_reg, number));
 }
-
-void MidcodeGenerator::PrintLoopJudge() {
-	this->AddMidcode(new Midcode(MidcodeInstr::LOOP_JUDGE));
-}
-
-void MidcodeGenerator::PrintLoopJudgeEnd(int lable) {
-	this->AddMidcode(new Midcode(MidcodeInstr::LOOP_JUDGE_END, lable));
-}

@@ -80,7 +80,5 @@ public:
 	void PrintNumberOpNumber(int result_reg, string number1, string number2, string op);
 
 	void PrintNeg(int result_reg, string number);
-	void PrintLoopJudge();
-	void PrintLoopJudgeEnd(int lable);
 };
 
