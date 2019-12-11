@@ -243,26 +243,6 @@ int MipsGenerator::IsTempValue(string name) {
 	}
 }
 
-void MipsGenerator::LoadValue(string symbol, string function, Reg reg) {
-	if (IsTempValue(symbol)) {
-		this->objcode_->Output(MipsInstr::li, Reg::t1, IsTempValue(symbol) * 4);
-		this->objcode_->Output(MipsInstr::lw, reg, Reg::t1, function + "_space");
-
-	} else {
-		this->objcode_->Output(MipsInstr::lw, reg, Reg::t1, symbol);
-	}
-}
-
-void MipsGenerator::StoreValue(string symbol, string function, Reg reg) {
-	if (IsTempValue(symbol)) {
-		this->objcode_->Output(MipsInstr::li, Reg::t1, IsTempValue(symbol) * 4);
-		this->objcode_->Output(MipsInstr::sw, reg, Reg::t1, function + "_space");
-
-	} else {
-		this->objcode_->Output(MipsInstr::sw, reg, Reg::t1, symbol);
-	}
-}
-
 void MipsGenerator::LoadTable(int level, string table_name) {
 	this->check_table_->SetTable(level, symbol_table_map_.at(table_name));
 }
@@ -822,7 +802,6 @@ void MipsGenerator::GenerateLoadArray(Midcode* midcode) {
 	objcode_->Output(MipsInstr::lw, this->NumberToReg(reg), reg_index, offset);
 
 	this->DeleteTempUseRegMap(midcode->GetTempReg());
-	this->PoptempReg(reg_index);
 }
 
 void MipsGenerator::GenerateAssignArray(Midcode* midcode) {
@@ -853,7 +832,6 @@ void MipsGenerator::GenerateAssignArray(Midcode* midcode) {
 	}
 
 	objcode_->Output(MipsInstr::sw, reg_value, reg_index, offset);
-	this->PoptempReg(reg_index);
 }
 
 void MipsGenerator::GenerateAssign(Midcode* midcode) {
@@ -960,8 +938,9 @@ void MipsGenerator::DealRegOpReg(Midcode* midcode, MidcodeInstr op, int reg_resu
 		assert(0);
 		break;
 	}
-	this->PoptempReg(reg1);
-	this->PoptempReg(reg2);
+
+	this->PoptempReg(midcode->GetTempReg1());
+	this->PoptempReg(midcode->GetTempReg2());
 }
 
 void MipsGenerator::DealRegOpNumber(Midcode* midcode, MidcodeInstr op, int reg_result) {
@@ -1026,9 +1005,8 @@ void MipsGenerator::DealRegOpNumber(Midcode* midcode, MidcodeInstr op, int reg_r
 		break;
 	}
 
+	this->PoptempReg(midcode->GetTempReg1());
 	this->PoptempReg(value);
-	this->PoptempReg(reg1);
-	this->PoptempReg(reg2);
 }
 
 void MipsGenerator::DealNumberOpNumber(Midcode* midcode, MidcodeInstr op, int reg_result) {
@@ -1187,8 +1165,6 @@ void MipsGenerator::DealNumberOpNumber(Midcode* midcode, MidcodeInstr op, int re
 
 	this->PoptempReg(value1);
 	this->PoptempReg(value2);
-	this->PoptempReg(reg1);
-	this->PoptempReg(reg2);
 }
 
 void MipsGenerator::DealNumberOpReg(Midcode* midcode, MidcodeInstr op, int reg_result) {
@@ -1259,10 +1235,8 @@ void MipsGenerator::DealNumberOpReg(Midcode* midcode, MidcodeInstr op, int reg_r
 		break;
 	}
 
-	this->PoptempReg(midcode->GetTempReg1());
 	this->PoptempReg(value);
-	this->PoptempReg(reg1);
-	this->PoptempReg(reg2);
+	this->PoptempReg(midcode->GetTempReg1());
 }
 
 void MipsGenerator::GenerateOperate(Midcode* midcode, MidcodeInstr op, string result) {

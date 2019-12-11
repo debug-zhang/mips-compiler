@@ -61,8 +61,6 @@ private:
 	void ResetAllReg(string function_name);
 
 	int IsTempValue(string name);
-	void LoadValue(string symbol, string function, Reg reg);
-	void StoreValue(string symbol, string function, Reg reg);
 
 	void LoadTable(int levle, string tableName);
 	void SetStackRegUse(int number);
