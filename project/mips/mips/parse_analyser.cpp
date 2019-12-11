@@ -494,6 +494,55 @@ void ParseAnalyser::AnalyzeCondition(SyntaxNode* node, bool isFalseBranch) {
 	}
 }
 
+void ParseAnalyser::AnalyzeLoopCondition(SyntaxNode* node, bool isFalseBranch) {
+	SyntaxNode* expression1 = this->AddSyntaxChild(EXPRESSION, node);
+	if (this->AnalyzeExpression(expression1) != TypeSymbol::INT) {
+		this->CountIterator(-1);
+		error_handing_->AddError(iter_->line_number, ILLEGAL_TYPE_IN_IF);
+		this->CountIterator(+1);
+	}
+	if (this->IsThisIdentifier(LSS)
+		|| this->IsThisIdentifier(LEQ)
+		|| this->IsThisIdentifier(GRE)
+		|| this->IsThisIdentifier(GEQ)
+		|| this->IsThisIdentifier(EQL)
+		|| this->IsThisIdentifier(NEQ)) {
+		string op = iter_->value;
+		this->AddChild(node);
+		SyntaxNode* expression2 = this->AddSyntaxChild(EXPRESSION, node);
+		if (this->AnalyzeExpression(expression2) != TypeSymbol::INT) {
+			this->CountIterator(-1);
+			error_handing_->AddError(iter_->line_number, ILLEGAL_TYPE_IN_IF);
+			this->CountIterator(+1);
+		}
+
+		midcode_generator_->PrintLoopJudge();
+		if (op == "==") {
+			midcode_generator_->PrintBeqOrBne(label_count_, expression1->value(),
+				expression2->value(), Judge::BEQ, isFalseBranch);
+		} else if (op == "!=") {
+			midcode_generator_->PrintBeqOrBne(label_count_, expression1->value(),
+				expression2->value(), Judge::BNE, isFalseBranch);
+		} else if (op == "<") {
+			midcode_generator_->PrintBgeOrBlt(label_count_, expression1->value(),
+				expression2->value(), Judge::BLT, isFalseBranch);
+		} else if (op == ">=") {
+			midcode_generator_->PrintBgeOrBlt(label_count_, expression1->value(),
+				expression2->value(), Judge::BGE, isFalseBranch);
+		} else if (op == "<=") {
+			midcode_generator_->PrintBgtOrBle(label_count_, expression1->value(),
+				expression2->value(), Judge::BLE, isFalseBranch);
+		} else if (op == ">") {
+			midcode_generator_->PrintBgtOrBle(label_count_, expression1->value(),
+				expression2->value(), Judge::BGT, isFalseBranch);
+		}
+	} else {
+		midcode_generator_->PrintLoopJudge();
+		midcode_generator_->PrintBezOrBnz(label_count_,
+			expression1->value(), isFalseBranch);
+	}
+}
+
 bool ParseAnalyser::AnalyzeIfSentence(SyntaxNode* node, TypeSymbol returnType) {
 	bool noReturn = true;
 
@@ -527,17 +576,17 @@ int ParseAnalyser::AnalyzeStep(SyntaxNode* node) {
 void ParseAnalyser::AnalyzeWhile(SyntaxNode* node, TypeSymbol returnType) {
 	this->AddChild(node);	// WHILETK
 	int whileLabel = ++label_count_;
-	midcode_generator_->PrintLabel(whileLabel);
 	midcode_generator_->PrintLoop();
 
 	this->AddChild(node);	// LPARENT
 	int endWhileLabel = ++label_count_;
-	this->AnalyzeCondition(this->AddSyntaxChild(CONDITION, node), true);
+	this->AnalyzeLoopCondition(this->AddSyntaxChild(CONDITION, node), true);
 	this->AddRparentChild(node);	// RPARENT
 
+	midcode_generator_->PrintLabel(whileLabel);
 	this->AnalyzeSentence(this->AddSyntaxChild(SENTENCE, node), returnType);
 
-	midcode_generator_->PrintJump(whileLabel);
+	midcode_generator_->PrintLoopJudgeEnd(whileLabel);
 	midcode_generator_->PrintLabel(endWhileLabel);
 }
 
@@ -571,14 +620,12 @@ void ParseAnalyser::AnalyzeFor(SyntaxNode* node, TypeSymbol returnType) {
 	midcode_generator_->PrintAssignValue(name, "", expressionNode->value());
 
 	int forLabel = ++label_count_;
-	midcode_generator_->PrintLabel(forLabel);
 	midcode_generator_->PrintLoop();
 
 	this->AddSemicnChild(node);	// SEMICN
 
 	int endForLabel = ++label_count_;
-	this->AnalyzeCondition(this->AddSyntaxChild(CONDITION, node), true);
-
+	this->AnalyzeLoopCondition(this->AddSyntaxChild(CONDITION, node), true);
 	this->AddSemicnChild(node);	// SEMICN
 
 	if (this->FindSymbol() == NULL) {
@@ -596,10 +643,12 @@ void ParseAnalyser::AnalyzeFor(SyntaxNode* node, TypeSymbol returnType) {
 	this->AddChild(node);	// PLUS or MINU
 	int step = this->AnalyzeStep(this->AddSyntaxChild(STEP, node));
 	this->AddRparentChild(node);	// RPARENT
-	this->AnalyzeSentence(this->AddSyntaxChild(SENTENCE, node), returnType);
-	midcode_generator_->PrintStep(name1, name2, op, step);
 
-	midcode_generator_->PrintJump(forLabel);
+	midcode_generator_->PrintLabel(forLabel);
+	this->AnalyzeSentence(this->AddSyntaxChild(SENTENCE, node), returnType);
+
+	midcode_generator_->PrintStep(name1, name2, op, step);
+	midcode_generator_->PrintLoopJudgeEnd(forLabel);
 	midcode_generator_->PrintLabel(endForLabel);
 }
 

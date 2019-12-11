@@ -1295,6 +1295,100 @@ void MipsGenerator::SetFunctionVariable(Midcode* midcode, int& variable_count) {
 	this->check_table_->FindSymbol(midcode->label())->set_is_use(true);
 }
 
+void MipsGenerator::GenerateLoopJudge(list<Midcode*>::iterator& iter) {
+	Midcode* midcode = *(++iter);
+	MidcodeInstr judge = midcode->instr();
+	MipsInstr mips_instr = MipsInstr::bgt;
+	Reg t0 = Reg::zero;
+	Reg t1 = Reg::zero;
+	bool flag = true;
+
+	switch (judge) {
+	case MidcodeInstr::BGT:
+		mips_instr = MipsInstr::bgt;
+		this->judge_instr_list_.push_back(MipsInstr::ble);
+
+		t0 = SetJudgeReg(midcode, midcode->reg1());
+		t1 = SetJudgeReg(midcode, midcode->reg2());
+		break;
+	case MidcodeInstr::BGE:
+		mips_instr = MipsInstr::bge;
+		this->judge_instr_list_.push_back(MipsInstr::blt);
+
+		t0 = SetJudgeReg(midcode, midcode->reg1());
+		t1 = SetJudgeReg(midcode, midcode->reg2());
+		break;
+	case MidcodeInstr::BLT:
+		mips_instr = MipsInstr::blt;
+		this->judge_instr_list_.push_back(MipsInstr::bge);
+
+		t0 = SetJudgeReg(midcode, midcode->reg1());
+		t1 = SetJudgeReg(midcode, midcode->reg2());
+		break;
+	case MidcodeInstr::BLE:
+		mips_instr = MipsInstr::ble;
+		this->judge_instr_list_.push_back(MipsInstr::bgt);
+
+		t0 = SetJudgeReg(midcode, midcode->reg1());
+		t1 = SetJudgeReg(midcode, midcode->reg2());
+		break;
+	case MidcodeInstr::BEQ:
+		mips_instr = MipsInstr::beq;
+		this->judge_instr_list_.push_back(MipsInstr::bne);
+
+		t0 = SetJudgeReg(midcode, midcode->reg1());
+		t1 = SetJudgeReg(midcode, midcode->reg2());
+		break;
+	case MidcodeInstr::BNE:
+		mips_instr = MipsInstr::bne;
+		this->judge_instr_list_.push_back(MipsInstr::beq);
+
+		t0 = SetJudgeReg(midcode, midcode->reg1());
+		t1 = SetJudgeReg(midcode, midcode->reg2());
+		break;
+	case MidcodeInstr::BEZ:
+		mips_instr = MipsInstr::beq;
+		this->judge_instr_list_.push_back(MipsInstr::bne);
+
+		t0 = SetJudgeReg(midcode, midcode->reg1());
+		flag = false;
+		break;
+	case MidcodeInstr::BNZ:
+		mips_instr = MipsInstr::bne;
+		this->judge_instr_list_.push_back(MipsInstr::beq);
+
+		t0 = SetJudgeReg(midcode, midcode->reg1());
+		flag = false;
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	this->objcode_->Output(mips_instr, t0, t1, midcode->GetLabel());
+	
+	this->judge_reg_list_.push_back(t1);
+	this->judge_reg_list_.push_back(t0);
+	this->judeg_reg1 = midcode->reg1();
+	this->judeg_reg2 = midcode->reg2();
+}
+
+void MipsGenerator::GenerateLoopJudgeEnd(Midcode* midcode, string lable) {
+	MipsInstr mips_instr = this->judge_instr_list_.back();
+	this->judge_instr_list_.pop_back();
+
+	Reg t0 = this->judge_reg_list_.back();
+	this->judge_reg_list_.pop_back();
+	Reg t1 = this->judge_reg_list_.back();
+	this->judge_reg_list_.pop_back();
+
+	this->objcode_->Output(mips_instr, t0, t1, lable);
+
+	this->ResetJudgeReg(this->judeg_reg1, t0);
+	this->ResetJudgeReg(this->judeg_reg2, t1);
+}
+
+
 void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator& iter) {
 	int parameter_count = REG_START;
 	int variable_count = REG_START;
@@ -1370,6 +1464,12 @@ void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator&
 			break;
 		case MidcodeInstr::DIV:
 			this->GenerateOperate(midcode, MidcodeInstr::DIV, midcode->GetTempRegResult());
+			break;
+		case MidcodeInstr::LOOP_JUDGE:
+			this->GenerateLoopJudge(iter);
+			break;
+		case MidcodeInstr::LOOP_JUDGE_END:
+			this->GenerateLoopJudgeEnd(midcode, midcode->GetLabel());
 			break;
 		case MidcodeInstr::BGT:
 			this->GenerateJudge(midcode, MidcodeInstr::BGT);

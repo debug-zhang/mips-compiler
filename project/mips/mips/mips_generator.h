@@ -24,12 +24,16 @@ private:
 	StringTable* string_table_;
 	map<string, SymbolTable*> symbol_table_map_;
 	list<Midcode*> midcode_list_;
+	list<Reg> judge_reg_list_;
+	list<MipsInstr> judge_instr_list_;
 	map<string, int> temp_reg_map_;
 	map<string, int> temp_use_reg_map_;
 	int reg_use_stack_[32];
 	int new_reg;
 	int dm_offset;
 	int parameter_count_old;
+	string judeg_reg1;
+	string judeg_reg2;
 
 	void InsertTempUseRegMap(string name);
 	void DeleteTempUseRegMap(string name);
@@ -142,6 +146,10 @@ private:
 	void GenerateStep(std::list<Midcode*>::iterator& iter, Midcode*& midcode);
 
 	void SetFunctionVariable(Midcode* midcode, int& variable_count);
+
+	void GenerateLoopJudge(list<Midcode*>::iterator& iter);
+
+	void GenerateLoopJudgeEnd(Midcode* midcode, string lable);
 
 	void GenerateBody(string function_name, list<Midcode*>::iterator& iter);
 

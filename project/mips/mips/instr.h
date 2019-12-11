@@ -45,6 +45,8 @@ enum class MidcodeInstr {
 	LABEL,
 	JUMP,
 	LOOP,
+	LOOP_JUDGE,
+	LOOP_JUDGE_END,
 	STEP,
 
 	ASSIGN,
