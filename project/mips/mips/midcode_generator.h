@@ -78,5 +78,7 @@ public:
 	void PrintRegOpNumber(int result_reg, int op_reg, string number, string op);
 	void PrintNumberOpReg(int result_reg, string number, int op_reg, string op);
 	void PrintNumberOpNumber(int result_reg, string number1, string number2, string op);
+
+	void PrintNeg(int result_reg, string number);
 };
 

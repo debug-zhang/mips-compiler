@@ -390,9 +390,8 @@ TypeSymbol ParseAnalyser::AnalyzeExpression(SyntaxNode* node) {
 		if (regNumber == reg_count_) {
 			if (itemCount == 1) {
 				if (firstOpNumber == -1) {
-					midcode_generator_->PrintNumberOpNumber(reg_count_++,
-						to_string(firstOpNumber),
-						anotherItemRoot->GetFirstChildNumericalValue(), "*");
+					midcode_generator_->PrintNeg(reg_count_++,
+						anotherItemRoot->GetFirstChildNumericalValue());
 				} else {
 					itemRoot = anotherItemRoot;
 				}
@@ -421,9 +420,8 @@ TypeSymbol ParseAnalyser::AnalyzeExpression(SyntaxNode* node) {
 				reg_count_++;
 			} else {
 				if (firstOpNumber == -1) {
-					midcode_generator_->PrintNumberOpNumber(reg_count_++,
-						to_string(firstOpNumber),
-						itemRoot->value(), "*");
+					midcode_generator_->PrintNeg(reg_count_++,
+						anotherItemRoot->GetFirstChildNumericalValue());
 				}
 			}
 		}

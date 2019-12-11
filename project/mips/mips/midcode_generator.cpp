@@ -313,3 +313,8 @@ void MidcodeGenerator::PrintNumberOpNumber(int result_reg, string number1, strin
 		OperaMember::NUMBER_OP_NUMBER, result_reg, number1, number2));
 }
 
+void MidcodeGenerator::PrintNeg(int result_reg, string number) {
+	midcode_ << "#" << result_reg << " = -" + number << endl;
+
+	this->AddMidcode(new Midcode(MidcodeInstr::NEG, result_reg, number));
+}

@@ -886,6 +886,41 @@ void MipsGenerator::GenerateAssign(Midcode* midcode) {
 	}
 }
 
+void MipsGenerator::GenerateNeg(Midcode* midcode, string temp_reg_result) {
+	int reg_result = 0;
+
+	reg_result = this->GetUnuseRegNumber();
+	this->InsertTempUseRegMap(temp_reg_result);
+	this->temp_reg_map_.insert(pair<string, int>(temp_reg_result, reg_result));
+
+	Reg reg1;
+	string value1 = midcode->reg1();
+	bool is_immediate = false;
+	int immediate = 0;
+	if (this->IsInteger(value1)) {
+		is_immediate = true;
+		immediate = -stoi(value1);
+	} else if (this->IsChar(value1)) {
+		is_immediate = true;
+		immediate = -(int)value1[1];
+	} else if (IsConstVariable(value1)) {
+		is_immediate = true;
+		immediate = this->GetConstVariable(value1);
+	} else {
+		reg1 = this->LoadVariableToReg(value1);
+	}
+
+	if (is_immediate) {
+		objcode_->Output(MipsInstr::li,
+			this->NumberToReg(reg_result), immediate);
+	} else {
+		objcode_->Output(MipsInstr::sub,
+			this->NumberToReg(reg_result), Reg::zero, reg1);
+	}
+
+	this->DeleteTempUseRegMap(temp_reg_result);
+}
+
 void MipsGenerator::DealRegOpReg(Midcode* midcode, MidcodeInstr op, int reg_result) {
 	Reg reg1 = this->LoadTempRegToReg(midcode->GetTempReg1());
 	this->InsertTempUseRegMap(midcode->GetTempReg1());
@@ -1016,7 +1051,29 @@ void MipsGenerator::DealNumberOpNumber(Midcode* midcode, MidcodeInstr op, int re
 		reg2 = this->LoadVariableToReg(value2);
 	}
 
-	if (is_immediate1) {
+	if (is_immediate1 && is_immediate2) {
+		switch (op) {
+		case MidcodeInstr::ADD:
+			objcode_->Output(MipsInstr::li,
+				this->NumberToReg(reg_result), immediate1 + immediate2);
+			break;
+		case MidcodeInstr::SUB:
+			objcode_->Output(MipsInstr::li,
+				this->NumberToReg(reg_result), immediate1 - immediate2);
+			break;
+		case MidcodeInstr::MUL:
+			objcode_->Output(MipsInstr::li,
+				this->NumberToReg(reg_result), immediate1 * immediate2);
+			break;
+		case MidcodeInstr::DIV:
+			objcode_->Output(MipsInstr::li,
+				this->NumberToReg(reg_result), immediate1 / immediate2);
+			break;
+		default:
+			assert(0);
+			break;
+		}
+	} else if (is_immediate1) {
 		objcode_->Output(MipsInstr::li,
 			this->NumberToReg(reg_result), immediate1);
 
@@ -1306,7 +1363,7 @@ void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator&
 			assert(0);
 			break;
 		case MidcodeInstr::NEG:
-			assert(0);
+			this->GenerateNeg(midcode, "#" + to_string(midcode->count()));
 			break;
 		case MidcodeInstr::MUL:
 			this->GenerateOperate(midcode, MidcodeInstr::MUL, midcode->GetTempRegResult());

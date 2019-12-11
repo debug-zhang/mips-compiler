@@ -10,8 +10,8 @@
 #include "objcode.h"
 
 #define TEMP_REG_START		5
-#define TEMP_REG_END		7
-#define REG_START			8
+#define TEMP_REG_END		10
+#define REG_START			11
 #define REG_END				27
 #define REG_STACK_LENGTH	(REG_END - TEMP_REG_START + 3)
 
@@ -126,6 +126,8 @@ private:
 	void GenerateAssignArray(Midcode* midcode);
 
 	void GenerateAssign(Midcode* midcode);
+
+	void GenerateNeg(Midcode* midcode, string temp_reg_result);
 
 	void DealRegOpReg(Midcode* midcode, MidcodeInstr op, int reg_result);
 
