@@ -1239,8 +1239,16 @@ void MipsGenerator::DealNumberOpReg(Midcode* midcode, MidcodeInstr op, int reg_r
 	this->PoptempReg(midcode->GetTempReg1());
 }
 
-void MipsGenerator::GenerateOperate(Midcode* midcode, MidcodeInstr op, string result) {
+void MipsGenerator::GenerateOperate(list<Midcode*>::iterator& iter, Midcode* midcode, MidcodeInstr op, string result) {
 	int reg_result = 0;
+
+	Midcode* next_midcode = *(++iter);
+	if (next_midcode->instr() == MidcodeInstr::ASSIGN 
+		&& next_midcode->reg1() == midcode->GetTempRegResult()) {
+		result = next_midcode->reg_result();
+	} else {
+		iter--;
+	}
 
 	if (this->IsTempReg(result)) {
 		reg_result = this->GetUnuseRegNumber();
@@ -1277,9 +1285,9 @@ void MipsGenerator::GenerateOperate(Midcode* midcode, MidcodeInstr op, string re
 	}
 }
 
-void MipsGenerator::GenerateStep(std::list<Midcode*>::iterator& iter, Midcode*& midcode) {
+void MipsGenerator::GenerateStep(list<Midcode*>::iterator& iter, Midcode*& midcode) {
 	midcode = *(++iter);
-	this->GenerateOperate(midcode, midcode->instr(), midcode->reg_result());
+	this->GenerateOperate(iter, midcode, midcode->instr(), midcode->reg_result());
 }
 
 void MipsGenerator::SetFunctionVariable(Midcode* midcode, int& variable_count) {
@@ -1344,13 +1352,15 @@ void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator&
 			this->GenerateLoadArray(midcode);
 			break;
 		case MidcodeInstr::ADD:
-			this->GenerateOperate(midcode, MidcodeInstr::ADD, midcode->GetTempRegResult());
+			this->GenerateOperate(iter, midcode,
+				MidcodeInstr::ADD, midcode->GetTempRegResult());
 			break;
 		case MidcodeInstr::ADDI:
 			assert(0);
 			break;
 		case MidcodeInstr::SUB:
-			this->GenerateOperate(midcode, MidcodeInstr::SUB, midcode->GetTempRegResult());
+			this->GenerateOperate(iter, midcode,
+				MidcodeInstr::SUB, midcode->GetTempRegResult());
 			break;
 		case MidcodeInstr::SUBI:
 			assert(0);
@@ -1359,10 +1369,12 @@ void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator&
 			this->GenerateNeg(midcode, "#" + to_string(midcode->count()));
 			break;
 		case MidcodeInstr::MUL:
-			this->GenerateOperate(midcode, MidcodeInstr::MUL, midcode->GetTempRegResult());
+			this->GenerateOperate(iter, midcode,
+				MidcodeInstr::MUL, midcode->GetTempRegResult());
 			break;
 		case MidcodeInstr::DIV:
-			this->GenerateOperate(midcode, MidcodeInstr::DIV, midcode->GetTempRegResult());
+			this->GenerateOperate(iter, midcode,
+				MidcodeInstr::DIV, midcode->GetTempRegResult());
 			break;
 		case MidcodeInstr::BGT:
 			this->GenerateJudge(midcode, MidcodeInstr::BGT);

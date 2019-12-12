@@ -138,9 +138,9 @@ private:
 
 	void DealNumberOpReg(Midcode* midcode, MidcodeInstr op, int reg_result);
 
-	void GenerateOperate(Midcode* midcode, MidcodeInstr op, string result);
+	void GenerateOperate(list<Midcode*>::iterator& iter,  Midcode* midcode, MidcodeInstr op, string result);
 
-	void GenerateStep(std::list<Midcode*>::iterator& iter, Midcode*& midcode);
+	void GenerateStep(list<Midcode*>::iterator& iter, Midcode*& midcode);
 
 	void SetFunctionVariable(Midcode* midcode, int& variable_count);
 
