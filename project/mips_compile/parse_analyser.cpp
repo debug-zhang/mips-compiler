@@ -587,7 +587,7 @@ void ParseAnalyser::AnalyzeFor(SyntaxNode* node, TypeSymbol returnType) {
 	string name1 = iter_->value;
 	this->AddChild(node);	// IDENFR
 	this->AddChild(node);	// ASSIGN
-	if (this->FindSymbol(0) == NULL) {
+	if (this->FindSymbol() == NULL) {
 		error_handing_->AddError(iter_->line_number, UNDEFINED);
 	}
 	string name2 = iter_->value;

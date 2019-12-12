@@ -10,8 +10,8 @@
 #include "objcode.h"
 
 #define TEMP_REG_START		5
-#define TEMP_REG_END		10
-#define REG_START			11
+#define TEMP_REG_END		8
+#define REG_START			9
 #define REG_END				27
 #define REG_STACK_LENGTH	(REG_END - TEMP_REG_START + 3)
 
