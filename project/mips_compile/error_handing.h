@@ -16,5 +16,6 @@ public:
 	void AddError(int line_number, char error_type);
 	void PrintError();
 	void FileClose();
+	bool IsError();
 };
 

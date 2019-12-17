@@ -25,3 +25,7 @@ void ErrorHanding::PrintError() {
 void ErrorHanding::FileClose() {
 	error_file_.close();
 }
+
+bool ErrorHanding::IsError() {
+	return !error_list_.empty();
+}

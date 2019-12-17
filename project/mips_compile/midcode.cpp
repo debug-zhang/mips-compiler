@@ -96,11 +96,7 @@ void Midcode::Init() {
 	this->count_ = 0;
 	this->label_ = "";
 
-	this->reg1_;
-	this->reg2_;
-	this->reg_result_;
-
-	this->temp1_;
+	this->temp1_ = 0;
 	this->temp2_ = 0;
 	this->temp_result_ = 0;
 }
