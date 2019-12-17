@@ -185,18 +185,14 @@ void MipsGenerator::SaveAllReg() {
 }
 
 void MipsGenerator::SaveAllReg(string function_name) {
-	int reg_end = REG_START
-		+ this->check_table_->FindSymbol(function_name)->GetParameterCount();
-	int reg_stack_length = reg_end - TEMP_REG_START + 3;
+	int reg_stack_length = 27;
 	objcode_->Output(MipsInstr::addi, Reg::sp, Reg::sp, -reg_stack_length * 4);
 
 	int offset = 0;
-	for (int i = TEMP_REG_START; i <= reg_end; i++) {
+	for (int i = 5; i <= 31; i++) {
 		objcode_->Output(MipsInstr::sw, this->NumberToReg(i), Reg::sp, offset);
 		offset += 4;
 	}
-	objcode_->Output(MipsInstr::sw, Reg::fp, Reg::sp, offset);
-	objcode_->Output(MipsInstr::sw, Reg::ra, Reg::sp, offset + 4);
 }
 
 void MipsGenerator::ResetAllReg() {
@@ -212,17 +208,13 @@ void MipsGenerator::ResetAllReg() {
 }
 
 void MipsGenerator::ResetAllReg(string function_name) {
-	int reg_end = REG_START
-		+ this->check_table_->FindSymbol(function_name)->GetParameterCount();
-	int reg_stack_length = reg_end - TEMP_REG_START + 3;
+	int reg_stack_length = 27;
 
 	int offset = 0;
-	for (int i = TEMP_REG_START; i <= reg_end; i++) {
+	for (int i = 5; i <= 31; i++) {
 		objcode_->Output(MipsInstr::lw, this->NumberToReg(i), Reg::sp, offset);
 		offset += 4;
 	}
-	objcode_->Output(MipsInstr::lw, Reg::fp, Reg::sp, offset);
-	objcode_->Output(MipsInstr::lw, Reg::ra, Reg::sp, offset + 4);
 
 	objcode_->Output(MipsInstr::addi, Reg::sp, Reg::sp, reg_stack_length * 4);
 }
