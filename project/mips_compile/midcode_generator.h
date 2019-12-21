@@ -68,7 +68,7 @@ public:
 	void PrintAssignValue(string name, string array_index, string value);
 	void PrintLoadToTempReg(string name, string array_index, int temp_reg_count);
 
-	void PrintPushParameter(string value);
+	void PrintPushParameter(string function, string value, int count);
 	void PrintCallFunction(string name);
 	void PrintFuncEnd();
 	void PrintSave(string function_name);

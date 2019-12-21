@@ -26,12 +26,10 @@ private:
 
 	int array_length_;
 	int reg_number_;
-	int sp_offer_;
+	int offset_;
 
 	KindSymbol kind_;
 	TypeSymbol type_;
-
-	bool is_use_;
 
 public:
 	Symbol();
@@ -58,10 +56,8 @@ public:
 	void set_reg_number(int reg_number);
 	int reg_number();
 
-	void set_sp_offer(int sp_offer);
-	int sp_offer();
+	void set_offset(int sp_offer);
+	int offset();
 
-	void set_is_use(bool is_use);
-	bool is_use();
 };
 

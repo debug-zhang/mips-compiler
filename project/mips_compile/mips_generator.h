@@ -9,11 +9,18 @@
 #include "table.h"
 #include "objcode.h"
 
-#define TEMP_REG_START		5
-#define TEMP_REG_END		8
-#define REG_START			9
-#define REG_END				27
-#define REG_STACK_LENGTH	(REG_END - TEMP_REG_START + 3)
+#define RS				Reg::t0
+#define RT				Reg::t1
+#define RD				Reg::t2
+#define TEMP			Reg::t3
+
+#define BASE_POINT		Reg::s0
+#define SAVE_POINT		Reg::s1
+#define PARA_POINT		Reg::s2
+
+#define BASE_SPACE		"base_space"
+#define SAVE_SPACE		"save_space"
+#define PARA_SPACE		"para_space"
 
 using namespace std;
 
@@ -24,134 +31,94 @@ private:
 	StringTable* string_table_;
 	map<string, SymbolTable*> symbol_table_map_;
 	list<Midcode*> midcode_list_;
-	map<string, int> temp_reg_map_;
-	map<string, int> temp_use_reg_map_;
-	int reg_use_stack_[32];
-	int new_reg;
-	int dm_offset;
-	int parameter_count_old;
 
-	void InsertTempUseRegMap(string name);
-	void DeleteTempUseRegMap(string name);
+	map<string, int> temporary_offset_map_;
 
-	void InitVariable(int level);
-	void InitVariable(string function_name);
-	void InitDataSeg(string function_name);
-	void InitDataSeg();
-	void InitStack();
+	int dm_offset_;
+	int temp_count_;
+
+	void LoadTable(int level, string table_name);
+	void InitConstString();
+	int InitVariable(string function_name);
+	void InitData();
 
 	void PrintText();
-	void PrintNop();
-	void PrintMain();
-	void PrintEnd();
+	void ResetBasePoint();
+	void InitStack();
+	void InitText();
+
+	void SaveVariable(string name, Reg reg);
+	void LoadVariable(string name, Reg reg);
 
 	bool IsInteger(string str);
 	bool IsChar(string str);
-	bool IsTempReg(string str);
+
+	bool IsTemporary(string str);
+	void SaveTemporary(string name, Reg reg);
+	void LoadTemporary(string name, Reg reg);
+
+	void LoadValue(string value, Reg reg);
+
 	bool IsConstVariable(string name);
 	int GetConstVariable(string name);
-	bool IsThisInstr(string strs, string instr);
 
-	Reg NumberToReg(int reg_number);
-	int RegToNumber(Reg reg);
-
-	void SaveAllReg();
-	void SaveAllReg(string function_name);
-	void ResetAllReg();
-	void ResetAllReg(string function_name);
-
-	int IsTempValue(string name);
-
-	void LoadTable(int levle, string tableName);
-	void SetStackRegUse(int number);
-	void SetStackRegUnuse(int number);
-	void PopStack();
-	void PopStackLength();
-	void PopSymbolMapVar(int level);
-	void PopAllVariable();
-
-	int LoadVariableToNumber(string name);
-	Reg LoadVariableToReg(string name);
-	int LoadTempRegToNumber(string name);
-	Reg LoadTempRegToReg(string name);
-
-	void PoptempReg(string name);
-	void PoptempReg(Reg reg);
-	void PoptempReg(int number);
-
-	int GetUnuseRegInTable(int& unUseReg, bool& retflag, int level);
-	int GetUnuseRegNumber();
-	Reg GetUnuseReg();
-	void SetSymbolUse(string name, bool isUse);
-
-	void GenerateJump(Midcode* midcode);
-
-	Reg SetJudgeReg(Midcode* midcode, string name);
-
-	void ResetJudgeReg(string name, Reg t0);
-
-	void GenerateJudge(Midcode* midcode, MidcodeInstr judge);
-
-	void GenerateCall(Midcode* midcode, int& parameter_count, int& call_and_save);
-
-	void GenerateSave(Midcode* midcode, int& parameter_count, int& call_and_save);
-
-	void GenerateScanf(Midcode* midcode, int type);
-
-	void GenerateLabel(Midcode* midcode);
-
-	void GenerateReturn(Midcode* midcode, bool is_return_value);
-
-	void GenerateFuncEnd(int& variable_count, list<Midcode*>::iterator& iter);
-
-	void GenerateLoop();
-
-	void GeneratePush(Midcode* midcode, int& parameter_count);
-
-	void GeneratePrintfEnd();
-
-	void GeneratePrintfString(Midcode* midcode);
-
-	void GeneratePrintfString(int str_count);
+	void GenerateScanf(string variable_name, int type);
 
 	void GeneratePrintfIntChar(Midcode* midcode, int type);
+	void GeneratePrintfString(string str);
+	void GeneratePrintfEnd();
 
-	void GeneratePrintfInt(int integer);
+	void GenerateLabel(string label);
 
-	void GenerateAssignReturn(Midcode* midcode);
+	void GenerateJump(string label);
 
-	void SetArrayIndex(int& offset, Symbol* symbol, string& array_index, Reg& reg_index);
+	void GenerateAssign(string result, string value);
+	void GenerateAssignReturn(string temp);
 
-	void GenerateLoadArray(Midcode* midcode);
+	void SetArrayIndex(string index, int& offset, bool& is_use_temp);
+	void GenerateAssignArray(string array, string index, string value);
+	void GenerateLoadArray(string temp, string array, string index);
 
-	void GenerateAssignArray(Midcode* midcode);
+	void SetOperand(string value, Reg reg, bool& is_immediate, int& immediate);
 
-	void GenerateAssign(Midcode* midcode);
+	void DealNumberOpNumber(string value_1, string value_2,
+		int& immediate_1, bool& is_immediate_1,
+		int& immediate_2, bool& is_immediate_2);
+	void DealNumberOpReg(string value_1, string temp_2,
+		int& immediate_1, bool& is_immediate_1);
+	void DealRegOpNumber(string temp_1, string value_2,
+		int& immediate_2, bool& is_immediate_2);
+	void DealRegOpReg(string temp_1, string temp_2);
 
-	void GenerateNeg(Midcode* midcode, string temp_reg_result);
-
-	void DealRegOpReg(Midcode* midcode, MidcodeInstr op, int reg_result);
-
-	void DealRegOpNumber(Midcode* midcode, MidcodeInstr op, int reg_result);
-
-	void DealNumberOpNumber(Midcode* midcode, MidcodeInstr op, int reg_result);
-
-	void DealNumberOpReg(Midcode* midcode, MidcodeInstr op, int reg_result);
-
-	void GenerateOperate(list<Midcode*>::iterator& iter,  Midcode* midcode, MidcodeInstr op, string result);
+	void GenerateOperate(Midcode* midcode, string result,
+		MidcodeInstr op, OperaMember member_type);
+	void GenerateOperate(list<Midcode*>::iterator& iter, Midcode* midcode);
 
 	void GenerateStep(list<Midcode*>::iterator& iter, Midcode*& midcode);
 
-	void SetFunctionVariable(Midcode* midcode, int& variable_count);
+	void GenerateNeg(string temp_result, string value);
+
+	void SetJudgeReg(string value, Reg reg);
+	void GenerateJudge(Midcode* midcode, MidcodeInstr judge);
+
+	void GeneratePush(string value, int count);
+
+	void GenerateCall(string name);
+
+	void GenerateSave();
+
+	void GenerateFunctionEnd(list<Midcode*>::iterator& iter);
+
+	void GenerateReturn(Midcode* midcode, bool is_return_value);
+
+	void GenerateParameter(string function_name, string value, int count);
 
 	void GenerateBody(string function_name, list<Midcode*>::iterator& iter);
-
-	void GenerateFunction(Midcode* midcode, std::list<Midcode*>::iterator& iter);
-
+	void GenerateFunction(string function_name, list<Midcode*>::iterator& iter);
 	void Generate();
 
 public:
-	MipsGenerator(string outputFileName,
+	MipsGenerator(string outputFileName, int temp_count,
 		StringTable* stringTable, CheckTable* check_table,
 		map<string, SymbolTable*> symbolTableMap, list<Midcode*> midcode_list);
 	void GenerateMips();

@@ -50,6 +50,8 @@ public:
 	string reg2();
 	string reg_result();
 
+	int temp_result();
+
 	string GetTempReg1();
 	string GetTempReg2();
 	string GetTempRegResult();

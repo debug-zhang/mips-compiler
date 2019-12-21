@@ -255,10 +255,11 @@ void MidcodeGenerator::PrintLoadToTempReg(string name, string array_index,
 	}
 }
 
-void MidcodeGenerator::PrintPushParameter(string value) {
+void MidcodeGenerator::PrintPushParameter(string function, string value, int count) {
+
 	midcode_ << "push " + value << endl;
 
-	this->AddMidcode(new Midcode(MidcodeInstr::PUSH, value));
+	this->AddMidcode(new Midcode(MidcodeInstr::PUSH, function, value, count));
 }
 
 void MidcodeGenerator::PrintCallFunction(string name) {

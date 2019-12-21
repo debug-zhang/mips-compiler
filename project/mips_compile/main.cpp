@@ -29,7 +29,7 @@ int main() {
 	}
 	error_handing->FileClose();
 
-	MipsGenerator* mips_generator = new MipsGenerator(mips,
+	MipsGenerator* mips_generator = new MipsGenerator(mips, parse_analyser->reg_count(),
 		parse_analyser->string_table(), parse_analyser->check_table(),
 		parse_analyser->symbol_table_map(), parse_analyser->midcode_list());
 

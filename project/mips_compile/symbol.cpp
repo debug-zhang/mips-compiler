@@ -3,10 +3,9 @@
 Symbol::Symbol() {
 	this->array_length_ = 0;
 	this->reg_number_ = 0;
-	this->sp_offer_ = 0;
+	this->offset_ = 0;
 	this->kind_ = KindSymbol::CONST;
 	this->type_ = TypeSymbol::INT;
-	this->is_use_ = false;
 };
 
 void Symbol::SetProperty(string name, KindSymbol kind, TypeSymbol type) {
@@ -67,18 +66,10 @@ int Symbol::reg_number() {
 	return this->reg_number_;
 }
 
-void Symbol::set_sp_offer(int sp_offer) {
-	this->sp_offer_ = sp_offer;
+void Symbol::set_offset(int sp_offer) {
+	this->offset_ = sp_offer;
 }
 
-int Symbol::sp_offer() {
-	return this->sp_offer_;
-}
-
-void Symbol::set_is_use(bool is_use) {
-	this->is_use_ = is_use;
-}
-
-bool Symbol::is_use() {
-	return is_use_;
+int Symbol::offset() {
+	return this->offset_;
 }

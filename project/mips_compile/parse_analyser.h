@@ -113,7 +113,7 @@ private:
 	void AnalyzeMain(SyntaxNode* node);
 	void AnalyzeParameterTable(SyntaxNode* node, Symbol* function);
 	void AnalyzeVoidFunc(SyntaxNode* node);
-	void AnalyzeHeadState(SyntaxNode* node, Symbol* &function);
+	void AnalyzeHeadState(SyntaxNode* node, Symbol*& function);
 	void AnalyzeFunc(SyntaxNode* node);
 
 	void BuildSyntaxTree(SyntaxNode* root);
@@ -125,6 +125,7 @@ public:
 	list<Midcode*> midcode_list();
 	StringTable* string_table();
 	CheckTable* check_table();
+	int reg_count();
 	void FileClose();
 };
 

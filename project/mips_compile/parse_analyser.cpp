@@ -223,20 +223,24 @@ void ParseAnalyser::AnalyzeValuePrameterTable(SyntaxNode* node, Symbol* function
 		}
 		return;
 	}
+
 	string str;
 	TypeSymbol type;
+	int count = 0;
 	if (!this->IsThisIdentifier(RPARENT)) {
 		SyntaxNode* expressionNode;
 		expressionNode = this->AddSyntaxChild(EXPRESSION, node);
 		type = this->AnalyzeExpression(expressionNode);
 		str.push_back(type == TypeSymbol::INT ? '0' : '1');
-		midcode_generator_->PrintPushParameter(expressionNode->value());
+		midcode_generator_->PrintPushParameter(function->name(),
+			expressionNode->value(), count++);
 		while (this->IsThisIdentifier(COMMA)) {
 			this->AddChild(node);	// COMMA
 			expressionNode = this->AddSyntaxChild(EXPRESSION, node);
 			type = this->AnalyzeExpression(expressionNode);
 			str.push_back(type == TypeSymbol::INT ? '0' : '1');
-			midcode_generator_->PrintPushParameter(expressionNode->value());
+			midcode_generator_->PrintPushParameter(function->name(), 
+				expressionNode->value(), count++);
 		}
 	}
 
@@ -420,8 +424,9 @@ TypeSymbol ParseAnalyser::AnalyzeExpression(SyntaxNode* node) {
 				reg_count_++;
 			} else {
 				if (firstOpNumber == -1) {
-					midcode_generator_->PrintNeg(reg_count_++,
+					midcode_generator_->PrintNeg(reg_count_,
 						anotherItemRoot->GetFirstChildNumericalValue());
+					reg_count_++;
 				}
 			}
 		}
@@ -710,6 +715,8 @@ TypeSymbol ParseAnalyser::AnalyzeReturnSentence(SyntaxNode* node) {
 		type = this->AnalyzeExpression(expression_root);
 		midcode_generator_->PrintReturn(false, expression_root->value());
 		this->AddRparentChild(node);	// RPARENT
+	} else {
+		midcode_generator_->PrintReturn(true, "");
 	}
 	return type;
 }
@@ -974,6 +981,10 @@ StringTable* ParseAnalyser::string_table() {
 
 CheckTable* ParseAnalyser::check_table() {
 	return check_table_;
+}
+
+int ParseAnalyser::reg_count() {
+	return reg_count_;
 }
 
 void ParseAnalyser::FileClose() {

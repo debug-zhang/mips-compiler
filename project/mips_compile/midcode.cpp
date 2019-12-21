@@ -129,6 +129,10 @@ string Midcode::reg_result() {
 	return this->reg_result_;
 }
 
+int Midcode::temp_result() {
+	return this->temp_result_;
+}
+
 string Midcode::GetTempReg1() {
 	return "#" + to_string(this->temp1_);
 }

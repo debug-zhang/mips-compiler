@@ -17,6 +17,7 @@ namespace midcodeinstr {
 			break;
 		default:
 			assert(0);
+			return MidcodeInstr::ADD;
 			break;
 		}
 	}

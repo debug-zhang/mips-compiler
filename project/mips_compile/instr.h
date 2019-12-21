@@ -29,7 +29,7 @@ enum class MipsInstr {
 	data_identifier,
 	data_string,
 	data_align,
-	text,
+	text
 };
 
 enum class MidcodeInstr {
