@@ -311,7 +311,7 @@ void MipsGenerator::GenerateLoadArray(string temp, string array, string index) {
 	int level = this->check_table_->GetSymbolLevel(array);
 	Reg base = level == 0 ? GLOBAL_POINT : FUNC_POINT;
 
-	this->SetArrayIndex(index, base,offset, is_use_temp);
+	this->SetArrayIndex(index, base, offset, is_use_temp);
 
 	if (is_use_temp) {
 		this->objcode_->Output(MipsInstr::lw, RT, TEMP, 0);
@@ -605,7 +605,7 @@ void MipsGenerator::GenerateJudge(Midcode* midcode, MidcodeInstr judge) {
 	} else {
 		this->objcode_->Output(mips_instr, RS, Reg::zero, midcode->GetLabel());
 	}
-	
+
 }
 
 void MipsGenerator::GeneratePush(
