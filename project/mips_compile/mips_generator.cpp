@@ -432,7 +432,7 @@ void MipsGenerator::GenerateOperate(Midcode* midcode, string result,
 			break;
 		case 1:
 			this->objcode_->Output(MipsInstr::li, RS, immediate_1);
-			this->objcode_->Output(MipsInstr::subi, RD, RS, RT);
+			this->objcode_->Output(MipsInstr::sub, RD, RS, RT);
 			break;
 		case 2:
 			this->objcode_->Output(MipsInstr::subi, RD, RS, immediate_2);
@@ -618,11 +618,11 @@ void MipsGenerator::GeneratePush(
 
 void MipsGenerator::GenerateCall(string prev_name, string call_name) {
 
-	this->objcode_->Output(MipsInstr::addi, FUNC_POINT, FUNC_POINT, 1000);
+	this->objcode_->Output(MipsInstr::addi, FUNC_POINT, FUNC_POINT, 500);
 
 	this->objcode_->Output(MipsInstr::jal, call_name);
 
-	this->objcode_->Output(MipsInstr::subi, FUNC_POINT, FUNC_POINT, 1000);
+	this->objcode_->Output(MipsInstr::subi, FUNC_POINT, FUNC_POINT, 500);
 
 	int length = this->check_table_->FindSymbol(call_name, 0)->GetParameterCount();
 	this->objcode_->Output(MipsInstr::subi, PARA_POINT, PARA_POINT, 4 * length);
