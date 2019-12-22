@@ -40,7 +40,8 @@ void MipsGenerator::InitVariable(string function) {
 		if (iter->second->kind() == KindSymbol::ARRAY) {
 			iter->second->set_offset(this->dm_offset_);
 			this->dm_offset_ += 4 * iter->second->array_length();
-		} else if (iter->second->kind() == KindSymbol::VARIABLE) {
+		} else if (iter->second->kind() == KindSymbol::VARIABLE
+			|| iter->second->kind() == KindSymbol::PARAMETER) {
 			iter->second->set_offset(this->dm_offset_);
 			this->dm_offset_ += 4;
 		}
@@ -99,10 +100,8 @@ void MipsGenerator::SaveVariable(string name, Reg reg) {
 
 	if (this->check_table_->GetSymbolLevel(name) == 0) {
 		this->objcode_->Output(MipsInstr::sw, reg, GLOBAL_POINT, offset);
-	} else if (this->check_table_->FindSymbol(name)->kind() == KindSymbol::VARIABLE) {
-		this->objcode_->Output(MipsInstr::sw, reg, FUNC_POINT, offset);
 	} else {
-		this->objcode_->Output(MipsInstr::sw, reg, PARA_POINT, offset);
+		this->objcode_->Output(MipsInstr::sw, reg, FUNC_POINT, offset);
 	}
 }
 
@@ -111,10 +110,8 @@ void MipsGenerator::LoadVariable(string name, Reg reg) {
 
 	if (this->check_table_->GetSymbolLevel(name) == 0) {
 		this->objcode_->Output(MipsInstr::lw, reg, GLOBAL_POINT, offset);
-	} else if (this->check_table_->FindSymbol(name)->kind() == KindSymbol::VARIABLE) {
-		this->objcode_->Output(MipsInstr::lw, reg, FUNC_POINT, offset);
 	} else {
-		this->objcode_->Output(MipsInstr::lw, reg, PARA_POINT, offset);
+		this->objcode_->Output(MipsInstr::lw, reg, FUNC_POINT, offset);
 	}
 }
 
@@ -637,6 +634,7 @@ void MipsGenerator::GenerateSave() {
 }
 
 void MipsGenerator::GenerateFunctionEnd(list<Midcode*>::iterator& iter) {
+	this->objcode_->Output(MipsInstr::jr, Reg::ra);
 	iter++;
 	return;
 }
@@ -667,8 +665,11 @@ void MipsGenerator::GenerateParameter(string function_name, string value, int co
 
 	int parameter_count = this->check_table_->FindSymbol(
 		function_name, 0)->GetParameterCount();
-	int offset = 4 * (count - parameter_count);
-	this->check_table_->FindSymbol(value)->set_offset(offset);
+	int para_offset = 4 * (count - parameter_count);
+	int func_offset = this->check_table_->FindSymbol(value)->offset();
+
+	this->objcode_->Output(MipsInstr::lw, RT, PARA_POINT, para_offset);
+	this->objcode_->Output(MipsInstr::sw, RT, FUNC_POINT, func_offset);
 }
 
 void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator& iter) {
