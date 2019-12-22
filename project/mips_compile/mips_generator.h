@@ -19,8 +19,7 @@
 #define RA_POINT		Reg::s2
 #define PARA_POINT		Reg::s3
 
-#define GLOBAL_SPACE	"global_space"
-#define FUNC_SPACE		"func_space"
+#define FUNC_SPACE		"stack_space"
 #define RA_SPACE		"ra_space"
 #define PARA_SPACE		"para_space"
 

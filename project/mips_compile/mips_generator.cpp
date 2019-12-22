@@ -65,9 +65,8 @@ void MipsGenerator::InitData() {
 	this->InitConstString();
 
 	this->objcode_->Output(MipsInstr::data_align, 4);
-	this->objcode_->Output(MipsInstr::data_identifier, RA_SPACE, 400);
+	this->objcode_->Output(MipsInstr::data_identifier, RA_SPACE, 500);
 	this->objcode_->Output(MipsInstr::data_identifier, PARA_SPACE, 500);
-	this->objcode_->Output(MipsInstr::data_identifier, GLOBAL_SPACE, 500);
 	this->objcode_->Output(MipsInstr::data_identifier, FUNC_SPACE, 2000);
 	this->objcode_->Output();
 }
@@ -78,10 +77,11 @@ void MipsGenerator::PrintText() {
 }
 
 void MipsGenerator::InitStack() {
-	this->objcode_->Output(MipsInstr::la, GLOBAL_POINT, GLOBAL_SPACE);
+	this->objcode_->Output(MipsInstr::la, GLOBAL_POINT, FUNC_SPACE);
 	this->objcode_->Output(MipsInstr::la, FUNC_POINT, FUNC_SPACE);
 	this->objcode_->Output(MipsInstr::la, RA_POINT, RA_SPACE);
 	this->objcode_->Output(MipsInstr::la, PARA_POINT, PARA_SPACE);
+	this->objcode_->Output(MipsInstr::addi, FUNC_POINT, FUNC_POINT, this->dm_offset_);
 	this->objcode_->Output();
 }
 
@@ -615,11 +615,11 @@ void MipsGenerator::GeneratePush(
 
 void MipsGenerator::GenerateCall(string prev_name, string call_name) {
 
-	this->objcode_->Output(MipsInstr::addi, FUNC_POINT, FUNC_POINT, 500);
+	this->objcode_->Output(MipsInstr::addi, FUNC_POINT, FUNC_POINT, 2000);
 
 	this->objcode_->Output(MipsInstr::jal, call_name);
 
-	this->objcode_->Output(MipsInstr::subi, FUNC_POINT, FUNC_POINT, 500);
+	this->objcode_->Output(MipsInstr::subi, FUNC_POINT, FUNC_POINT, 2000);
 
 	int length = this->check_table_->FindSymbol(call_name, 0)->GetParameterCount();
 	this->objcode_->Output(MipsInstr::subi, PARA_POINT, PARA_POINT, 4 * length);
@@ -634,7 +634,6 @@ void MipsGenerator::GenerateSave() {
 }
 
 void MipsGenerator::GenerateFunctionEnd(list<Midcode*>::iterator& iter) {
-	this->objcode_->Output(MipsInstr::jr, Reg::ra);
 	iter++;
 	return;
 }
