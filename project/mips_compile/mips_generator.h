@@ -14,12 +14,14 @@
 #define RD				Reg::t2
 #define TEMP			Reg::t3
 
-#define BASE_POINT		Reg::s0
-#define SAVE_POINT		Reg::s1
-#define PARA_POINT		Reg::s2
+#define GLOBAL_POINT	Reg::s0
+#define FUNC_POINT		Reg::s1
+#define RA_POINT		Reg::s2
+#define PARA_POINT		Reg::s3
 
-#define BASE_SPACE		"base_space"
-#define SAVE_SPACE		"save_space"
+#define GLOBAL_SPACE	"global_space"
+#define FUNC_SPACE		"func_space"
+#define RA_SPACE		"ra_space"
 #define PARA_SPACE		"para_space"
 
 using namespace std;
@@ -33,17 +35,19 @@ private:
 	list<Midcode*> midcode_list_;
 
 	map<string, int> temporary_offset_map_;
+	map<string, int> function_offset_map_;
 
-	int dm_offset_;
 	int temp_count_;
+	int temp_offset_;
+	int dm_offset_;
 
-	void LoadTable(int level, string table_name);
+	void LoadTable(int level, string name);
 	void InitConstString();
-	int InitVariable(string function_name);
+	void InitVariable(string function);
 	void InitData();
 
 	void PrintText();
-	void ResetBasePoint();
+	void ResetFunctionPoint();
 	void InitStack();
 	void InitText();
 
@@ -103,7 +107,7 @@ private:
 
 	void GeneratePush(string value, int count);
 
-	void GenerateCall(string name);
+	void GenerateCall(string prev_name, string call_name);
 
 	void GenerateSave();
 

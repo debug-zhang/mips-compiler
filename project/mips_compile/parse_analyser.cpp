@@ -239,7 +239,7 @@ void ParseAnalyser::AnalyzeValuePrameterTable(SyntaxNode* node, Symbol* function
 			expressionNode = this->AddSyntaxChild(EXPRESSION, node);
 			type = this->AnalyzeExpression(expressionNode);
 			str.push_back(type == TypeSymbol::INT ? '0' : '1');
-			midcode_generator_->PrintPushParameter(function->name(), 
+			midcode_generator_->PrintPushParameter(function->name(),
 				expressionNode->value(), count++);
 		}
 	}
@@ -349,7 +349,7 @@ TypeSymbol ParseAnalyser::AnalyzeItem(SyntaxNode* node) {
 				reg_count_++;
 			}
 		} else {
-			if (factorCount == 2 && factorCount != NULL) {
+			if (factorCount == 2 && factorRoot != NULL) {
 				midcode_generator_->PrintNumberOpReg(reg_count_,
 					factorRoot->value(), reg_count_ - 1, op);
 				reg_count_++;
@@ -453,7 +453,8 @@ TypeSymbol ParseAnalyser::AnalyzeExpression(SyntaxNode* node) {
 	}
 }
 
-void ParseAnalyser::AnalyzeCondition(SyntaxNode* node, bool isFalseBranch) {
+void ParseAnalyser::AnalyzeCondition(SyntaxNode* node,  bool 
+	isFalseBranch,int label_count) {
 	SyntaxNode* expression1 = this->AddSyntaxChild(EXPRESSION, node);
 	if (this->AnalyzeExpression(expression1) != TypeSymbol::INT) {
 		this->CountIterator(-1);
@@ -475,26 +476,26 @@ void ParseAnalyser::AnalyzeCondition(SyntaxNode* node, bool isFalseBranch) {
 			this->CountIterator(+1);
 		}
 		if (op == "==") {
-			midcode_generator_->PrintBeqOrBne(label_count_, expression1->value(),
+			midcode_generator_->PrintBeqOrBne(label_count, expression1->value(),
 				expression2->value(), Judge::BEQ, isFalseBranch);
 		} else if (op == "!=") {
-			midcode_generator_->PrintBeqOrBne(label_count_, expression1->value(),
+			midcode_generator_->PrintBeqOrBne(label_count, expression1->value(),
 				expression2->value(), Judge::BNE, isFalseBranch);
 		} else if (op == "<") {
-			midcode_generator_->PrintBgeOrBlt(label_count_, expression1->value(),
+			midcode_generator_->PrintBgeOrBlt(label_count, expression1->value(),
 				expression2->value(), Judge::BLT, isFalseBranch);
 		} else if (op == ">=") {
-			midcode_generator_->PrintBgeOrBlt(label_count_, expression1->value(),
+			midcode_generator_->PrintBgeOrBlt(label_count, expression1->value(),
 				expression2->value(), Judge::BGE, isFalseBranch);
 		} else if (op == "<=") {
-			midcode_generator_->PrintBgtOrBle(label_count_, expression1->value(),
+			midcode_generator_->PrintBgtOrBle(label_count, expression1->value(),
 				expression2->value(), Judge::BLE, isFalseBranch);
 		} else if (op == ">") {
-			midcode_generator_->PrintBgtOrBle(label_count_, expression1->value(),
+			midcode_generator_->PrintBgtOrBle(label_count, expression1->value(),
 				expression2->value(), Judge::BGT, isFalseBranch);
 		}
 	} else {
-		midcode_generator_->PrintBezOrBnz(label_count_,
+		midcode_generator_->PrintBezOrBnz(label_count,
 			expression1->value(), isFalseBranch);
 	}
 }
@@ -506,7 +507,7 @@ bool ParseAnalyser::AnalyzeIfSentence(SyntaxNode* node, TypeSymbol returnType) {
 	int elseLabel = ++label_count_;
 
 	this->AddChild(node);	// LPARENT
-	this->AnalyzeCondition(this->AddSyntaxChild(CONDITION, node), true);
+	this->AnalyzeCondition(this->AddSyntaxChild(CONDITION, node), true, elseLabel);
 	this->AddRparentChild(node);	// RPARENT
 	noReturn = this->AnalyzeSentence(this->AddSyntaxChild(SENTENCE, node), returnType);
 
@@ -537,7 +538,7 @@ void ParseAnalyser::AnalyzeWhile(SyntaxNode* node, TypeSymbol returnType) {
 
 	this->AddChild(node);	// LPARENT
 	int endWhileLabel = ++label_count_;
-	this->AnalyzeCondition(this->AddSyntaxChild(CONDITION, node), true);
+	this->AnalyzeCondition(this->AddSyntaxChild(CONDITION, node), true, endWhileLabel);
 	this->AddRparentChild(node);	// RPARENT
 
 	this->AnalyzeSentence(this->AddSyntaxChild(SENTENCE, node), returnType);
@@ -557,7 +558,7 @@ void ParseAnalyser::AnalyzeDoWhile(SyntaxNode* node, bool& noReturn, TypeSymbol 
 
 	this->AddWhileChild(node);	// WHILETK
 	this->AddChild(node);	// LPARENT
-	this->AnalyzeCondition(this->AddSyntaxChild(CONDITION, node), false);
+	this->AnalyzeCondition(this->AddSyntaxChild(CONDITION, node), false, doLabel);
 	this->AddRparentChild(node);	// RPARENT
 }
 
@@ -582,7 +583,7 @@ void ParseAnalyser::AnalyzeFor(SyntaxNode* node, TypeSymbol returnType) {
 	this->AddSemicnChild(node);	// SEMICN
 
 	int endForLabel = ++label_count_;
-	this->AnalyzeCondition(this->AddSyntaxChild(CONDITION, node), true);
+	this->AnalyzeCondition(this->AddSyntaxChild(CONDITION, node), true, endForLabel);
 
 	this->AddSemicnChild(node);	// SEMICN
 

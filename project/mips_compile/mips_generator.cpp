@@ -5,16 +5,18 @@ MipsGenerator::MipsGenerator(string outputFileName, int temp_count,
 	map<string, SymbolTable*> symbolTableMap, list<Midcode*> midcode_list) {
 
 	this->objcode_ = new Objcode(outputFileName);
+
 	this->string_table_ = stringTable;
 	this->check_table_ = check_table;
 	this->symbol_table_map_ = symbolTableMap;
 	this->midcode_list_ = midcode_list;
-	this->dm_offset_ = 0;
+
 	this->temp_count_ = temp_count;
+	this->dm_offset_ = 0;
 }
 
-void MipsGenerator::LoadTable(int level, string table_name) {
-	this->check_table_->SetTable(level, symbol_table_map_.at(table_name));
+void MipsGenerator::LoadTable(int level, string name) {
+	this->check_table_->SetTable(level, symbol_table_map_.at(name));
 }
 
 void MipsGenerator::InitConstString() {
@@ -29,46 +31,43 @@ void MipsGenerator::InitConstString() {
 	}
 }
 
-int MipsGenerator::InitVariable(string function_name) {
-	map<string, Symbol*> table = this->symbol_table_map_.at(function_name)->symbol_map();
+void MipsGenerator::InitVariable(string function) {
+	map<string, Symbol*> table = this->symbol_table_map_.at(function)->symbol_map();
 	map<string, Symbol*>::iterator iter = table.begin();
 
-	int count = 0;
-	int offset = 0;
+	this->dm_offset_ = 0;
 	while (iter != table.end()) {
 		if (iter->second->kind() == KindSymbol::ARRAY) {
-			iter->second->set_offset(dm_offset_);
-			dm_offset_ += 4 * iter->second->array_length();
-			count += iter->second->array_length();
+			iter->second->set_offset(this->dm_offset_);
+			this->dm_offset_ += 4 * iter->second->array_length();
 		} else if (iter->second->kind() == KindSymbol::VARIABLE) {
-			iter->second->set_offset(dm_offset_);
-			dm_offset_ += 4;
-			count += 1;
+			iter->second->set_offset(this->dm_offset_);
+			this->dm_offset_ += 4;
 		}
 		iter++;
 	}
-
-	return count;
+	this->function_offset_map_.insert(pair<string, int>(function, this->dm_offset_));
+	this->temp_offset_ = dm_offset_;
 }
 
 void MipsGenerator::InitData() {
-	this->LoadTable(0, "global");
 
-	this->objcode_->Output(MipsInstr::data);
-	this->InitConstString();
-
-	int variable_count = 0;
 	map<string, SymbolTable*>::iterator iter = symbol_table_map_.begin();
 	while (iter != symbol_table_map_.end()) {
-		variable_count += this->InitVariable(iter->first);
+		this->InitVariable(iter->first);
 		iter++;
 	}
 
+	this->objcode_->Output(MipsInstr::data);
+	this->LoadTable(0, "global");
+	this->InitVariable("global");
+	this->InitConstString();
+
 	this->objcode_->Output(MipsInstr::data_align, 4);
-	this->objcode_->Output(MipsInstr::data_identifier,
-		BASE_SPACE, 4 * (variable_count + this->temp_count_ + 10));
-	this->objcode_->Output(MipsInstr::data_identifier, SAVE_SPACE, 1000);
-	this->objcode_->Output(MipsInstr::data_identifier, PARA_SPACE, 1000);
+	this->objcode_->Output(MipsInstr::data_identifier, RA_SPACE, 400);
+	this->objcode_->Output(MipsInstr::data_identifier, PARA_SPACE, 500);
+	this->objcode_->Output(MipsInstr::data_identifier, GLOBAL_SPACE, 500);
+	this->objcode_->Output(MipsInstr::data_identifier, FUNC_SPACE, 2000);
 	this->objcode_->Output();
 }
 
@@ -77,13 +76,14 @@ void MipsGenerator::PrintText() {
 	this->objcode_->Output();
 }
 
-void MipsGenerator::ResetBasePoint() {
-	this->objcode_->Output(MipsInstr::la, BASE_POINT, BASE_SPACE);
+void MipsGenerator::ResetFunctionPoint() {
+	this->objcode_->Output(MipsInstr::la, FUNC_POINT, FUNC_SPACE);
 }
 
 void MipsGenerator::InitStack() {
-	this->ResetBasePoint();
-	this->objcode_->Output(MipsInstr::la, SAVE_POINT, SAVE_SPACE);
+	this->ResetFunctionPoint();
+	this->objcode_->Output(MipsInstr::la, GLOBAL_POINT, GLOBAL_SPACE);
+	this->objcode_->Output(MipsInstr::la, RA_POINT, RA_SPACE);
 	this->objcode_->Output(MipsInstr::la, PARA_POINT, PARA_SPACE);
 	this->objcode_->Output();
 }
@@ -98,17 +98,28 @@ void MipsGenerator::InitText() {
 }
 
 void MipsGenerator::SaveVariable(string name, Reg reg) {
-	Reg point = this->check_table_->FindSymbol(name)->kind()
-		== KindSymbol::VARIABLE ? BASE_POINT : PARA_POINT;
+
 	int offset = this->check_table_->FindSymbol(name)->offset();
-	this->objcode_->Output(MipsInstr::sw, reg, point, offset);
+
+	if (this->check_table_->GetSymbolLevel(name) == 0) {
+		this->objcode_->Output(MipsInstr::sw, reg, GLOBAL_POINT, offset);
+	} else if (this->check_table_->FindSymbol(name)->kind() == KindSymbol::VARIABLE) {
+		this->objcode_->Output(MipsInstr::sw, reg, FUNC_POINT, offset);
+	} else {
+		this->objcode_->Output(MipsInstr::sw, reg, PARA_POINT, offset);
+	}
 }
 
 void MipsGenerator::LoadVariable(string name, Reg reg) {
-	Reg point = this->check_table_->FindSymbol(name)->kind()
-		== KindSymbol::VARIABLE ? BASE_POINT : PARA_POINT;
 	int offset = this->check_table_->FindSymbol(name)->offset();
-	this->objcode_->Output(MipsInstr::lw, reg, point, offset);
+
+	if (this->check_table_->GetSymbolLevel(name) == 0) {
+		this->objcode_->Output(MipsInstr::lw, reg, GLOBAL_POINT, offset);
+	} else if (this->check_table_->FindSymbol(name)->kind() == KindSymbol::VARIABLE) {
+		this->objcode_->Output(MipsInstr::lw, reg, FUNC_POINT, offset);
+	} else {
+		this->objcode_->Output(MipsInstr::lw, reg, PARA_POINT, offset);
+	}
 }
 
 bool MipsGenerator::IsInteger(string str) {
@@ -144,22 +155,22 @@ void  MipsGenerator::LoadValue(string value, Reg reg) {
 
 void MipsGenerator::SaveTemporary(string name, Reg reg) {
 	if (this->temporary_offset_map_.find(name) == this->temporary_offset_map_.end()) {
-		this->dm_offset_ += 4;
-		this->temporary_offset_map_.insert(pair<string, int>(name, this->dm_offset_));
+		this->temp_offset_ += 4;
+		this->temporary_offset_map_.insert(pair<string, int>(name, this->temp_offset_));
 	}
 
 	int offset = this->temporary_offset_map_.at(name);
-	this->objcode_->Output(MipsInstr::sw, reg, BASE_POINT, offset);
+	this->objcode_->Output(MipsInstr::sw, reg, FUNC_POINT, offset);
 }
 
 void MipsGenerator::LoadTemporary(string name, Reg reg) {
 	if (this->temporary_offset_map_.find(name) == this->temporary_offset_map_.end()) {
-		this->dm_offset_ += 4;
-		this->temporary_offset_map_.insert(pair<string, int>(name, this->dm_offset_));
-	} else {
-		int offset = this->temporary_offset_map_.at(name);
-		this->objcode_->Output(MipsInstr::lw, reg, BASE_POINT, offset);
+		this->temp_offset_ += 4;
+		this->temporary_offset_map_.insert(pair<string, int>(name, this->temp_offset_));
 	}
+
+	int offset = this->temporary_offset_map_.at(name);
+	this->objcode_->Output(MipsInstr::lw, reg, FUNC_POINT, offset);
 }
 
 bool MipsGenerator::IsConstVariable(string name) {
@@ -184,25 +195,22 @@ int MipsGenerator::GetConstVariable(string name) {
 void MipsGenerator::GenerateScanf(string variable_name, int type) {
 	this->objcode_->Output(MipsInstr::li, Reg::v0, type);
 	this->objcode_->Output(MipsInstr::syscall);
-	this->objcode_->Output(MipsInstr::move, RD, Reg::v0);
 
-	this->SaveVariable(variable_name, RD);
+	this->SaveVariable(variable_name, Reg::v0);
 }
 
 void MipsGenerator::GeneratePrintfIntChar(Midcode* midcode, int type) {
-	string flag = midcode->label();
-	if (this->IsInteger(flag)) {
+	string value = midcode->label();
+	if (this->IsInteger(value)) {
 		this->objcode_->Output(MipsInstr::li, Reg::a0, midcode->GetInteger());
-	} else if (this->IsChar(flag)) {
+	} else if (this->IsChar(value)) {
 		this->objcode_->Output(MipsInstr::li, Reg::v0, midcode->GetChar());
-	} else if (this->IsTemporary(flag)) {
-		this->LoadTemporary(flag, RS);
-		this->objcode_->Output(MipsInstr::move, Reg::a0, RS);
-	} else if (this->IsConstVariable(flag)) {
-		this->objcode_->Output(MipsInstr::li, Reg::a0, this->GetConstVariable(flag));
+	} else if (this->IsTemporary(value)) {
+		this->LoadTemporary(value, Reg::a0);
+	} else if (this->IsConstVariable(value)) {
+		this->objcode_->Output(MipsInstr::li, Reg::a0, this->GetConstVariable(value));
 	} else {
-		this->LoadVariable(flag, RS);
-		this->objcode_->Output(MipsInstr::move, Reg::a0, RS);
+		this->LoadVariable(value, Reg::a0);
 	}
 
 	this->objcode_->Output(MipsInstr::li, Reg::v0, type);
@@ -265,17 +273,20 @@ void MipsGenerator::SetArrayIndex(string index, int& offset, bool& is_use_temp) 
 	} else if (this->IsTemporary(index)) {
 		this->LoadTemporary(index, TEMP);
 		this->objcode_->Output(MipsInstr::sll, TEMP, TEMP, 2);
-		this->objcode_->Output(MipsInstr::addi, TEMP, BASE_POINT, offset);
+		this->objcode_->Output(MipsInstr::addi, TEMP, TEMP, offset);
+		this->objcode_->Output(MipsInstr::add, TEMP, FUNC_POINT, TEMP);
 		is_use_temp = true;
 	} else if (this->IsConstVariable(index)) {
 		this->objcode_->Output(MipsInstr::li, TEMP, this->GetConstVariable(index));
 		this->objcode_->Output(MipsInstr::sll, TEMP, TEMP, 2);
-		this->objcode_->Output(MipsInstr::addi, TEMP, BASE_POINT, offset);
+		this->objcode_->Output(MipsInstr::addi, TEMP, TEMP, offset);
+		this->objcode_->Output(MipsInstr::add, TEMP, FUNC_POINT, TEMP);
 		is_use_temp = true;
 	} else {
 		this->LoadVariable(index, TEMP);
 		this->objcode_->Output(MipsInstr::sll, TEMP, TEMP, 2);
-		this->objcode_->Output(MipsInstr::addi, TEMP, BASE_POINT, offset);
+		this->objcode_->Output(MipsInstr::addi, TEMP, TEMP, offset);
+		this->objcode_->Output(MipsInstr::add, TEMP, FUNC_POINT, TEMP);
 		is_use_temp = true;
 	}
 }
@@ -290,9 +301,9 @@ void MipsGenerator::GenerateAssignArray(string array, string index, string value
 
 	if (is_use_temp) {
 		this->objcode_->Output(MipsInstr::sw, RT, TEMP, 0);
-		this->ResetBasePoint();
+		this->ResetFunctionPoint();
 	} else {
-		this->objcode_->Output(MipsInstr::sw, RT, BASE_POINT, offset);
+		this->objcode_->Output(MipsInstr::sw, RT, FUNC_POINT, offset);
 	}
 }
 
@@ -305,9 +316,9 @@ void MipsGenerator::GenerateLoadArray(string temp, string array, string index) {
 
 	if (is_use_temp) {
 		this->objcode_->Output(MipsInstr::lw, RT, TEMP, 0);
-		this->ResetBasePoint();
+		this->ResetFunctionPoint();
 	} else {
-		this->objcode_->Output(MipsInstr::lw, RT, BASE_POINT, offset);
+		this->objcode_->Output(MipsInstr::lw, RT, FUNC_POINT, offset);
 	}
 
 	this->SaveTemporary(temp, RT);
@@ -324,7 +335,7 @@ void MipsGenerator::SetOperand(string value, Reg reg, bool& is_immediate, int& i
 		is_immediate = true;
 		immediate = this->GetConstVariable(value);
 	} else {
-		this->LoadVariable(value, RS);
+		this->LoadVariable(value, reg);
 	}
 }
 
@@ -515,7 +526,7 @@ void MipsGenerator::GenerateNeg(string temp_result, string value) {
 	this->SetOperand(value, RS, is_immediate, immediate);
 
 	if (is_immediate) {
-		objcode_->Output(MipsInstr::li, RD, immediate);
+		objcode_->Output(MipsInstr::li, RD, -immediate);
 	} else {
 		objcode_->Output(MipsInstr::sub, RD, Reg::zero, RS);
 	}
@@ -602,19 +613,24 @@ void MipsGenerator::GeneratePush(
 	this->objcode_->Output(MipsInstr::addi, PARA_POINT, PARA_POINT, 4);
 }
 
-void MipsGenerator::GenerateCall(string name) {
-	this->objcode_->Output(MipsInstr::jal, name);
+void MipsGenerator::GenerateCall(string prev_name, string call_name) {
 
-	int length = this->check_table_->FindSymbol(name, 0)->GetParameterCount();
+	this->objcode_->Output(MipsInstr::addi, FUNC_POINT, FUNC_POINT, 1000);
+
+	this->objcode_->Output(MipsInstr::jal, call_name);
+
+	this->objcode_->Output(MipsInstr::subi, FUNC_POINT, FUNC_POINT, 1000);
+
+	int length = this->check_table_->FindSymbol(call_name, 0)->GetParameterCount();
 	this->objcode_->Output(MipsInstr::subi, PARA_POINT, PARA_POINT, 4 * length);
 
-	this->objcode_->Output(MipsInstr::subi, SAVE_POINT, SAVE_POINT, 4);
-	this->objcode_->Output(MipsInstr::lw, Reg::ra, SAVE_POINT, 0);
+	this->objcode_->Output(MipsInstr::subi, RA_POINT, RA_POINT, 4);
+	this->objcode_->Output(MipsInstr::lw, Reg::ra, RA_POINT, 0);
 }
 
 void MipsGenerator::GenerateSave() {
-	this->objcode_->Output(MipsInstr::sw, Reg::ra, SAVE_POINT, 0);
-	this->objcode_->Output(MipsInstr::addi, SAVE_POINT, SAVE_POINT, 4);
+	this->objcode_->Output(MipsInstr::sw, Reg::ra, RA_POINT, 0);
+	this->objcode_->Output(MipsInstr::addi, RA_POINT, RA_POINT, 4);
 }
 
 void MipsGenerator::GenerateFunctionEnd(list<Midcode*>::iterator& iter) {
@@ -744,7 +760,7 @@ void MipsGenerator::GenerateBody(string function_name, list<Midcode*>::iterator&
 			this->GeneratePush(midcode->reg2(), midcode->count());
 			break;
 		case MidcodeInstr::CALL:
-			this->GenerateCall(midcode->label());
+			this->GenerateCall(function_name, midcode->label());
 			break;
 		case MidcodeInstr::SAVE:
 			this->GenerateSave();
@@ -783,6 +799,7 @@ void MipsGenerator::GenerateFunction(string function_name,
 	list<Midcode*>::iterator& iter) {
 
 	this->LoadTable(1, function_name);
+	this->InitVariable(function_name);
 	this->objcode_->Output(MipsInstr::label, function_name);
 	iter++;
 	this->GenerateBody(function_name, iter);

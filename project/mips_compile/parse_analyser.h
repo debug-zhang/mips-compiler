@@ -91,7 +91,7 @@ private:
 	TypeSymbol AnalyzeItem(SyntaxNode* node);
 	TypeSymbol AnalyzeExpression(SyntaxNode* node);
 
-	void AnalyzeCondition(SyntaxNode* node, bool isFalseBranch);
+	void AnalyzeCondition(SyntaxNode* node, bool isFalseBranch, int label_count);
 	bool AnalyzeIfSentence(SyntaxNode* node, TypeSymbol returnType);
 
 	int AnalyzeStep(SyntaxNode* node);
