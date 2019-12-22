@@ -47,7 +47,6 @@ private:
 	void InitData();
 
 	void PrintText();
-	void ResetFunctionPoint();
 	void InitStack();
 	void InitText();
 
@@ -79,7 +78,7 @@ private:
 	void GenerateAssign(string result, string value);
 	void GenerateAssignReturn(string temp);
 
-	void SetArrayIndex(string index, int& offset, bool& is_use_temp);
+	void SetArrayIndex(string index, Reg base, int& offset, bool& is_use_temp);
 	void GenerateAssignArray(string array, string index, string value);
 	void GenerateLoadArray(string temp, string array, string index);
 

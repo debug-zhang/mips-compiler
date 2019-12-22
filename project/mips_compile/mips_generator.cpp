@@ -76,13 +76,9 @@ void MipsGenerator::PrintText() {
 	this->objcode_->Output();
 }
 
-void MipsGenerator::ResetFunctionPoint() {
-	this->objcode_->Output(MipsInstr::la, FUNC_POINT, FUNC_SPACE);
-}
-
 void MipsGenerator::InitStack() {
-	this->ResetFunctionPoint();
 	this->objcode_->Output(MipsInstr::la, GLOBAL_POINT, GLOBAL_SPACE);
+	this->objcode_->Output(MipsInstr::la, FUNC_POINT, FUNC_SPACE);
 	this->objcode_->Output(MipsInstr::la, RA_POINT, RA_SPACE);
 	this->objcode_->Output(MipsInstr::la, PARA_POINT, PARA_SPACE);
 	this->objcode_->Output();
@@ -265,7 +261,7 @@ void MipsGenerator::GenerateAssignReturn(string temp) {
 	this->SaveTemporary(temp, RD);
 }
 
-void MipsGenerator::SetArrayIndex(string index, int& offset, bool& is_use_temp) {
+void MipsGenerator::SetArrayIndex(string index, Reg base, int& offset, bool& is_use_temp) {
 	if (this->IsInteger(index)) {
 		offset += 4 * stoi(index);
 	} else if (this->IsChar(index)) {
@@ -274,19 +270,19 @@ void MipsGenerator::SetArrayIndex(string index, int& offset, bool& is_use_temp) 
 		this->LoadTemporary(index, TEMP);
 		this->objcode_->Output(MipsInstr::sll, TEMP, TEMP, 2);
 		this->objcode_->Output(MipsInstr::addi, TEMP, TEMP, offset);
-		this->objcode_->Output(MipsInstr::add, TEMP, FUNC_POINT, TEMP);
+		this->objcode_->Output(MipsInstr::add, TEMP, base, TEMP);
 		is_use_temp = true;
 	} else if (this->IsConstVariable(index)) {
 		this->objcode_->Output(MipsInstr::li, TEMP, this->GetConstVariable(index));
 		this->objcode_->Output(MipsInstr::sll, TEMP, TEMP, 2);
 		this->objcode_->Output(MipsInstr::addi, TEMP, TEMP, offset);
-		this->objcode_->Output(MipsInstr::add, TEMP, FUNC_POINT, TEMP);
+		this->objcode_->Output(MipsInstr::add, TEMP, base, TEMP);
 		is_use_temp = true;
 	} else {
 		this->LoadVariable(index, TEMP);
 		this->objcode_->Output(MipsInstr::sll, TEMP, TEMP, 2);
 		this->objcode_->Output(MipsInstr::addi, TEMP, TEMP, offset);
-		this->objcode_->Output(MipsInstr::add, TEMP, FUNC_POINT, TEMP);
+		this->objcode_->Output(MipsInstr::add, TEMP, base, TEMP);
 		is_use_temp = true;
 	}
 }
@@ -295,15 +291,16 @@ void MipsGenerator::GenerateAssignArray(string array, string index, string value
 
 	bool is_use_temp = false;
 	int offset = this->check_table_->FindSymbol(array)->offset();
+	int level = this->check_table_->GetSymbolLevel(array);
+	Reg base = level == 0 ? GLOBAL_POINT : FUNC_POINT;
 
-	this->SetArrayIndex(index, offset, is_use_temp);
+	this->SetArrayIndex(index, base, offset, is_use_temp);
 	this->LoadValue(value, RT);
 
 	if (is_use_temp) {
 		this->objcode_->Output(MipsInstr::sw, RT, TEMP, 0);
-		this->ResetFunctionPoint();
 	} else {
-		this->objcode_->Output(MipsInstr::sw, RT, FUNC_POINT, offset);
+		this->objcode_->Output(MipsInstr::sw, RT, base, offset);
 	}
 }
 
@@ -311,14 +308,15 @@ void MipsGenerator::GenerateLoadArray(string temp, string array, string index) {
 
 	bool is_use_temp = false;
 	int offset = this->check_table_->FindSymbol(array)->offset();
+	int level = this->check_table_->GetSymbolLevel(array);
+	Reg base = level == 0 ? GLOBAL_POINT : FUNC_POINT;
 
-	this->SetArrayIndex(index, offset, is_use_temp);
+	this->SetArrayIndex(index, base,offset, is_use_temp);
 
 	if (is_use_temp) {
 		this->objcode_->Output(MipsInstr::lw, RT, TEMP, 0);
-		this->ResetFunctionPoint();
 	} else {
-		this->objcode_->Output(MipsInstr::lw, RT, FUNC_POINT, offset);
+		this->objcode_->Output(MipsInstr::lw, RT, base, offset);
 	}
 
 	this->SaveTemporary(temp, RT);
@@ -554,7 +552,7 @@ void MipsGenerator::SetJudgeReg(string value, Reg reg) {
 
 void MipsGenerator::GenerateJudge(Midcode* midcode, MidcodeInstr judge) {
 	MipsInstr mips_instr = MipsInstr::bgt;
-	bool flag = true;
+	bool is_two_judge = true;
 
 	switch (judge) {
 	case MidcodeInstr::BGT:
@@ -590,19 +588,24 @@ void MipsGenerator::GenerateJudge(Midcode* midcode, MidcodeInstr judge) {
 	case MidcodeInstr::BEZ:
 		mips_instr = MipsInstr::beq;
 		this->SetJudgeReg(midcode->reg1(), RS);
-		flag = false;
+		is_two_judge = false;
 		break;
 	case MidcodeInstr::BNZ:
 		mips_instr = MipsInstr::bne;
 		this->SetJudgeReg(midcode->reg1(), RS);
-		flag = false;
+		is_two_judge = false;
 		break;
 	default:
 		assert(0);
 		break;
 	}
 
-	this->objcode_->Output(mips_instr, RS, RT, midcode->GetLabel());
+	if (is_two_judge) {
+		this->objcode_->Output(mips_instr, RS, RT, midcode->GetLabel());
+	} else {
+		this->objcode_->Output(mips_instr, RS, Reg::zero, midcode->GetLabel());
+	}
+	
 }
 
 void MipsGenerator::GeneratePush(
