@@ -2,16 +2,12 @@
 
 BUAA C0文法编译器
 
-</br>
-
 # 运行环境
 VS Community2019
 
 clang8.0.0
 
 Mars-jdk7-Re.jar
-
-</br>
 
 # 文法说明
 
