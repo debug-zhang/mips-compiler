@@ -12,7 +12,7 @@
 - Input file: testfile.txt (Persuade C codes)
 - Output files: output.txt (Objects codes, can run on MARS)
 
-## Persuade C Grammar(Chinese)
+## Persuade C Grammar [CN]
 
 ＜加法运算符＞ ::= +｜-
 
