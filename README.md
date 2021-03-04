@@ -1,17 +1,16 @@
 # MIPS Compiler
 
-## Run
-
-- Compiler: clang8.0.0
-- Recommended Development Enviroment: Visual Studio 2019+.
-- MARS: Mars-jdk7-Re.jar
-- Input file: testfile.txt
-- Output files: output.txt: objects codes (can run on MARS)
-
 ## Features
 - Source Code: Persuade C (similar to C, but simplified for teaching purpose.)
 - Object Code: MIPS-32
 
+## Run
+
+- Compiler: clang 8.0.0
+- Recommended Development Enviroment: Visual Studio 2019+.
+- MARS: Mars-jdk7-Re.jar
+- Input file: testfile.txt (Persuade C codes)
+- Output files: output.txt (Objects codes, can run on MARS)
 
 ## Persuade C Grammar(Chinese)
 
