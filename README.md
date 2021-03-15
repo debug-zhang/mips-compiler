@@ -4,13 +4,16 @@
 - Source Code: Persuade C (similar to C, but simplified for teaching purpose.)
 - Object Code: MIPS-32
 
+## Build
+
+`cmake . && make`
+
 ## Run
 
 - Compiler: clang 8.0.0
-- Recommended Development Enviroment: Visual Studio 2019+.
 - MARS: Mars-jdk7-Re.jar
-- Input file: testfile.txt (Persuade C codes)
-- Output files: output.txt (Objects codes, can run on MARS)
+- Input file: file/testfile.txt (Persuade C codes)
+- Output files: file/output.txt (Objects codes, can run on MARS)
 
 ## Persuade C Grammar [CN]
 
