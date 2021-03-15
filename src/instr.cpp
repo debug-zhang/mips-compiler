@@ -1,24 +1,18 @@
 ﻿#include "instr.h"
 
 namespace midcodeinstr {
-	MidcodeInstr GetOperatorInstr(string op) {
-		switch (op[0]) {
-		case '+':
-			return MidcodeInstr::ADD;
-			break;
-		case '-':
-			return MidcodeInstr::SUB;
-			break;
-		case '*':
-			return MidcodeInstr::MUL;
-			break;
-		case '/':
-			return MidcodeInstr::DIV;
-			break;
-		default:
-			assert(0);
-			return MidcodeInstr::ADD;
-			break;
-		}
-	}
+    MidcodeInstr GetOperatorInstr(std::string op) {
+        switch (op[0]) {
+            case '+':
+                return MidcodeInstr::ADD;
+            case '-':
+                return MidcodeInstr::SUB;
+            case '*':
+                return MidcodeInstr::MUL;
+            case '/':
+                return MidcodeInstr::DIV;
+            default:
+                assert(0);
+        }
+    }
 }

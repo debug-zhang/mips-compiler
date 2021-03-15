@@ -1,0 +1,698 @@
+.data
+	str_0: .asciiz "x = "
+	str_1: .asciiz "y = "
+	str_2: .asciiz "SWAP x = "
+	str_3: .asciiz "SWAP y = "
+	str_4: .asciiz "OVERFLOW!"
+	str_5: .asciiz "complete number: "
+	str_6: .asciiz "  "
+	str_7: .asciiz " "
+	str_8: .asciiz "---------------------------------------------------------------"
+	str_9: .asciiz "'water flower'number is:"
+	str_10: .asciiz "  "
+	str_11: .asciiz " "
+	str_12: .asciiz "---------------------------------------------------------------"
+	str_13: .asciiz " "
+	str_14: .asciiz " "
+	str_15: .asciiz "The total is "
+	str_16: .asciiz "5 != "
+	.align 4
+	ra_space: .space 500
+	para_space: .space 500
+	stack_space: .space 2000
+
+.text
+
+la $s0 stack_space
+la $s1 stack_space
+la $s2 ra_space
+la $s3 para_space
+addi $s1 $s1 0
+
+jal main
+li $v0 10
+syscall
+
+factorial:
+lw $t1 -4($s3)
+sw $t1 0($s1)
+lw $t0 0($s1)
+li $t1 1
+bgt $t0 $t1 Label_1
+li $v0 1
+jr $ra
+j Label_2
+
+Label_1:
+
+Label_2:
+sw $ra 0($s2)
+addi $s2 $s2 4
+lw $t0 0($s1)
+addi $t2 $t0 -1
+sw $t2 8($s1)
+lw $t1 8($s1)
+sw $t1 0($s3)
+addi $s3 $s3 4
+addi $s1 $s1 2000
+jal factorial
+addi $s1 $s1 -2000
+addi $s3 $s3 -4
+addi $s2 $s2 -4
+lw $ra 0($s2)
+move $t2 $v0
+sw $t2 12($s1)
+lw $t0 0($s1)
+lw $t1 12($s1)
+mul $t2 $t0 $t1
+sw $t2 16($s1)
+lw $t0 16($s1)
+move $v0 $t0
+jr $ra
+
+mod:
+lw $t1 -8($s3)
+sw $t1 0($s1)
+lw $t1 -4($s3)
+sw $t1 4($s1)
+lw $t0 0($s1)
+lw $t1 4($s1)
+div $t0 $t1
+mflo $t2
+sw $t2 12($s1)
+lw $t0 12($s1)
+lw $t1 4($s1)
+mul $t2 $t0 $t1
+sw $t2 16($s1)
+lw $t0 0($s1)
+lw $t1 16($s1)
+sub $t2 $t0 $t1
+sw $t2 0($s1)
+lw $t0 0($s1)
+move $v0 $t0
+jr $ra
+
+swap:
+lw $t1 -8($s3)
+sw $t1 4($s1)
+lw $t1 -4($s3)
+sw $t1 8($s1)
+la $a0 str_0
+li $v0 4
+syscall
+lw $a0 4($s1)
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+la $a0 str_1
+li $v0 4
+syscall
+lw $a0 8($s1)
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+lw $t0 4($s1)
+move $t2 $t0
+sw $t2 0($s1)
+lw $t0 8($s1)
+move $t2 $t0
+sw $t2 4($s1)
+lw $t0 0($s1)
+move $t2 $t0
+sw $t2 8($s1)
+la $a0 str_2
+li $v0 4
+syscall
+lw $a0 4($s1)
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+la $a0 str_3
+li $v0 4
+syscall
+lw $a0 8($s1)
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+jr $ra
+
+full_num:
+lw $t1 -12($s3)
+sw $t1 8($s1)
+lw $t1 -8($s3)
+sw $t1 4($s1)
+lw $t1 -4($s3)
+sw $t1 0($s1)
+lw $t0 8($s1)
+mul $t2 $t0 100
+sw $t2 16($s1)
+lw $t0 4($s1)
+mul $t2 $t0 10
+sw $t2 20($s1)
+lw $t0 16($s1)
+lw $t1 20($s1)
+add $t2 $t0 $t1
+sw $t2 24($s1)
+lw $t0 24($s1)
+lw $t1 0($s1)
+add $t2 $t0 $t1
+sw $t2 28($s1)
+lw $t0 28($s1)
+move $v0 $t0
+jr $ra
+
+flower_num:
+lw $t1 -12($s3)
+sw $t1 8($s1)
+lw $t1 -8($s3)
+sw $t1 4($s1)
+lw $t1 -4($s3)
+sw $t1 0($s1)
+lw $t0 8($s1)
+lw $t1 8($s1)
+mul $t2 $t0 $t1
+sw $t2 16($s1)
+lw $t0 16($s1)
+lw $t1 8($s1)
+mul $t2 $t0 $t1
+sw $t2 20($s1)
+lw $t0 4($s1)
+lw $t1 4($s1)
+mul $t2 $t0 $t1
+sw $t2 24($s1)
+lw $t0 24($s1)
+lw $t1 4($s1)
+mul $t2 $t0 $t1
+sw $t2 28($s1)
+lw $t0 20($s1)
+lw $t1 28($s1)
+add $t2 $t0 $t1
+sw $t2 32($s1)
+lw $t0 0($s1)
+lw $t1 0($s1)
+mul $t2 $t0 $t1
+sw $t2 36($s1)
+lw $t0 36($s1)
+lw $t1 0($s1)
+mul $t2 $t0 $t1
+sw $t2 40($s1)
+lw $t0 32($s1)
+lw $t1 40($s1)
+add $t2 $t0 $t1
+sw $t2 44($s1)
+lw $t0 44($s1)
+move $v0 $t0
+jr $ra
+
+complete_flower_num:
+li $t2 2
+sw $t2 20($s1)
+
+Label_3:
+lw $t0 20($s1)
+li $t1 128
+bge $t0 $t1 Label_4
+li $t2 -1
+sw $t2 572($s1)
+lw $t0 572($s1)
+move $t2 $t0
+sw $t2 548($s1)
+lw $t0 20($s1)
+move $t2 $t0
+sw $t2 552($s1)
+li $t2 1
+sw $t2 16($s1)
+
+Label_5:
+lw $t0 16($s1)
+lw $t1 20($s1)
+bge $t0 $t1 Label_6
+lw $t0 20($s1)
+lw $t1 16($s1)
+div $t0 $t1
+mflo $t2
+sw $t2 576($s1)
+lw $t0 576($s1)
+lw $t1 16($s1)
+mul $t2 $t0 $t1
+sw $t2 556($s1)
+sw $ra 0($s2)
+addi $s2 $s2 4
+lw $t1 20($s1)
+sw $t1 0($s3)
+addi $s3 $s3 4
+lw $t1 16($s1)
+sw $t1 0($s3)
+addi $s3 $s3 4
+addi $s1 $s1 2000
+jal mod
+addi $s1 $s1 -2000
+addi $s3 $s3 -8
+addi $s2 $s2 -4
+lw $ra 0($s2)
+move $t2 $v0
+sw $t2 580($s1)
+lw $t0 580($s1)
+li $t1 0
+bne $t0 $t1 Label_7
+lw $t0 548($s1)
+addi $t2 $t0 1
+sw $t2 548($s1)
+lw $t0 552($s1)
+lw $t1 16($s1)
+sub $t2 $t0 $t1
+sw $t2 552($s1)
+lw $t0 548($s1)
+li $t1 128
+blt $t0 $t1 Label_8
+la $a0 str_4
+li $v0 4
+syscall
+li $a0 10
+li $v0 11
+syscall
+j Label_9
+
+Label_8:
+lw $t3 548($s1)
+sll $t3 $t3 2
+addi $t3 $t3 24
+add $t3 $s1 $t3
+lw $t1 16($s1)
+sw $t1 0($t3)
+
+Label_9:
+j Label_10
+
+Label_7:
+
+Label_10:
+lw $t0 16($s1)
+addi $t2 $t0 1
+sw $t2 16($s1)
+j Label_5
+
+Label_6:
+lw $t0 552($s1)
+li $t1 0
+bne $t0 $t1 Label_11
+la $a0 str_5
+li $v0 4
+syscall
+lw $a0 20($s1)
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+li $t2 0
+sw $t2 16($s1)
+
+Label_12:
+lw $t0 16($s1)
+lw $t1 548($s1)
+bgt $t0 $t1 Label_13
+la $a0 str_6
+li $v0 4
+syscall
+lw $t3 16($s1)
+sll $t3 $t3 2
+addi $t3 $t3 24
+add $t3 $s1 $t3
+lw $t1 0($t3)
+sw $t1 584($s1)
+lw $a0 584($s1)
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+lw $t0 16($s1)
+addi $t2 $t0 1
+sw $t2 16($s1)
+j Label_12
+
+Label_13:
+la $a0 str_7
+li $v0 4
+syscall
+li $a0 10
+li $v0 11
+syscall
+j Label_14
+
+Label_11:
+
+Label_14:
+lw $t0 20($s1)
+addi $t2 $t0 1
+sw $t2 20($s1)
+j Label_3
+
+Label_4:
+la $a0 str_8
+li $v0 4
+syscall
+li $a0 10
+li $v0 11
+syscall
+la $a0 str_9
+li $v0 4
+syscall
+li $a0 10
+li $v0 11
+syscall
+li $t2 0
+sw $t2 564($s1)
+li $t2 100
+sw $t2 16($s1)
+
+Label_15:
+li $t2 228
+sw $t2 588($s1)
+lw $t0 16($s1)
+lw $t1 588($s1)
+bge $t0 $t1 Label_16
+lw $t0 16($s1)
+div $t2 $t0 100
+sw $t2 548($s1)
+sw $ra 0($s2)
+addi $s2 $s2 4
+lw $t0 16($s1)
+div $t2 $t0 10
+sw $t2 592($s1)
+lw $t1 592($s1)
+sw $t1 0($s3)
+addi $s3 $s3 4
+li $t1 10
+sw $t1 0($s3)
+addi $s3 $s3 4
+addi $s1 $s1 2000
+jal mod
+addi $s1 $s1 -2000
+addi $s3 $s3 -8
+addi $s2 $s2 -4
+lw $ra 0($s2)
+move $t2 $v0
+sw $t2 596($s1)
+lw $t0 596($s1)
+move $t2 $t0
+sw $t2 20($s1)
+sw $ra 0($s2)
+addi $s2 $s2 4
+lw $t1 16($s1)
+sw $t1 0($s3)
+addi $s3 $s3 4
+li $t1 10
+sw $t1 0($s3)
+addi $s3 $s3 4
+addi $s1 $s1 2000
+jal mod
+addi $s1 $s1 -2000
+addi $s3 $s3 -8
+addi $s2 $s2 -4
+lw $ra 0($s2)
+move $t2 $v0
+sw $t2 600($s1)
+lw $t0 600($s1)
+move $t2 $t0
+sw $t2 0($s1)
+sw $ra 0($s2)
+addi $s2 $s2 4
+lw $t1 548($s1)
+sw $t1 0($s3)
+addi $s3 $s3 4
+lw $t1 20($s1)
+sw $t1 0($s3)
+addi $s3 $s3 4
+lw $t1 0($s1)
+sw $t1 0($s3)
+addi $s3 $s3 4
+addi $s1 $s1 2000
+jal full_num
+addi $s1 $s1 -2000
+addi $s3 $s3 -12
+addi $s2 $s2 -4
+lw $ra 0($s2)
+move $t2 $v0
+sw $t2 604($s1)
+sw $ra 0($s2)
+addi $s2 $s2 4
+lw $t1 548($s1)
+sw $t1 0($s3)
+addi $s3 $s3 4
+lw $t1 20($s1)
+sw $t1 0($s3)
+addi $s3 $s3 4
+lw $t1 0($s1)
+sw $t1 0($s3)
+addi $s3 $s3 4
+addi $s1 $s1 2000
+jal flower_num
+addi $s1 $s1 -2000
+addi $s3 $s3 -12
+addi $s2 $s2 -4
+lw $ra 0($s2)
+move $t2 $v0
+sw $t2 608($s1)
+lw $t0 604($s1)
+lw $t1 608($s1)
+bne $t0 $t1 Label_17
+lw $t3 564($s1)
+sll $t3 $t3 2
+addi $t3 $t3 24
+add $t3 $s1 $t3
+lw $t1 16($s1)
+sw $t1 0($t3)
+lw $t0 564($s1)
+addi $t2 $t0 1
+sw $t2 564($s1)
+j Label_18
+
+Label_17:
+
+Label_18:
+lw $t0 16($s1)
+addi $t2 $t0 1
+sw $t2 16($s1)
+j Label_15
+
+Label_16:
+li $t2 0
+sw $t2 16($s1)
+
+Label_19:
+lw $t0 16($s1)
+lw $t1 564($s1)
+bge $t0 $t1 Label_20
+la $a0 str_10
+li $v0 4
+syscall
+lw $t3 16($s1)
+sll $t3 $t3 2
+addi $t3 $t3 24
+add $t3 $s1 $t3
+lw $t1 0($t3)
+sw $t1 612($s1)
+lw $a0 612($s1)
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+lw $t0 16($s1)
+addi $t2 $t0 1
+sw $t2 16($s1)
+j Label_19
+
+Label_20:
+la $a0 str_11
+li $v0 4
+syscall
+li $a0 10
+li $v0 11
+syscall
+la $a0 str_12
+li $v0 4
+syscall
+li $a0 10
+li $v0 11
+syscall
+li $t2 0
+sw $t2 12($s1)
+li $t2 1
+sw $t2 540($s1)
+li $t2 2
+sw $t2 544($s1)
+
+Label_21:
+lw $t0 544($s1)
+li $t1 128
+bgt $t0 $t1 Label_22
+lw $t0 544($s1)
+div $t2 $t0 2
+sw $t2 536($s1)
+li $t2 2
+sw $t2 16($s1)
+
+Label_23:
+lw $t0 16($s1)
+lw $t1 536($s1)
+bgt $t0 $t1 Label_24
+lw $t0 544($s1)
+lw $t1 16($s1)
+div $t0 $t1
+mflo $t2
+sw $t2 616($s1)
+lw $t0 616($s1)
+lw $t1 16($s1)
+mul $t2 $t0 $t1
+sw $t2 560($s1)
+sw $ra 0($s2)
+addi $s2 $s2 4
+lw $t1 544($s1)
+sw $t1 0($s3)
+addi $s3 $s3 4
+lw $t1 16($s1)
+sw $t1 0($s3)
+addi $s3 $s3 4
+addi $s1 $s1 2000
+jal mod
+addi $s1 $s1 -2000
+addi $s3 $s3 -8
+addi $s2 $s2 -4
+lw $ra 0($s2)
+move $t2 $v0
+sw $t2 620($s1)
+lw $t0 620($s1)
+li $t1 0
+bne $t0 $t1 Label_25
+li $t2 0
+sw $t2 540($s1)
+j Label_26
+
+Label_25:
+
+Label_26:
+lw $t0 16($s1)
+addi $t2 $t0 1
+sw $t2 16($s1)
+j Label_23
+
+Label_24:
+lw $t0 540($s1)
+li $t1 1
+bne $t0 $t1 Label_27
+la $a0 str_13
+li $v0 4
+syscall
+lw $a0 544($s1)
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+lw $t0 12($s1)
+addi $t2 $t0 1
+sw $t2 12($s1)
+lw $t0 12($s1)
+div $t2 $t0 10
+sw $t2 624($s1)
+lw $t0 624($s1)
+mul $t2 $t0 10
+sw $t2 560($s1)
+lw $t0 560($s1)
+lw $t1 12($s1)
+bne $t0 $t1 Label_28
+la $a0 str_14
+li $v0 4
+syscall
+li $a0 10
+li $v0 11
+syscall
+j Label_29
+
+Label_28:
+
+Label_29:
+j Label_30
+
+Label_27:
+
+Label_30:
+li $t2 1
+sw $t2 540($s1)
+lw $t0 544($s1)
+addi $t2 $t0 1
+sw $t2 544($s1)
+j Label_21
+
+Label_22:
+la $a0 str_15
+li $v0 4
+syscall
+lw $a0 12($s1)
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+jr $ra
+
+main:
+sw $ra 0($s2)
+addi $s2 $s2 4
+li $t1 5
+sw $t1 0($s3)
+addi $s3 $s3 4
+addi $s1 $s1 2000
+jal factorial
+addi $s1 $s1 -2000
+addi $s3 $s3 -4
+addi $s2 $s2 -4
+lw $ra 0($s2)
+move $t2 $v0
+sw $t2 8($s1)
+lw $t0 8($s1)
+move $t2 $t0
+sw $t2 0($s1)
+la $a0 str_16
+li $v0 4
+syscall
+lw $a0 0($s1)
+li $v0 1
+syscall
+li $a0 10
+li $v0 11
+syscall
+sw $ra 0($s2)
+addi $s2 $s2 4
+li $t1 5
+sw $t1 0($s3)
+addi $s3 $s3 4
+li $t1 10
+sw $t1 0($s3)
+addi $s3 $s3 4
+addi $s1 $s1 2000
+jal swap
+addi $s1 $s1 -2000
+addi $s3 $s3 -8
+addi $s2 $s2 -4
+lw $ra 0($s2)
+sw $ra 0($s2)
+addi $s2 $s2 4
+addi $s1 $s1 2000
+jal complete_flower_num
+addi $s1 $s1 -2000
+addi $s3 $s3 0
+addi $s2 $s2 -4
+lw $ra 0($s2)
+jr $ra

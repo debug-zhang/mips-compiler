@@ -19,15 +19,21 @@ const char NO_ERROR = 'p';
 
 class Error {
 private:
-	int line_number_;
-	char error_type_;
+    int line_number_;
+    char error_type_;
 public:
-	Error();
-	Error(int line_number, char error_type);
-	void set_line_number(int line_number);
-	void set_error_type(char error_type);
-	bool IsError();
-	int line_number();
-	char error_type();
+    Error();
+
+    Error(int line_number, char error_type);
+
+    void set_line_number(int line_number);
+
+    void set_error_type(char error_type);
+
+    bool IsError() const;
+
+    int line_number() const;
+
+    char error_type() const;
 };
 
