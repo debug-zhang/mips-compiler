@@ -6,7 +6,9 @@
 
 ## Build
 
-`cmake . && make`
+```shell
+cmake . && make
+```
 
 ## Run
 
