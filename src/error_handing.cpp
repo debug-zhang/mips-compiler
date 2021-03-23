@@ -3,7 +3,7 @@
 using namespace std;
 
 ErrorHanding::ErrorHanding(const string &file_name) {
-    this->error_file_.open(file_name);
+    error_file_.open(file_name);
 }
 
 void ErrorHanding::AddError(Error error) {

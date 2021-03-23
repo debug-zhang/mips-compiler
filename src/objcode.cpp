@@ -3,7 +3,7 @@
 using namespace std;
 
 Objcode::Objcode(const string &mipsFile) {
-    this->mips_.open(mipsFile);
+    mips_.open(mipsFile);
 }
 
 void Objcode::Output() {
@@ -206,5 +206,5 @@ void Objcode::Output(MipsInstr instr, Reg t0, Reg t1, const string &label) {
 }
 
 void Objcode::FileClose() {
-    this->mips_.close();
+    mips_.close();
 }

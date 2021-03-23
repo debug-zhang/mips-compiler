@@ -3,10 +3,10 @@
 using namespace std;
 
 LexicalAnalyser::LexicalAnalyser(const string &file_name, ErrorHanding *error_handing) {
-    this->testfile_.open(file_name);
-    this->temp_lexeme_ = new Lexeme();
-    this->error_handing_ = error_handing;
-    this->line_number_ = 1;
+    testfile_.open(file_name);
+    temp_lexeme_ = new Lexeme();
+    error_handing_ = error_handing;
+    line_number_ = 1;
     MapInitial();
 }
 
@@ -140,19 +140,19 @@ void LexicalAnalyser::UngetChar() {
 void LexicalAnalyser::GoForward(char &c) {
     while (isspace(c)) {
         if (c == '\n') {
-            this->line_number_++;
+            line_number_++;
         }
         GetChar(c);
     }
 }
 
 void LexicalAnalyser::AddList(struct Lexeme temp) {
-    temp.line_number = this->line_number_;
+    temp.line_number = line_number_;
     lexeme_list_.push_back(temp);
 }
 
 void LexicalAnalyser::AddList(struct Lexeme temp, const string &identifier) {
-    temp.line_number = this->line_number_;
+    temp.line_number = line_number_;
     temp.identifier = identifier;
     lexeme_list_.push_back(temp);
 }
@@ -162,15 +162,15 @@ bool LexicalAnalyser::AnalyzeKey(char &c) {
         temp_lexeme_ = new Lexeme();
         do {
             temp_lexeme_->value.push_back(c);
-            this->GetChar(c);
-        } while (isalpha(c) || this->IsUnder(c) || isdigit(c));
-        this->UngetChar();
+            GetChar(c);
+        } while (isalpha(c) || IsUnder(c) || isdigit(c));
+        UngetChar();
 
-        if (this->CheckKey(temp_lexeme_)) {
-            this->AddList(*temp_lexeme_);
+        if (CheckKey(temp_lexeme_)) {
+            AddList(*temp_lexeme_);
             return true;
         } else {
-            this->AddList(*temp_lexeme_, IDENFR);
+            AddList(*temp_lexeme_, IDENFR);
             return true;
         }
     }
@@ -179,28 +179,28 @@ bool LexicalAnalyser::AnalyzeKey(char &c) {
 }
 
 bool LexicalAnalyser::AnalyzeQuote(char &c) {
-    if (this->IsSingleQuote(c)) {
+    if (IsSingleQuote(c)) {
         temp_lexeme_ = new Lexeme();
-        this->GetChar(c);
-        if (!this->IsCharLetter(c)) {
+        GetChar(c);
+        if (!IsCharLetter(c)) {
             error_handing_->AddError(line_number_, ILLEGAL_SYMBOL_OR_LEXICAL_INCONFORMITY);
         }
         temp_lexeme_->value.push_back(c);
-        this->GetChar(c);
-        if (!this->IsSingleQuote(c)) {
-            this->UngetChar();
+        GetChar(c);
+        if (!IsSingleQuote(c)) {
+            UngetChar();
             error_handing_->AddError(line_number_, ILLEGAL_SYMBOL_OR_LEXICAL_INCONFORMITY);
         }
-        this->AddList(*temp_lexeme_, CHARCON);
+        AddList(*temp_lexeme_, CHARCON);
         return true;
-    } else if (this->IsDoubleQuote(c)) {
+    } else if (IsDoubleQuote(c)) {
         temp_lexeme_ = new Lexeme();
         while (true) {
-            this->GetChar(c);
-            if (this->IsDoubleQuote(c)) {
+            GetChar(c);
+            if (IsDoubleQuote(c)) {
                 break;
             }
-            if (!this->IsStringLetter(c)) {
+            if (!IsStringLetter(c)) {
                 error_handing_->AddError(line_number_, ILLEGAL_SYMBOL_OR_LEXICAL_INCONFORMITY);
             }
             temp_lexeme_->value.push_back(c);
@@ -208,7 +208,7 @@ bool LexicalAnalyser::AnalyzeQuote(char &c) {
                 temp_lexeme_->value.push_back(c);
             }
         }
-        this->AddList(*temp_lexeme_, STRCON);
+        AddList(*temp_lexeme_, STRCON);
         return true;
     }
 
@@ -216,31 +216,31 @@ bool LexicalAnalyser::AnalyzeQuote(char &c) {
 }
 
 bool LexicalAnalyser::AnalyzeOpera(char &c) {
-    if (this->IsOpera(c) || c == '!') {
+    if (IsOpera(c) || c == '!') {
         temp_lexeme_ = new Lexeme();
         temp_lexeme_->value.push_back(c);
 
         if (c == '>' || c == '<' || c == '=') {
-            this->GetChar(c);
-            if (this->IsEqu(c)) {
+            GetChar(c);
+            if (IsEqu(c)) {
                 temp_lexeme_->value.push_back(c);
             } else {
-                this->UngetChar();
+                UngetChar();
             }
         } else if (c == '!') {
-            this->GetChar(c);
-            if (this->IsEqu(c)) {
+            GetChar(c);
+            if (IsEqu(c)) {
                 temp_lexeme_->value.push_back(c);
             } else {
-                this->UngetChar();
+                UngetChar();
                 temp_lexeme_->value.push_back('=');
                 error_handing_->AddError(line_number_, ILLEGAL_SYMBOL_OR_LEXICAL_INCONFORMITY);
             }
             temp_lexeme_->is_error = true;
         }
 
-        if (this->CheckSymbol(temp_lexeme_)) {
-            this->AddList(*temp_lexeme_);
+        if (CheckSymbol(temp_lexeme_)) {
+            AddList(*temp_lexeme_);
             return true;
         }
     }
@@ -253,13 +253,13 @@ bool LexicalAnalyser::AnalyzeDigit(char &c) {
         temp_lexeme_ = new Lexeme();
         do {
             temp_lexeme_->value.push_back(c);
-            this->GetChar(c);
+            GetChar(c);
         } while (isdigit(c));
-        this->UngetChar();
+        UngetChar();
         if (temp_lexeme_->value[0] == '0' && temp_lexeme_->value.size() > 1) {
             error_handing_->AddError(line_number_, ILLEGAL_SYMBOL_OR_LEXICAL_INCONFORMITY);
         }
-        this->AddList(*temp_lexeme_, INTCON);
+        AddList(*temp_lexeme_, INTCON);
         return true;
     }
 
@@ -270,12 +270,12 @@ list<struct Lexeme> *LexicalAnalyser::Analyze() {
     char c;
 
     while ((c = testfile_.get()) != -1) {
-        this->GoForward(c);
+        GoForward(c);
 
-        if (this->AnalyzeKey(c)
-            || this->AnalyzeQuote(c)
-            || this->AnalyzeOpera(c)
-            || this->AnalyzeDigit(c)) {
+        if (AnalyzeKey(c)
+            || AnalyzeQuote(c)
+            || AnalyzeOpera(c)
+            || AnalyzeDigit(c)) {
             continue;
         }
     }
